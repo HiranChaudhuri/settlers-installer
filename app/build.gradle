@@ -77,12 +77,23 @@ task jpackagePrepare(type: Copy, dependsOn: ['build', 'test']) {
 
 task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesCopy']) {
     doFirst {
-        println "Hello ${inputDir.get()}/app-${version}/lib"
+         exec {
+             workingDir "."
+             executable 'find'
+             args 'build'
+         }
     }
     commandLine 'bash', '-c', "jpackage --type app-image --dest build/app-image -i ${inputDir.get()}/app-${version}/lib --main-jar app-${version}.jar --main-class settlers.installer.App --name SettlersRemake --app-version ${version} --description 'Settlers 3 remake - see https://github.com/' --vendor ${VENDOR} --icon build/resources/main/siedler3-helme-logo.png --resource-dir build/resources/jpackage --verbose"
 }
 
 task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
+    doFirst {
+         exec {
+             workingDir "."
+             executable 'find'
+             args 'build'
+         }
+    }
     from "build/resources/jpackage"
     into "build/app-image/SettlersRemake/lib"
     include "*.desktop"
@@ -95,10 +106,19 @@ task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
          exec {
              workingDir "."
              executable 'find'
-//             args ''
+             args 'build'
          }
          println "Executed!"
-     }}
+     }
+}
 
 task jpackage(description: "Build native installation package", dependsOn: ['filterResourcesCopy', 'jpackagePhase2']) {
+    doLast {
+         exec {
+             workingDir "."
+             executable 'find'
+             args 'build'
+         }
+         println "Executed!"
+     }
 }
