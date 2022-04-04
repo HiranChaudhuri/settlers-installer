@@ -94,8 +94,8 @@ task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
     doFirst {
          exec {
              workingDir "."
-             executable 'ls'
-             args '-la build/app-image'
+             executable 'find'
+//             args ''
          }
          println "Executed!"
      }}
