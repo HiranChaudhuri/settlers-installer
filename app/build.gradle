@@ -90,7 +90,15 @@ task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
 
 task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
     commandLine 'bash',  '-c', "jpackage --app-image build/app-image/SettlersRemake --dest build --resource-dir build/resources/jpackage --verbose"
-}
+
+    doFirst {
+         exec {
+             workingDir "."
+             executable 'ls'
+             args '-la build/app-image'
+         }
+         println "Executed!"
+     }}
 
 task jpackage(description: "Build native installation package", dependsOn: ['filterResourcesCopy', 'jpackagePhase2']) {
 }
