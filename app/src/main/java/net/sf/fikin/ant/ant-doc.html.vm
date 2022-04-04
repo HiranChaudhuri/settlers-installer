@@ -1,0 +1,192 @@
+## Copyright (c) 2007 Nikolay Fiykov.  All rights reserved.
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+################################################
+################################################
+################################################
+#macro(printClsParams $cls)
+#set( $loopCnt = 0 )
+#foreach( $method in $tools.getOrderedObjectMethods( $cls ) )
+#if( $tools.isAntSetterMethod( $method ) )
+#if( $loopCnt <= 0 )##print table opening if this is first loop
+## place here parameters description
+<div>
+<h3>Parameters:</h3>
+<table>
+  <tr>
+    <th>Attribute:</th>
+    <th>Description:</th>
+    <th>Required:</th>
+  </tr>
+#end## close if for first row
+#set( $loopCnt = $loopCnt + 1 )
+## 1st column : format name to fixed-len name and remove the leading "set" part
+## 2nd column : print the method comment
+<tr>
+  <td>$tools.getSetterName( $method )</td>
+  <td>$method.commentText()</td>
+  <td>$tools.getTagText($method, "@antTaskParamRequired", "&nbsp;")</td>
+</tr>
+#end## close if isSetter
+#end## close for
+#if( $loopCnt >= 1 )##print table closing if there has been some params
+</table>
+</div>
+#end## close if for first row
+#end
+################################################
+################################################
+################################################
+#macro(printClsNested $cls)
+#set( $loopCnt = 0 )
+#foreach( $method in $tools.getOrderedObjectMethods( $cls ) )
+#if( $tools.isAntNestedElement( $method ) )
+#if( $loopCnt <= 0 )##print table opening if this is first loop
+## place here parameters description
+<div>
+  <h3>Nested Elements:</h3>
+#end## close if for first row
+  <table>
+     <tr>
+        <td><h4>&lt;$tools.getAntNestedElementName( $method )&gt;</h4></td>
+        <td>$method.commentText()</td>
+  	<td>$tools.getTagText($method, "@antTaskParamRequired", "&nbsp;")</td>
+     </tr>
+     <tr>
+     	<td colspan="3" >
+#printClsParams( $tools.getAntNestedElementCls( $method, $cls ) )
+	</td>
+     </tr>
+#set( $retType = $method.returnType() )
+#set( $retCls  = false )
+#set( $retCls  = $cls.findClass( $retType.qualifiedTypeName() ) )
+#if( $retCls )
+     <tr>
+     	<td colspan="3" >
+#printClsNested( $retCls )
+	</td>
+     </tr>
+#end
+  </table>
+  <br/>
+#end
+#end
+#if( $loopCnt >= 1 )##print table closing if there has been some params
+</div>
+#end## close if for first row
+#end
+################################################
+################################################
+################################################
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<title>$systemProperties.get("header")</title>
+  <style type="text/css">
+
+table {
+width: 100%;
+border: thin solid black;
+padding: 0.5em;
+border-collapse: separate;
+}
+
+caption {
+text-align: left;
+}
+
+th {
+background: lightgrey;
+font-style: italic;
+font-weight: bold;
+text-align: center;
+}
+
+td {
+vertical-align: top;
+text-align: left;
+}
+  </style>
+</head>
+
+<body>
+################################################
+## print header info
+<h1>$systemProperties.get("header")</h1>
+
+## print date generated on and by
+<p>Generated on $systemProperties.get("DSTAMP") at $systemProperties.get("TSTAMP") by $systemProperties.get("user.name")</p>
+
+################################################
+## first loop is to create tasks index at the beginning
+<table>
+  <caption><h2>Summary of Ant Tasks:</h2></caption>
+#foreach( $cls in $tools.sortByQualifiedName( $rootDoc.classes() ) )
+#if( $tools.isAntTaskClass( $cls ) )
+#set( $tag = $tools.getFirstTagByName($cls,"@antTaskName") )
+#if( $tag )
+## format to fixed-len name
+  <tr>
+    <td><a href="#$tag.text()">$tag.text()</a></td>
+  </tr>
+## TODO : add short task description (if any)
+#end## close if tag andTaskName
+#end## close if tools.descends
+#end## close for
+</table>
+<br/>
+<br/>
+
+################################################
+## second loop is to print actual tasks documentation
+#foreach( $cls in $tools.sortByQualifiedName( $rootDoc.classes() ) )
+#if( $tools.isAntTaskClass( $cls ) )
+#set( $tag = $tools.getFirstTagByName($cls,"@antTaskName") )
+#if( $tag )
+
+
+<table>
+  <caption><h2><a name="$tag.text()">$tag.text()</a></h2></caption>
+## place here task description
+  <tr><td><div>
+  <h3>Description:</h3>
+###foreach( $s in $cls.firstSentenceTags() )
+##<p>$s.text()</p>
+###end
+$cls.commentText()
+</div></td></tr>
+
+<tr><td><div>
+     <h3>Class:</h3><p>$cls.qualifiedName()</p>
+</div></td></tr>
+   
+## place here parameters description
+<tr><td>
+#printClsParams( $cls )
+</td></tr>
+
+## place here nested elements
+<tr><td>
+#printClsNested( $cls )
+</td></tr>
+
+</table>
+<br/>
+<br/>
+#end## close if tag antTaskName
+#end## close if tools.descends
+#end## close for
+################################################
+</body>
+</html>

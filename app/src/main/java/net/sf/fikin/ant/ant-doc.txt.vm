@@ -1,0 +1,116 @@
+## Copyright (c) 2007 Nikolay Fiykov.  All rights reserved.
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+################################################
+################################################
+################################################
+#macro(printClsParams $cls)
+#set( $loopCnt = 0 )
+#foreach( $method in $tools.getOrderedObjectMethods( $cls ) )
+#if( $tools.isAntSetterMethod( $method ) )
+#if( $loopCnt <= 0 )##print table opening if this is first loop
+## place here parameters description
+Parameters:
+#end## close if for first row
+#set( $loopCnt = $loopCnt + 1 )
+## 1st column : format name to fixed-len name and remove the leading "set" part
+## 2nd column : print the method comment
+   $tools.rpad( $tools.getSetterName( $method ), " ", 25 ) : $method.commentText() : $tools.getTagText($method, "@antTaskParamRequired", "")
+#end## close if isSetter
+#end## close for
+#if( $loopCnt >= 1 )##print new line if there has been some params
+
+#end## close if for first row
+#end## end macro
+################################################
+################################################
+################################################
+#macro(printClsNested $cls)
+#set( $loopCnt = 0 )
+#foreach( $method in $tools.getOrderedObjectMethods( $cls ) )
+#if( $tools.isAntNestedElement( $method ) )
+#if( $loopCnt <= 0 )##print table opening if this is first loop
+## place here parameters description
+Nested Elements:
+#end## close if for first row
+#set( $loopCnt = $loopCnt + 1 )
+   <$tools.getAntNestedElementName( $method )>
+      $method.commentText()
+      $tools.getTagText($method, "@antTaskParamRequired", "")
+
+#printClsParams( $tools.getAntNestedElementCls( $method, $cls ) )
+
+#set( $retType = $method.returnType() )
+#set( $retCls  = false )
+#set( $retCls  = $cls.findClass( $retType.qualifiedTypeName() ) )
+#if( $retCls )
+#printClsNested( $retCls )
+#end
+#end## close if isAntNestedElement
+#end## close for
+#if( $loopCnt >= 1 )##print new line if there has been some params
+
+#end## close if for first row
+#end
+################################################
+################################################
+################################################
+## print header info
+$systemProperties.get("header")
+
+## print date generated on and by
+Generated on $systemProperties.get("DSTAMP") at $systemProperties.get("TSTAMP") by $systemProperties.get("user.name")
+
+################################################
+## first loop is to create tasks index at the beginning
+Summary of Ant Tasks:
+--------------------------------------
+#foreach( $cls in $tools.sortByQualifiedName( $rootDoc.classes() ) )
+#if( $tools.isAntTaskClass( $cls ) )
+#set( $tag = $tools.getFirstTagByName($cls,"@antTaskName") )
+#if( $tag )
+## format to fixed-len name
+   $tag.text()
+## TODO : add short task description (if any)
+#end## close if tag andTaskName
+#end## close if tools.descends
+#end## close for
+
+################################################
+## second loop is to print actual tasks documentation
+#foreach( $cls in $tools.sortByQualifiedName( $rootDoc.classes() ) )
+#if( $tools.isAntTaskClass( $cls ) )
+#set( $tag = $tools.getFirstTagByName($cls,"@antTaskName") )
+#if( $tag )
+
+
+$tag.text()
+--------------------------------------
+## place here task description
+###foreach( $s in $cls.firstSentenceTags() )
+##$s.text()
+###end
+$cls.commentText()
+
+Class: 
+   $cls.qualifiedName()
+   
+## place here parameters description
+#printClsParams( $cls )
+
+## place here nested elements
+#printClsNested( $cls )
+#end## close if tag antTaskName
+#end## close if tools.descends
+#end## close for
+################################################

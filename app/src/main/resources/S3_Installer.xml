@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="S2_Installer" default="install">
+    <target name="install">
+        <delete dir="${data}"/>
+        <mkdir dir="${data}"/>
+        <exec executable="unshield" failonerror="true">
+            <arg line="-g EXE"/>
+            <arg line="-d ${data}"/>
+            <arg line="x"/>
+            <arg line="${cdrom}/s3/install/data1.cab"/>
+            <!--<arg line="/home/hiran/test/data1.cab"/>-->
+        </exec>
+        <move todir="${data}">
+            <fileset dir="${data}/EXE"/>
+        </move>
+        <move todir="${data}/MAP">
+            <fileset dir="${data}/MULTI"/>
+        </move>
+    </target>
+</project>

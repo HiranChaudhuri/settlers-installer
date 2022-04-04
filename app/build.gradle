@@ -1,0 +1,96 @@
+plugins {
+    id 'application'                                     // this builds the application
+    id 'pl.allegro.tech.build.axion-release'             // this is for version counting
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // Use JUnit Jupiter for testing.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+
+    // This dependency is used by the application.
+    implementation 'com.google.guava:guava:30.1.1-jre'
+    // https://mvnrepository.com/artifact/com.owlike/genson
+    implementation 'com.owlike:genson:1.6'
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.2'
+    // https://mvnrepository.com/artifact/org.apache.ant/ant
+    implementation 'org.apache.ant:ant:1.10.12'
+}
+
+version = scmVersion.version
+def inputDir = layout.buildDirectory.dir("jpackage_input")
+def VENDOR = "Hiran"
+
+application {
+    // Define the main class for the application.
+    mainClass = 'settlers.installer.App'
+}
+
+/* This one declares the main-class in the manifest, but all the other jars
+   are still missing on the classpath.
+jar {
+    manifest {
+        attributes 'Main-Class': 'settlers.installer.App'
+    }
+}
+*/
+
+tasks.named('test') {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+}
+
+import org.apache.tools.ant.filters.ReplaceTokens
+
+task filterResourcesCopy(type: Copy) {
+    doFirst {
+        layout.buildDirectory.dir('resources/jpackage')
+    }
+
+    from('src/jpackage/resources') {
+        filter(ReplaceTokens, tokens: [
+            APPLICATION_NAME: "Settlers Remake ${version}".toString(), 
+            APPLICATION_DESCRIPTION: 'Wrapper project settlers-installer to easily use https://github.com/paulwedeck/settlers-remake',
+            APPLICATION_LAUNCHER: "/opt/settlersremake/bin/SettlersRemake".toString(),
+            APPLICATION_ICON: "/opt/settlersremake/SettlersRemake.png".toString(),
+            DEPLOY_BUNDLE_CATEGORY: "Game".toString(),
+            DESKTOP_MIMES: '',
+            APPLICATION_StartupWMClass: 'settlers-installer-App'
+        ])
+    }
+    into layout.buildDirectory.dir('resources/jpackage')
+}
+
+task jpackagePrepare(type: Copy, dependsOn: ['build', 'test']) {
+    doFirst {
+        mkdir inputDir
+    }
+
+    from(zipTree("build/distributions/app-${version}.zip"))
+    into(inputDir)
+}
+
+task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesCopy']) {
+    doFirst {
+        println "Hello ${inputDir.get()}/app-${version}/lib"
+    }
+    commandLine 'bash', '-c', "jpackage --type app-image --dest build/app-image -i ${inputDir.get()}/app-${version}/lib --main-jar app-${version}.jar --main-class settlers.installer.App --name SettlersRemake --app-version ${version} --description 'Settlers 3 remake - see https://github.com/' --vendor ${VENDOR} --icon build/resources/main/siedler3-helme-logo.png --resource-dir build/resources/jpackage --verbose"
+}
+
+task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
+    from "build/resources/jpackage"
+    into "build/app-image/SettlersRemake/lib"
+    include "*.desktop"
+}
+
+task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
+    commandLine 'bash',  '-c', "jpackage --app-image build/app-image/SettlersRemake --dest build --resource-dir build/resources/jpackage --verbose"
+}
+
+task jpackage(description: "Build native installation package", dependsOn: ['filterResourcesCopy', 'jpackagePhase2']) {
+}

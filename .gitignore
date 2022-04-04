@@ -1,0 +1,8 @@
+/build/
+/app/build/
+/logs/
+/save/
+.gradle
+testbench/.vagrant
+*.deb
+

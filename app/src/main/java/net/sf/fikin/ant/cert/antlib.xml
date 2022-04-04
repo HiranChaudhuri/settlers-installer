@@ -1,0 +1,888 @@
+<antlib>
+    <!--
+/*
+ * Copyright (c) 2007 Nikolay Fiykov.  All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+    -->
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: pem-to-p12
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="pem-to-p12">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="key-name" />
+        <attribute name="key-pass" />
+        <attribute name="p12-alias" />
+        <sequential>
+	        <openssl-pem-to-pkcs12
+	            openssl="@{openssl}"
+	            store-dir="@{store-dir}"
+	            store-pass="@{store-pass}"
+	            p12-file-pass="@{key-pass}"
+            	pem-private-key="@{key-name}-key.pem"
+                pem-certificate-file="@{key-name}-crt.pem"
+                pem-certificate-chain-file="@{key-name}-crt-chain.pem"
+            	alias="@{p12-alias}"
+            	p12-file="@{key-name}.p12"
+	        />
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: pem-to-der
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="pem-to-der">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="cert-name" />
+        <sequential>
+	        <openssl-pem-to-der
+	            openssl="@{openssl}"
+	            store-dir="@{store-dir}"
+	            store-pass="@{store-pass}"
+	            pem-certificate-file="@{cert-name}-crt.pem"
+	            der-certificate-file="@{cert-name}.der"
+	        />
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: create-new-userca
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="create-new-userca">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="key-name" />
+        <attribute name="parent-key-name" />
+        <attribute name="name" />
+        <attribute name="email" />
+        <attribute name="days" />
+        <sequential>
+            <echo level="info" >Creating new User CA private key and certificate "@{name}" ...</echo>
+
+            <!-- create private key -->
+            <openssl-new-private-key
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                key-file="@{key-name}-key.pem"
+            />
+
+            <!-- prepare a config file used to generate the certificate -->
+            <tempfile
+                property="configFile"
+                suffix=".conf"
+                destdir="@{store-dir}"
+            />
+            <create-default-user-certificate-request-config-file
+                config-file="${configFile}"
+                name="@{name}"
+                email="@{email}"
+            />
+            <!-- create certificate -->
+            <openssl-new-certificate
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                key-file="@{key-name}-key.pem"
+                certificate-file="@{key-name}-csr.pem"
+                config-file="${configFile}"
+                days="@{days}"
+            />
+            <delete file="${configFile}" quiet="true" />
+
+            <!-- prepare a config file used to sign the certificate -->
+            <tempfile
+                property="configFile"
+                suffix=".conf"
+                destdir="@{store-dir}"
+            />
+            <create-default-sign-certificate-config-file
+                config-file="${configFile}"
+                days="@{days}"
+                store-dir="@{store-dir}"
+            />
+            <!-- sign certificate -->
+            <openssl-sign-certificate
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                parent-private-key-file="@{parent-key-name}-key.pem"
+                parent-certificate-file="@{parent-key-name}-crt.pem"
+                parent-certificate-chain-file="@{parent-key-name}-crt-chain.pem"
+                in-certificate-file="@{key-name}-csr.pem"
+                out-certificate-file="@{key-name}-crt.pem"
+                out-certificate-chain-file="@{key-name}-crt-chain.pem"
+                config-file="${configFile}"
+            />
+            <delete file="${configFile}" quiet="true" />
+
+            <openssl-verify-certificate
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                parent-certificate-file="@{parent-key-name}-crt.pem"
+                certificate-file="@{key-name}-crt.pem"
+            />
+
+        </sequential>
+    </macrodef>
+
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: create-new-serverca
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="create-new-serverca">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="key-name" />
+        <attribute name="parent-key-name" />
+        <attribute name="name" />
+        <attribute name="country" />
+        <attribute name="state" />
+        <attribute name="city" />
+        <attribute name="company" />
+        <attribute name="department" />
+        <attribute name="email" />
+        <attribute name="days" />
+        <attribute name="is-ca" default="false" />
+        <sequential>
+            <echo level="info" >Creating new Server CA private key and certificate "@{name}" ...</echo>
+
+            <!-- create private key -->
+            <openssl-new-private-key
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                key-file="@{key-name}-key.pem"
+            />
+
+            <!-- prepare a config file used to generate the certificate -->
+            <tempfile
+                property="configFile"
+                suffix=".conf"
+                destdir="@{store-dir}"
+            />
+            <create-default-server-certificate-request-config-file
+                config-file="${configFile}"
+                name="@{name}"
+                country="@{country}"
+                state="@{state}"
+                city="@{city}"
+                company="@{company}"
+                department="@{department}"
+                email="@{email}"
+                is-ca="@{is-ca}"
+            />
+            <!-- create certificate -->
+            <openssl-new-certificate
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                key-file="@{key-name}-key.pem"
+                certificate-file="@{key-name}-csr.pem"
+                config-file="${configFile}"
+                days="@{days}"
+            />
+            <delete file="${configFile}" quiet="true" />
+
+            <!-- prepare a config file used to sign the certificate -->
+            <tempfile
+                property="configFile"
+                suffix=".conf"
+                destdir="@{store-dir}"
+            />
+            <create-default-sign-certificate-config-file
+                config-file="${configFile}"
+                store-dir="@{store-dir}"
+                days="@{days}"
+                is-ca="@{is-ca}"
+            />
+            <!-- sign certificate -->
+            <openssl-sign-certificate
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                parent-private-key-file="@{parent-key-name}-key.pem"
+                parent-certificate-file="@{parent-key-name}-crt.pem"
+                parent-certificate-chain-file="@{parent-key-name}-crt-chain.pem"
+                in-certificate-file="@{key-name}-csr.pem"
+                out-certificate-file="@{key-name}-crt.pem"
+                out-certificate-chain-file="@{key-name}-crt-chain.pem"
+                config-file="${configFile}"
+            />
+            <delete file="${configFile}" quiet="true" />
+
+            <openssl-verify-certificate
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                parent-certificate-file="@{parent-key-name}-crt.pem"
+                certificate-file="@{key-name}-crt.pem"
+            />
+
+        </sequential>
+    </macrodef>
+
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: create-new-rootca
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="create-new-rootca">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="key-name" />
+        <attribute name="name" />
+        <attribute name="country" />
+        <attribute name="state" />
+        <attribute name="city" />
+        <attribute name="company" />
+        <attribute name="department" />
+        <attribute name="email" />
+        <attribute name="days" />
+        <sequential>
+            <echo level="info" >Creating new Root CA private key and certificate "@{name}" ...</echo>
+
+            <!-- create private key -->
+            <openssl-new-private-key
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                key-file="@{key-name}-key.pem"
+            />
+
+            <!-- prepare a config file used to generate the certificate -->
+            <tempfile
+                property="configFile"
+                suffix=".conf"
+                destdir="@{store-dir}"
+            />
+            <create-default-server-certificate-request-config-file
+                config-file="${configFile}"
+                name="@{name}"
+                country="@{country}"
+                state="@{state}"
+                city="@{city}"
+                company="@{company}"
+                department="@{department}"
+                email="@{email}"
+                is-ca="true"
+            />
+            <!-- create certificate -->
+            <openssl-new-certificate
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                key-file="@{key-name}-key.pem"
+                certificate-file="@{key-name}-crt.pem"
+                config-file="${configFile}"
+                days="@{days}"
+                extra-option="-x509"
+            />
+
+            <delete file="${configFile}" quiet="true" />
+
+            <copy file="@{store-dir}/@{key-name}-crt.pem"
+                  tofile="@{store-dir}/@{key-name}-crt-chain.pem"
+            />
+
+        </sequential>
+    </macrodef>
+
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: create-default-sign-certificate-config-file
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="create-default-sign-certificate-config-file">
+        <attribute name="config-file" />
+        <attribute name="store-dir" />
+        <attribute name="days" />
+        <attribute name="is-ca" default="false" />
+        <sequential>
+            <echo file="@{config-file}">
+[ ca ]
+default_ca              = default_CA
+[ default_CA ]
+dir                     =
+database                = db.index
+serial                  = db.serial
+RANDFILE                = random-bits
+default_md              = md5
+preserve                = no
+x509_extensions         = server_cert
+policy                  = policy_anything
+default_days            = @{days}
+[ policy_anything ]
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+[ server_cert ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier  = keyid,issuer:always
+#extendedKeyUsage       = serverAuth,clientAuth,msSGC,nsSGC
+basicConstraints        = critical,CA:@{is-ca}
+            </echo>
+        </sequential>
+    </macrodef>
+
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: create-default-server-certificate-request-config-file
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="create-default-server-certificate-request-config-file">
+        <attribute name="config-file" />
+        <attribute name="country" />
+        <attribute name="state" />
+        <attribute name="city" />
+        <attribute name="company" />
+        <attribute name="department" />
+        <attribute name="name" />
+        <attribute name="email" />
+        <attribute name="is-ca" />
+        <sequential>
+            <echo file="@{config-file}">
+[ req ]
+default_bits                    = 1024
+distinguished_name              = req_distinguished_name
+x509_extensions                 = v3_ca
+string_mask                     = nombstr
+req_extensions                  = v3_req
+[ req_distinguished_name ]
+countryName                     = Country Name (2 letter code)
+countryName_default             = @{country}
+countryName_min                 = 2
+countryName_max                 = 2
+stateOrProvinceName             = State or Province Name (full name)
+stateOrProvinceName_default     = @{state}
+localityName                    = Locality Name (eg, city)
+localityName_default            = @{city}
+0.organizationName              = Organization Name (eg, company)
+0.organizationName_default      = @{company}
+organizationalUnitName          = Organizational Unit Name (eg, section)
+organizationalUnitName_default  = @{department}
+commonName                      = Common Name (eg, MD CA)
+commonName_default              = @{name}
+commonName_max                  = 64
+emailAddress                    = Email Address
+emailAddress_default            = @{email}
+emailAddress_max                = 40
+[ v3_ca ]
+basicConstraints                = critical,CA:@{is-ca}
+subjectKeyIdentifier            = hash
+[ v3_req ]
+nsCertType                      = objsign,server
+            </echo>
+        </sequential>
+    </macrodef>
+
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: create-default-user-certificate-request-config-file
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="create-default-user-certificate-request-config-file">
+        <attribute name="config-file" />
+        <attribute name="name" />
+        <attribute name="email" />
+        <sequential>
+            <echo file="@{config-file}">
+[ req ]
+default_bits                = 1024
+distinguished_name          = req_distinguished_name
+string_mask                 = nombstr
+req_extensions              = v3_req
+x509_extensions             = v3_ca
+[ req_distinguished_name ]
+commonName                  = Common Name (eg, John Doe)
+commonName_default          = @{name}
+emailAddress                = Email Address
+emailAddress_default        = @{email}
+emailAddress_max            = 40
+[ v3_ca ]
+basicConstraints            = critical,CA:false
+subjectKeyIdentifier        = hash
+[ v3_req ]
+nsCertType                  = client,email,objsign
+            </echo>
+        </sequential>
+    </macrodef>
+
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: name
+         = = = = = = = = = = = = = = = = = -->
+    <!-- create new private key. it uses openssl.
+         result is stored in directory acting as openssl store -->
+    <macrodef name="openssl-new-private-key">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="key-file" />
+        <sequential>
+            <echo level="info">Creating private key @{key-file} ...</echo>
+            <exec
+                executable="@{openssl}"
+                dir="@{store-dir}"
+                failonerror="true"
+                failifexecutionfails="true"
+            >
+                <env key="HOME" value="@{store-dir}" />
+                <arg line="genrsa"/>
+                <arg line="-des3"/>
+                <arg line="-passout"/>
+                <arg line="pass:@{store-pass}"/>
+                <arg line="-out"/>
+                <arg line="@{key-file}"/>
+                <arg line="1024"/>
+                <arg line="-rand"/>
+                <arg line="random-bits"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: name
+         = = = = = = = = = = = = = = = = = -->
+    <!-- create new certificate. it uses openssl.
+         result is stored in directory acting as openssl store -->
+    <macrodef name="openssl-new-certificate">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="key-file" />
+        <attribute name="certificate-file" />
+        <attribute name="config-file" />
+        <attribute name="days" />
+        <attribute name="extra-option" default="" />
+        <sequential>
+            <echo level="info">Creating certificate @{certificate-file} ...</echo>
+            <echo level="info">... using private key @{key-file}</echo>
+            <echo level="info">... using certification request data in @{config-file}</echo>
+            <exec
+                executable="@{openssl}"
+                dir="@{store-dir}"
+                failonerror="true"
+                failifexecutionfails="true"
+            >
+                <env key="HOME" value="@{store-dir}" />
+                <arg line="req"/>
+                <arg line="-new"/>
+                <arg line="@{extra-option}"/>
+                <arg line="-config"/>
+                <arg line="@{config-file}"/>
+                <arg line="-key"/>
+                <arg line="@{key-file}"/>
+                <arg line="-out"/>
+                <arg line="@{certificate-file}"/>
+                <arg line="-days"/>
+                <arg line="@{days}"/>
+                <arg line="-passin"/>
+                <arg line="pass:@{store-pass}"/>
+                <arg line="-batch"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: name
+         = = = = = = = = = = = = = = = = = -->
+    <!-- sign a certificate. it uses openssl.
+         result is stored in directory acting as openssl store -->
+    <macrodef name="openssl-sign-certificate">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="parent-private-key-file" />
+        <attribute name="parent-certificate-file" />
+        <attribute name="parent-certificate-chain-file" />
+        <attribute name="in-certificate-file" />
+        <attribute name="out-certificate-file" />
+        <attribute name="out-certificate-chain-file" />
+        <attribute name="config-file" />
+        <sequential>
+            <echo level="info">Sign certificate @{in-certificate-file} ...</echo>
+            <echo level="info">... into @{out-certificate-file}</echo>
+            <echo level="info">... using sign configuration data in @{config-file}</echo>
+            <exec
+                executable="@{openssl}"
+                dir="@{store-dir}"
+                failonerror="true"
+                failifexecutionfails="true"
+            >
+                <env key="HOME" value="@{store-dir}" />
+                <arg line="ca"/>
+                <arg line="-outdir"/>
+                <arg line="@{store-dir}"/>
+                <arg line="-passin"/>
+                <arg line="pass:@{store-pass}"/>
+                <arg line="-batch"/>
+                <arg line="-config"/>
+                <arg line="@{config-file}"/>
+                <arg line="-keyfile"/>
+                <arg line="@{parent-private-key-file}"/>
+                <arg line="-cert"/>
+                <arg line="@{parent-certificate-file}"/>
+                <arg line="-out"/>
+                <arg line="@{out-certificate-file}"/>
+                <arg line="-infiles"/>
+                <arg line="@{in-certificate-file}"/>
+            </exec>
+            <!-- create a pem file representing the chain of this cert (including) -->
+            <concat destfile="@{store-dir}/@{out-certificate-chain-file}" >
+            	<filelist dir="@{store-dir}" files="@{parent-certificate-chain-file}" />
+            	<filelist dir="@{store-dir}" files="@{out-certificate-file}" />
+            </concat>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: name
+         = = = = = = = = = = = = = = = = = -->
+    <!-- verify a certificate. it uses openssl. -->
+    <macrodef name="openssl-verify-certificate">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="parent-certificate-file" />
+        <attribute name="certificate-file" />
+        <sequential>
+            <echo level="info">Verify certificate @{certificate-file} ...</echo>
+            <echo level="info">... using root Parent Certificate @{parent-certificate-file}</echo>
+            <exec
+                executable="@{openssl}"
+                dir="@{store-dir}"
+                failonerror="true"
+                failifexecutionfails="true"
+            >
+                <env key="HOME" value="@{store-dir}" />
+                <arg line="verify"/>
+                <arg line="-CAfile"/>
+                <arg line="@{parent-certificate-file}"/>
+                <arg line="@{certificate-file}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: name
+         = = = = = = = = = = = = = = = = = -->
+    <!-- prepare a directory to act as openssl store. -->
+    <macrodef name="openssl-create-store">
+        <attribute name="store-dir" />
+        <sequential>
+            <echo level="info">Create openssl store at @{store-dir} ...</echo>
+            <mkdir dir="@{store-dir}/db.certs" />
+            <touch file="@{store-dir}/db.index" />
+            <echo  file="@{store-dir}/db.serial">02</echo>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: name
+         = = = = = = = = = = = = = = = = = -->
+    <!-- convert PEM certificate file to DER. it uses openssl. -->
+    <macrodef name="openssl-pem-to-der">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="pem-certificate-file" />
+        <attribute name="der-certificate-file" />
+        <sequential>
+            <echo level="info">Convert PEM certificate @{pem-certificate-file} ...</echo>
+            <echo level="info">... into @{der-certificate-file}</echo>
+            <exec
+                executable="@{openssl}"
+                dir="@{store-dir}"
+                failonerror="true"
+                failifexecutionfails="true"
+            >
+                <env key="HOME" value="@{store-dir}" />
+                <arg line="x509"/>
+                <arg line="-passin"/>
+                <arg line="pass:@{store-pass}"/>
+                <arg line="-in"/>
+                <arg line="@{pem-certificate-file}"/>
+                <arg line="-out"/>
+                <arg line="@{der-certificate-file}"/>
+                <arg line="-outform"/>
+                <arg line="DER"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: name
+         = = = = = = = = = = = = = = = = = -->
+    <!-- convert PEM private key and certificate file to PKCS12. it uses openssl. -->
+    <macrodef name="openssl-pem-to-pkcs12">
+        <attribute name="openssl" />
+        <attribute name="store-dir" />
+        <attribute name="store-pass" />
+        <attribute name="pem-private-key" />
+        <attribute name="pem-certificate-file" />
+        <attribute name="pem-certificate-chain-file" />
+        <attribute name="alias" />
+        <attribute name="p12-file" />
+        <attribute name="p12-file-pass" />
+        <sequential>
+            <echo level="info">Convert PEM key @{pem-private-key} and certificate @{pem-certificate-file} ...</echo>
+            <echo level="info">... into @{p12-file} with alias @{alias}</echo>
+            <exec
+                executable="@{openssl}"
+                dir="@{store-dir}"
+                failonerror="true"
+                failifexecutionfails="true"
+            >
+                <env key="HOME" value="@{store-dir}" />
+                <arg line="pkcs12"/>
+                <arg line="-export"/>
+                <!--arg line="-chain"/-->
+                <arg line="-passin"/>
+                <arg line="pass:@{store-pass}"/>
+                <arg line="-passout"/>
+                <arg line="pass:@{p12-file-pass}"/>
+                <arg line="-inkey"/>
+                <arg line="@{pem-private-key}"/>
+                <arg line="-in"/>
+                <arg line="@{pem-certificate-file}"/>
+                <arg line="-certfile"/>
+                <arg line="@{pem-certificate-chain-file}"/>
+                <arg line="-name"/>
+                <arg line="@{alias}"/>
+                <arg line="-out"/>
+                <arg line="@{p12-file}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: name
+         = = = = = = = = = = = = = = = = = -->
+    <!-- Copy given alias (or all) from source keystore to target keystore -->
+    <scriptdef name="ks-copy-aliases" language="javascript">
+        <!-- alias to be copied, if no alias is given all aliases in
+             from keystore will be copied to to-keystore
+             by default if there is private key in from-ks from-ks-pass
+             will be used to read it and to-ks-pass will be used to save it back -->
+        <attribute name="alias"/>
+        <!-- if this attribite is given then it is assumed that private key
+             password is this in both keystores -->
+        <attribute name="alias-pass"/>
+        <!-- if this attribute is given it will be used to access the
+             private key in from-ks -->
+        <attribute name="alias-pass-from"/>
+        <!-- if this attribute is given it will be used to same the
+             private key with that password -->
+        <attribute name="alias-pass-to"/>
+        <!-- location to source keystore file -->
+        <attribute name="from-keystore"/>
+        <attribute name="from-keystore-pass"/>
+        <!-- default value is "JKS" -->
+        <attribute name="from-keystore-type"/>
+        <!-- location to target keystore file -->
+        <attribute name="to-keystore"/>
+        <attribute name="to-keystore-pass"/>
+        <!-- default value is "JKS" -->
+        <attribute name="to-keystore-type"/>
+        <!-- should during copy private keys be included -->
+        <attribute name="include-private-keys"/>
+        <![CDATA[
+
+        importPackage( java.io );
+        importPackage( java.security );
+        importPackage( java.security.cert );
+
+        // files preparation
+        var fileIn  = new File( ''+attributes.get("from-keystore") );
+        var fileOut = new File( ''+attributes.get("to-keystore") );
+
+        if (!fileIn.canRead()) {
+           throw new Error( "Unable to access input keystore: " + fileIn.getPath() );
+        }
+        if ( fileOut.exists() && !fileOut.canWrite() ) {
+            throw new Error( "Output file is not writable: " + fileOut.getPath() );
+        }
+
+        // ks types preparation
+        var fromkstype = attributes.get("from-keystore-type");
+        var tokstype   = attributes.get("to-keystore-type");
+        if ( fromkstype == null )
+            fromkstype = 'JKS';
+        if ( tokstype == null )
+            tokstype = 'JKS';
+
+        project.log('Preparing source keystore type ' + fromkstype );
+        project.log('Preparing target keystore type ' + tokstype );
+        var kspkcs12 = KeyStore.getInstance( fromkstype );
+        var ksjks    = KeyStore.getInstance( tokstype );
+
+        // ks passwords preparation
+        var inphrase  = attributes.get("from-keystore-pass").toCharArray();
+        var outphrase = attributes.get("to-keystore-pass").toCharArray();
+
+        // load existing ks data
+        project.log('Reading source keystore ' + fileIn.getPath() );
+        kspkcs12.load( new FileInputStream(fileIn), inphrase );
+
+        if ( fileOut.exists() ) {
+            project.log('Loading existing target keystore ' + fileIn.getPath() );
+            ksjks.load( new FileInputStream(fileOut), outphrase );
+        } else {
+            project.log('Intializing empty target keystore ' + fileIn.getPath() );
+            ksjks.load( null, null );
+        }
+
+        // alias password preparation
+        var inaliasphrase  = inphrase;
+        var outaliasphrase = outphrase;
+        if ( attributes.get("alias-pass") != null ) {
+            inaliasphrase  = attributes.get("alias-pass").toCharArray();
+            outaliasphrase = attributes.get("alias-pass").toCharArray();
+        } else if ( attributes.get("alias-pass-from") != null ) {
+            inaliasphrase  = attributes.get("alias-pass-from").toCharArray();
+        } else if ( attributes.get("alias-pass-to") != null ) {
+            outaliasphrase = attributes.get("alias-pass-to").toCharArray();
+        }
+
+        // loop over source ks
+        var includeKeys = false;
+        if ( null != attributes.get("include-private-keys") )
+            includeKeys = java.lang.Boolean( attributes.get("include-private-keys") );
+        project.log('Copy private keys too = ' + includeKeys );
+
+        var eAliases = kspkcs12.aliases();
+        while ( eAliases.hasMoreElements() ) {
+            var strAlias = eAliases.nextElement();
+            project.log( "Alias : " + strAlias );
+
+            // if this is not the alias we are looking for
+            if ( attributes.get("alias") != null ) {
+                if ( ! strAlias.equals( attributes.get("alias") ) ) {
+                    project.log('Ignoring alias ' + strAlias );
+                    continue;
+                }
+            }
+
+            if ( includeKeys && kspkcs12.isKeyEntry( strAlias ) ) {
+                // this is a private key entry
+                project.log("Adding key for alias " + strAlias);
+                var key = kspkcs12.getKey( strAlias, inphrase );
+
+                var chain = kspkcs12.getCertificateChain( strAlias );
+
+                ksjks.setKeyEntry( strAlias, key, outphrase, chain );
+
+            } else {
+                // this is a certificate entry
+                project.log("Adding certificate for alias " + strAlias);
+
+                var cert = kspkcs12.getCertificate( strAlias );
+
+                ksjks.setCertificateEntry( strAlias, cert );
+            }
+        }
+
+        // save the target ks
+        project.log('Saving updated target keystore ' + fileOut.getPath() );
+        var out = new FileOutputStream( fileOut );
+        ksjks.store( out, outphrase );
+        out.close();
+        ]]>
+    </scriptdef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: name
+         = = = = = = = = = = = = = = = = = -->
+    <!-- Import a certificate file (could be certificate chain too)
+         into a given keystore -->
+    <scriptdef name="ks-import-certificate-chain" language="javascript">
+        <!-- alias under which the certificate chain will be stored -->
+        <attribute name="alias"/>
+        <!-- location of certificate chain file -->
+        <attribute name="certificate"/>
+        <!-- default value is "X.509" -->
+        <attribute name="certificate-type"/>
+        <!-- location to target keystore file -->
+        <attribute name="keystore"/>
+        <attribute name="keystore-pass"/>
+        <!-- default value is "JKS" -->
+        <attribute name="keystore-type"/>
+        <![CDATA[
+
+        importPackage( java.io );
+        importPackage( java.security );
+        importPackage( java.security.cert );
+
+        // files preparation
+        var fileIn  = new File( ''+attributes.get("certificate") );
+        var fileOut = new File( ''+attributes.get("keystore") );
+
+        if (!fileIn.canRead()) {
+           throw new Error( "Unable to access input certificates file: " + fileIn.getPath() );
+        }
+        if ( fileOut.exists() && !fileOut.canWrite() ) {
+            throw new Error( "Output keystore file is not writable: " + fileOut.getPath() );
+        }
+
+        // load the certificate chain
+        var certstype = attributes.get("certificate-type");
+        if ( certstype == null )
+            certstype = 'X.509';
+
+        project.log('Preparing certificate type ' + certstype );
+        var cf = CertificateFactory.getInstance( certstype );
+
+        project.log('Reading certificate from ' + fileIn.getPath() );
+        var cert = cf.generateCertificate( new FileInputStream(fileIn) );
+
+        // load the ks
+        var kstype   = attributes.get("keystore-type");
+        if ( kstype == null )
+            kstype = 'JKS';
+
+        project.log('Preparing keystore type ' + kstype );
+        var ks = KeyStore.getInstance( kstype );
+
+        var ksphrase  = attributes.get("keystore-pass").toCharArray();
+
+        if ( fileOut.exists() ) {
+            project.log('Loading existing keystore ' + fileOut.getPath() );
+            ks.load( new FileInputStream(fileOut), ksphrase );
+        } else {
+            project.log('Intializing empty keystore ' + fileOut.getPath() );
+            ks.load( null, null );
+        }
+
+        // save the certificate under given alias
+        var strAlias = attributes.get("alias");
+
+        project.log("Adding certificate chain for alias " + strAlias);
+        ks.setCertificateEntry( strAlias, cert );
+
+        // save the target ks
+        project.log('Saving updated keystore ' + fileOut.getPath() );
+        var out = new FileOutputStream( fileOut );
+        ks.store( out, ksphrase );
+        out.close();
+        ]]>
+    </scriptdef>
+
+</antlib>

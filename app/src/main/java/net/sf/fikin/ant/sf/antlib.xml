@@ -1,0 +1,464 @@
+<antlib 
+    xmlns:fikin="antlib:net.sf.fikin.ant" 
+    xmlns:antcontrib="antlib:net.sf.antcontrib"
+>
+    <!--
+/*
+ * Copyright (c) 2007 Nikolay Fiykov.  All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+    -->
+
+    
+    <!-- =================================
+          Upload HTML documentation pages to project's web home
+          
+          It uses "scp"
+         ================================= -->
+    <macrodef name="sf-upload-htdocs">
+        <attribute name="username" /><!-- sf.net username -->
+        <attribute name="password" /><!-- password -->
+        <attribute name="projectPath" /><!-- project path, in the format "f/fi/fikin-ant-tasks" -->
+        <attribute name="srcDir" /><!-- upload everything from this directory -->
+        <sequential>
+            <!-- delete the web dir first -->
+            <sshexec host="shell.sourceforge.net" 
+                username="@{username}" password="@{password}"
+            	command="rm -rf /home/groups/@{projectPath}/htdocs/*"
+            	trust="true" verbose="true"
+	        />
+	        <!-- now copy the new content -->
+            <scp todir="@{username}:@{password}@shell.sourceforge.net:/home/groups/@{projectPath}/htdocs" 
+                trust="true" verbose="true"
+            >
+                <fileset dir="@{srcDir}">
+                    <include name="**/*"/>
+                </fileset>
+            </scp>
+        </sequential>
+    </macrodef>
+
+
+    
+    <!-- =================================
+          Upload a release file made available (later on) for download 
+          from project's download pages
+          
+          This task uploads the file in the SF.NET upload directory only
+          
+          It uses "ftp"
+         ================================= -->
+    <macrodef name="sf-ftp-upload-release-file">
+        <attribute name="username" /><!-- sf.net username -->
+        <attribute name="file" /><!-- file to upload -->
+        <attribute name="dir" /><!-- directory where the file is -->
+        <sequential>
+            <echo>Uploading (ftp) @{file} ...</echo>
+            <ftp server="upload.sourceforge.net" 
+                userid="anonymous" 
+                password="@{username}@sf.net" 
+                remotedir="incoming"
+                action="put"
+                passive="yes"
+                ignoreNonCriticalErrors="yes"
+                binary="yes"
+                skipFailedTransfers="yes"
+            >
+                <fileset dir="@{dir}" >
+                    <include name="@{file}"/>
+                </fileset>
+            </ftp>
+        </sequential>
+    </macrodef>
+
+
+    
+    <!-- =================================
+          Login into SourceForge
+        
+          Issue this command before any other command dealing with SF.net
+         ================================= -->
+    <macrodef name="sf-login" >
+        <attribute name="username" /><!-- sf.net username -->
+        <attribute name="password" /><!-- password -->
+        <sequential>
+            <!-- post user credentials -->
+            <echo>Logging into SF.NET as user "@{username}" ...</echo>
+            <fikin:httppost url="https://sourceforge.net/account/login.php"
+                loglevel="none" failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            >
+                <post name="form_loginname"   value="@{username}"  />
+                <post name="form_pw"          value="@{password}"  />
+                <post name="persistent_login" value="1"            />
+                <post name="return_to"        value=""             />
+                <post name="ssl_status"       value="1"            />
+                <post name="login"            value="Log in"       />
+            </fikin:httppost>
+            <!-- visit home page and with this authentication is done -->
+            <fikin:httpget url="https://ostgsso.sourceforge.net/_login?return_url=https%3A%2F%2Fsourceforge.net%2Fmy%2F" 
+                loglevel="none" failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            >
+            </fikin:httpget>
+        </sequential>
+    </macrodef>
+
+    
+    <!-- =================================
+          Delete a file from release
+         ================================= -->
+    <macrodef name="sf-delete-release-file" >
+        <attribute name="if" />
+        <sequential>
+            <antcontrib:if>
+                <isset property="@{if}" />
+                <then>
+                    <!-- remove it from the release -->
+                    <echo>Deleting release file ${file_id} ... </echo>
+                    <fikin:httppost url="https://sourceforge.net/project/admin/editreleases.php" 
+                        loglevel="header" failOnError="true" sslAcceptUntrusted="true"
+                        cookiePolicy="default"
+                    >
+                        <post name="group_id"    value="${group_id}"  />
+                        <post name="release_id"  value="${release_id}"  />
+                        <post name="package_id"  value="${package_id}"  />
+                        <post name="step3"       value="Delete File"  />
+                        <post name="im_sure"     value="1"  />
+                        <post name="file_id"     value="${file_id}"  />
+                        <post name="submit"      value="Delete File"  />
+                    </fikin:httppost>
+                </then>
+            </antcontrib:if>
+        </sequential>
+    </macrodef>
+
+    
+    <!-- =================================
+          Fetch group_id by project name
+          and set "group_id" property
+         ================================= -->
+    <macrodef name="sf-fetch-group-id">
+        <attribute name="projectName" />
+        <sequential>
+            <!-- fetch summary page into a temp file -->
+            <tempfile property="tmp1" />
+            <fikin:httpget url="http://sourceforge.net/projects/@{projectName}" 
+                loglevel="content" logFile="${tmp1}"
+                failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            />
+            <!-- browse for group_id -->
+            <antcontrib:var name="group_id" unset="true" />
+            <fikin:xpath>
+                <namespace prefix="x" uri="http://www.w3.org/1999/xhtml" />
+                <input file="${tmp1}" toXHTML="true" />
+                <output property="group_id" />
+                <forEach select="//x:UL[@class='nav']//x:LI/x:A[ .='File Releases' ]" >
+                    <!-- href="/project/admin/editpackages.php?group_id=168390" -->
+                    <valueOf select="substring(@href,42)" />
+                </forEach>
+            </fikin:xpath>
+            <delete file="${tmp1}" />
+            <echo>group_id : ${group_id}</echo>
+        </sequential>
+    </macrodef>
+
+    
+    <!-- =================================
+          Fetch package_id by package name
+          and set "package_id" property
+         ================================= -->
+    <macrodef name="sf-fetch-package-id">
+        <attribute name="packageName" />
+        <sequential>
+            <!-- fetch summary page into a temp file -->
+            <tempfile property="tmp1" />
+            <fikin:httppost url="http://sourceforge.net/project/admin/editpackages.php" 
+                loglevel="content" logFile="${tmp1}"
+                failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            >
+                <post name="group_id" value="${group_id}" />
+            </fikin:httppost>
+            <!-- browse for package_id -->
+            <antcontrib:var name="package_id" unset="true" />
+            <fikin:xpath>
+                <namespace prefix="x" uri="http://www.w3.org/1999/xhtml" />
+                <input file="${tmp1}" toXHTML="true" />
+                <output property="package_id" />
+                <forEach select="//x:FORM//x:INPUT[@type='text' and @name='package_name' and @value='@{packageName}']" >
+                    <valueOf select="../../../../x:INPUT[@type='HIDDEN' and @name='package_id']/@value" />
+                </forEach>
+            </fikin:xpath>
+            <delete file="${tmp1}" />
+            <echo>package_id : ${package_id}</echo>
+        </sequential>
+    </macrodef>
+
+    
+    <!-- =================================
+          Fetch release_id by release name
+          and set "release_id" property
+         ================================= -->
+    <macrodef name="sf-fetch-release-id">
+        <attribute name="releaseName" />
+        <sequential>
+            <!-- fetch summary page into a temp file -->
+            <tempfile property="tmp1" />
+            <fikin:httppost url="http://sourceforge.net/project/admin/editreleases.php" 
+                loglevel="content" logFile="${tmp1}"
+                failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            >
+                <post name="group_id"    value="${group_id}" />
+                <post name="package_id"  value="${package_id}" />
+            </fikin:httppost>
+            <!-- browse for release_id -->
+            <antcontrib:var name="release_id" unset="true" />
+            <fikin:xpath>
+                <namespace prefix="x" uri="http://www.w3.org/1999/xhtml" />
+                <function 
+                    name="uri-query-param"
+                    classname="net.sf.fikin.xml.xpath.functions.UrlExtractQueryParam" 
+                    prefix="f" uri="http://fikin-ant-tasks.sf.net/xpath/functions" 
+                />
+                <input file="${tmp1}" toXHTML="true" />
+                <output property="release_id" />
+                <forEach select="//x:FONT[@size='-1']/x:A[ contains(@href,'editreleases.php?') and contains(@href,'package_id=${package_id}') and contains(@href,'group_id=${group_id}') and contains(normalize-space(..),'@{releaseName} ') ]" >
+                    <valueOf select="f:uri-query-param( string(@href), 'release_id' )" />
+                </forEach>
+            </fikin:xpath>
+            <delete file="${tmp1}" />
+            <echo>release_id : ${release_id}</echo>
+        </sequential>
+    </macrodef>
+
+
+    
+    
+    <!-- =================================
+          Fetch file_id by file name
+          and set "file_id" property
+         ================================= -->
+    <macrodef name="sf-fetch-file-id">
+        <attribute name="fileName" />
+        <sequential>
+            <!-- fetch edit-release page into a temp file -->
+            <tempfile property="tmp1" />
+            <fikin:httppost url="http://sourceforge.net/project/admin/editreleases.php" 
+                loglevel="content" logFile="${tmp1}"
+                failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            >
+                <post name="group_id"    value="${group_id}" />
+                <post name="package_id"  value="${package_id}" />
+                <post name="release_id"  value="${release_id}" />
+            </fikin:httppost>
+            <!-- browse for file_id -->
+            <antcontrib:var name="file_id" unset="true" />
+            <fikin:xpath>
+                <namespace prefix="x" uri="http://www.w3.org/1999/xhtml" />
+                <input file="${tmp1}" toXHTML="true" />
+                <output property="file_id" />
+                <forEach select="//x:FORM/x:TR/x:TD/x:FONT[@size='-1' and normalize-space(.)='@{fileName}']" >
+                    <valueOf select="../../../x:INPUT[@type='hidden' and @name='file_id']/@value" />
+                </forEach>
+            </fikin:xpath>
+            <delete file="${tmp1}" />
+            <echo>file_id : ${file_id}</echo>
+        </sequential>
+    </macrodef>
+
+
+    
+    
+    <!-- =================================
+          Add a file to the release
+         ================================= -->
+    <macrodef name="sf-add-release-file">
+        <attribute name="fileName" />
+        <sequential>
+            <!-- add file to the release -->
+            <echo>Adding file @{fileName} to release ...</echo>
+            <fikin:httppost url="http://sourceforge.net/project/admin/editreleases.php" 
+                loglevel="none"
+                failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            >
+                <post name="group_id"    value="${group_id}" />
+                <post name="package_id"  value="${package_id}" />
+                <post name="release_id"  value="${release_id}" />
+                <post name="step2"       value="1" />
+                <post name="file_list[]" value="@{fileName}" />
+                <post name="submit"      value="Add Files and/or Refresh View" />
+            </fikin:httppost>
+        </sequential>
+    </macrodef>
+
+
+    <!-- =================================
+          Create new release
+         ================================= -->
+    <macrodef name="sf-create-new-release">
+        <attribute name="releaseName" />
+        <attribute name="unless" />
+        <sequential>
+            <antcontrib:if>
+                <not><isset property="@{unless}" /></not>
+                <then>
+                    <!-- create new release -->
+                    <echo>Creating new release @{releaseName} ...</echo>
+                    <fikin:httppost url="http://sourceforge.net/project/admin/newrelease.php" 
+                        loglevel="none"
+                        failOnError="true" sslAcceptUntrusted="true"
+                        cookiePolicy="default"
+                    >
+                        <post name="group_id"    value="${group_id}" />
+                        <post name="package_id"  value="${package_id}" />
+                        <post name="newrelease"  value="true" />
+                        <post name="release_name" value="@{releaseName}" />
+                        <post name="submit"      value="Create This Release" />
+                    </fikin:httppost>
+                    <!-- fetch release_id -->
+                    <sf-fetch-release-id releaseName="@{releaseName}" />
+                </then>
+            </antcontrib:if>
+        </sequential>
+    </macrodef>
+
+
+    
+    
+    <!-- =================================
+          Create new package
+         ================================= -->
+    <macrodef name="sf-create-new-package">
+        <attribute name="packageName" />
+        <attribute name="unless" />
+        <sequential>
+            <antcontrib:if>
+                <not><isset property="@{unless}" /></not>
+                <then>
+                    <!-- create new packageName -->
+                    <echo>Creating new package @{packageName} ...</echo>
+                    <!-- create new package -->
+                    <fikin:httppost url="http://sourceforge.net/project/admin/editpackages.php" 
+                        loglevel="none"
+                        failOnError="true" sslAcceptUntrusted="true"
+                        cookiePolicy="default"
+                    >
+                        <post name="group_id"    value="${group_id}" />
+                        <post name="func"        value="add_package" />
+                        <post name="package_name" value="@{packageName}" />
+                        <post name="submit"      value="Create This Package" />
+                    </fikin:httppost>
+                    <!-- fetch package_id -->
+                    <sf-fetch-package-id packageName="@{packageName}" />
+                </then>
+            </antcontrib:if>
+        </sequential>
+    </macrodef>
+
+
+    
+    
+    <!-- =================================
+          Update package
+         ================================= -->
+    <macrodef name="sf-update-package">
+        <attribute name="packageName" />
+        <sequential>
+            <!-- update package data -->
+            <fikin:httppost url="http://sourceforge.net/project/admin/editpackages.php" 
+                loglevel="none"
+                failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            >
+                <post name="group_id"    value="${group_id}" />
+                <post name="package_id"  value="${package_id}" />
+                <post name="func"        value="update_package" />
+                <post name="package_name" value="@{packageName}" />
+                <post name="status"      value="1" /><!-- 1=active, 3=hidden -->
+                <post name="submit"      value="Update" />
+            </fikin:httppost>
+        </sequential>
+    </macrodef>
+
+
+    
+    
+    <!-- =================================
+          Update release
+         ================================= -->
+    <macrodef name="sf-update-release">
+        <attribute name="releaseName" />
+        <attribute name="releaseDate" />
+        <attribute name="releaseNotes"   default="" />
+        <attribute name="releaseChanges" default="" />
+        <sequential>
+            <!-- update release data -->
+            <fikin:httppost url="http://sourceforge.net/project/admin/editreleases.php" 
+                loglevel="none"
+                failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            >
+                <post name="group_id"         value="${group_id}" />
+                <post name="package_id"       value="${package_id}" />
+                <post name="release_id"       value="${release_id}" />
+                <post name="step1"            value="1" />
+                <post name="release_date"     value="@{releaseDate}" />
+                <post name="release_name"     value="@{releaseName}" />
+                <post name="release_notes"    value="@{releaseNotes}" />
+                <post name="release_changes"  value="@{releaseChanges}" />
+                <post name="status"           value="1" /><!-- 1=active, 3=hidden -->
+                <post name="new_package_id"   value="${package_id}" />
+                <post name="submit"           value="Update" />
+            </fikin:httppost>
+        </sequential>
+    </macrodef>
+
+
+    
+    
+    <!-- =================================
+          Update file data in a release
+         ================================= -->
+    <macrodef name="sf-update-release-file">
+        <attribute name="processorId" />
+        <attribute name="typeId" />
+        <attribute name="releaseTime" />
+        <sequential>
+            <!-- update file data in a release -->
+            <echo>Updating file's properties ...</echo>
+            <fikin:httppost url="http://sourceforge.net/project/admin/editreleases.php" 
+                loglevel="none"
+                failOnError="true" sslAcceptUntrusted="true"
+                cookiePolicy="default"
+            >
+                <post name="group_id"    value="${group_id}" />
+                <post name="package_id"  value="${package_id}" />
+                <post name="release_id"  value="${release_id}" />
+                <post name="file_id"     value="${file_id}" />
+                <post name="step3"       value="1" />
+                <post name="processor_id" value="@{processorId}" />
+                <post name="type_id"     value="@{typeId}" />
+                <post name="new_release_id" value="${release_id}" />
+                <post name="release_time" value="@{releaseTime}" />
+                <post name="submit"      value="Update/Refresh" />
+            </fikin:httppost>
+        </sequential>
+    </macrodef>
+
+</antlib>
