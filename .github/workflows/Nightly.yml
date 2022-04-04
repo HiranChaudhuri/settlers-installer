@@ -2,7 +2,6 @@ name: Nightly
 
 on:
   push:
-  pull-request:
   workflow_dispatch:
 
 jobs:
