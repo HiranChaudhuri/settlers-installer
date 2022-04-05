@@ -105,7 +105,7 @@ task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
 }
 
 task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
-    commandLine 'jpackage', "--app-image build/app-image/SettlersRemake --dest build --resource-dir build/resources/jpackage"
+    commandLine 'jpackage', '--app-image', 'build/app-image/SettlersRemake', '--dest', 'build', '--resource-dir', 'build/resources/jpackage'
 
     doFirst {
          exec {
