@@ -67,6 +67,7 @@ task filterResourcesCopy(type: Copy) {
     
     doLast {
         assert file("build/resources/jpackage/control").exists()
+        assert file("build/resources/jpackage/conext").exists()
     }
 }
 
