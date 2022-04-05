@@ -70,7 +70,7 @@ task filterResourcesCopy(type: Copy) {
     }
 }
 
-task jpackagePrepare(type: Copy, dependsOn: ['build', 'test']) {
+task jpackagePrepare(type: Copy, dependsOn: ['distZip']) {
     doFirst {
         mkdir inputDir
         exec {
