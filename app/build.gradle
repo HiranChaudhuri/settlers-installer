@@ -69,6 +69,11 @@ task filterResourcesCopy(type: Copy) {
 task jpackagePrepare(type: Copy, dependsOn: ['build', 'test']) {
     doFirst {
         mkdir inputDir
+        exec {
+            workingDir "."
+            executable 'jpackage'
+            args '--version'
+        }
     }
 
     from(zipTree("build/distributions/app-${version}.zip"))
