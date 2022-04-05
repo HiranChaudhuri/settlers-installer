@@ -64,6 +64,10 @@ task filterResourcesCopy(type: Copy) {
         ])
     }
     into layout.buildDirectory.dir('resources/jpackage')
+    
+    doLast {
+        assert file("build/resources/jpackage/control").exists()
+    }
 }
 
 task jpackagePrepare(type: Copy, dependsOn: ['build', 'test']) {
@@ -78,6 +82,10 @@ task jpackagePrepare(type: Copy, dependsOn: ['build', 'test']) {
 
     from(zipTree("build/distributions/app-${version}.zip"))
     into(inputDir)
+
+    doLast {
+        assert file("build/jpackage_input/app-${version}/lib/app-${version}.jar").exists()
+    }
 }
 
 task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesCopy']) {
@@ -89,6 +97,10 @@ task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesC
          }
     }
     commandLine 'jpackage', '--type', 'app-image', '--dest', 'build/app-image', '-i', "build/jpackage_input/app-${version}/lib", '--main-jar', "app-${version}.jar", '--main-class', 'settlers.installer.App', '--name', 'SettlersRemake', '--app-version', "${version}", '--description', 'Settlers 3 remake - see https://github.com/', '--vendor', "${VENDOR}", '--icon', 'build/resources/main/siedler3-helme-logo.png', '--resource-dir', 'build/resources/jpackage'
+
+    doLast {
+        assert file("build/app-image/SettlersRemake/lib/app/app-${version}.jar").exists()
+    }
 }
 
 task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
@@ -102,6 +114,10 @@ task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
     from "build/resources/jpackage"
     into "build/app-image/SettlersRemake/lib"
     include "*.desktop"
+
+    doLast {
+        assert file("build/app-image/SettlersRemake/lib/SettlersRemake.desktop").exists()
+    }
 }
 
 task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
@@ -115,6 +131,10 @@ task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
          }
          println "Executed!"
      }
+
+    doLast {
+        assert file("build/settlersremake_1.0-1_amd64.deb").exists()
+    }
 }
 
 task jpackage(description: "Build native installation package", dependsOn: ['filterResourcesCopy', 'jpackagePhase2']) {
