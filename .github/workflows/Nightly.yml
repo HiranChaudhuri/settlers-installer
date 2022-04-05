@@ -19,7 +19,7 @@ jobs:
     - name: Build with gradle
       run: |
         printenv | sort
-        ./gradlew jpackage
+        ./gradlew --info jpackage
         ls -l app/build
 
     - uses: actions/upload-artifact@v2
