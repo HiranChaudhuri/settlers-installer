@@ -121,7 +121,7 @@ task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
 }
 
 task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
-    commandLine 'jpackage', '--app-image', 'build/app-image/SettlersRemake', '--name', 'SettlersRemake', '--dest', 'build', '--resource-dir', 'build/resources/jpackage'
+    commandLine 'jpackage', '--app-image', 'build/app-image/SettlersRemake', '--name', 'SettlersRemake', '--dest', 'build/distributions', '--resource-dir', 'build/resources/jpackage'
 
     doFirst {
          exec {
@@ -133,7 +133,7 @@ task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
      }
 
     doLast {
-        assert file("build/settlersremake_1.0-1_amd64.deb").exists()
+        assert file("build/distributions/settlersremake_1.0-1_amd64.deb").exists()
     }
 }
 
