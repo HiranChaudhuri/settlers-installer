@@ -38,7 +38,7 @@ jobs:
         find app/build/distributions
         find app/build/resources
         echo --Running jpackage...
-        jpackage --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" | exit 1
+        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage"
         echo --Checking output directory
         find app/build/app-image
 
