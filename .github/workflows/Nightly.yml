@@ -24,8 +24,8 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: SettlersRemake.deb
-        path: app/build/SettlersRemake*.deb
+        name: SettlersRemake
+        path: app/build/distributions/*
 
   build-Windows:
     runs-on: windows-latest
