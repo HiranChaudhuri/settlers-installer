@@ -19,41 +19,43 @@ jobs:
     - name: Build with gradle
       run: |
         printenv | sort
-        ./gradlew --info jpackage
-        ls -l app/build
+        ./gradlew --info build
+        mkdir -p app/build/jpackage-input || exit 1
+        pushd .;cd app/build/jpackage-input;unzip ../distributions/*.zip;popd
+        find app/build/distributions
 
     - uses: actions/upload-artifact@v2
       with:
         name: SettlersRemake
         path: app/build/distributions/*
 
-  build-Windows:
-    runs-on: windows-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    - uses: gradle/gradle-build-action@v2
-      with:
-        arguments: --info jpackage
+#  build-Windows:
+#    runs-on: windows-latest
+#    
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Setup JDK 17
+#      uses: actions/setup-java@v2
+#      with:
+#        java-version: '17'
+#        distribution: 'temurin'
+#    - uses: gradle/gradle-build-action@v2
+#      with:
+#        arguments: --info jpackage
 
-  build-MacOS:
-    runs-on: macos-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Build with gradle
-      run: |
-        printenv | sort
-        ./gradlew --info jpackage
-        ls -l app/build
+#  build-MacOS:
+#    runs-on: macos-latest
+#
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Setup JDK 17
+#      uses: actions/setup-java@v2
+#      with:
+#        java-version: '17'
+#        distribution: 'temurin'
+#
+#    - name: Build with gradle
+#      run: |
+#        printenv | sort
+#        ./gradlew --info jpackage
+#        ls -l app/build
