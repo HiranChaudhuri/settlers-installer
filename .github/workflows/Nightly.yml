@@ -48,7 +48,7 @@ jobs:
         ./gradlew --info filterResourcesCopy
         find app/build/app-image
 
-- Name: Build package
+    - Name: Build package
       run: |
         #!/bin/bash -x
         jpackage --verbose --app-image build/app-image/SettlersRemake --name SettlersRemake --dest build/distributions --resource-dir build/resources/jpackage
