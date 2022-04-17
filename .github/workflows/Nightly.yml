@@ -169,3 +169,16 @@ jobs:
 
       - name: check environment after download
         run: find .
+
+      - name: Publish Release
+        id: publish_release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "nightly"
+          prerelease: false
+          title: "Settlers-Installer Nightly"
+          files: |
+            SettlersRemake-Linux/*.deb
+            SettlersRemake-Windows/*
+            SettlersRemake-MacOS/*.dmg
