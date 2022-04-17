@@ -159,9 +159,9 @@ jobs:
   release:
     if: ${{ always() }}
     needs:
-      - build-windows
-      - build-linux
-      - build-mac
+      - build-Windows
+      - build-Linux
+      - build-MacOS
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
