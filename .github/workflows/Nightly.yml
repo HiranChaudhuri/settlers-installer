@@ -22,7 +22,7 @@ jobs:
         printenv | sort
         ./gradlew --info build
         
-    - name: Package using JPackage
+    - name: Create app-image using JPackage
       run: |
         #!/bin/bash -x
         set -x
@@ -40,6 +40,18 @@ jobs:
         echo --Running jpackage...
         jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage"
         echo --Checking output directory
+        find app/build/app-image
+        
+    - Name: Modify app-image
+      run: |
+        #!/bin/bash -x
+        ./gradlew --info filterResourcesCopy
+        find app/build/app-image
+
+- Name: Build package
+      run: |
+        #!/bin/bash -x
+        jpackage --verbose --app-image build/app-image/SettlersRemake --name SettlersRemake --dest build/distributions --resource-dir build/resources/jpackage
         find app/build/app-image
 
     - uses: actions/upload-artifact@v2
