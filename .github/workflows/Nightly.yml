@@ -156,7 +156,7 @@ jobs:
         name: SettlersRemake-MacOS
         path: app/build/distributions/*
 
-release:
+  release:
     if: ${{ always() }}
     needs:
       - build-windows
