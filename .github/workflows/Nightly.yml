@@ -52,7 +52,7 @@ jobs:
       run: |
         #!/bin/bash -x
         jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage
-        find app/build/app-image
+        find app/build/distributions
 
     - uses: actions/upload-artifact@v2
       with:
