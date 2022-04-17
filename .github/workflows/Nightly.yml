@@ -59,19 +59,42 @@ jobs:
         name: SettlersRemake-Linux
         path: app/build/distributions/*
 
+    - name: Create app-image using JPackage
+      run: |
+        #!/bin/bash -x
+        set -x
+        echo --Preparing directories
+        mkdir -p app/build/jpackage_input || exit 1
+        mkdir -p app/build/resources/jpackage || exit 1
+        cp app/src/jpackage/resources/* app/build/resources/jpackage
+        APPVERSION=`basename app/build/distributions/*.zip .zip`
+        VERSION=`echo $APPVERSION | cut -d- -f2-`
+        pushd .;cd app/build/jpackage_input;unzip ../distributions/*.zip;popd
+        echo --Checking directories...
+        find app/build/jpackage_input
+        find app/build/distributions
+        find app/build/resources
+        echo --Running jpackage...
+        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage"
+        #echo --Checking output directory
+        #find app/build/app-image
+
 #  build-Windows:
 #    runs-on: windows-latest
 #    
 #    steps:
-#    - uses: actions/checkout@v2
-#    - name: Setup JDK 17
-#      uses: actions/setup-java@v2
-#      with:
-#        java-version: '17'
-#        distribution: 'temurin'
-#    - uses: gradle/gradle-build-action@v2
-#      with:
-#        arguments: --info jpackage
+    - uses: actions/checkout@v2
+    - name: Setup JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with gradle
+      run: |
+        #!/bin/bash -x
+        printenv | sort
+        ./gradlew --info build
 
   build-MacOS:
     runs-on: macos-latest
