@@ -79,7 +79,6 @@ jobs:
     - name: Create app-image using JPackage
       run: |
         #!/bin/bash -x
-        set -x
         echo --Preparing directories
         mkdir -p app/build/jpackage_input || exit 1
         mkdir -p app/build/resources/jpackage || exit 1
@@ -93,8 +92,8 @@ jobs:
         find app/build/resources
         echo --Running jpackage...
         jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage"
-        #echo --Checking output directory
-        #find app/build/app-image
+        echo --Checking output directory
+        find app/build/app-image
 
   build-MacOS:
     runs-on: macos-latest
