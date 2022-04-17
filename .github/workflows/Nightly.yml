@@ -46,7 +46,7 @@ jobs:
       run: |
         #!/bin/bash -x
         ./gradlew --info filterResourcesCopy
-        find app/build/app-image
+        find app/build/resources
 
     - name: Build package
       run: |
