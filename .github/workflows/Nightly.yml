@@ -42,7 +42,7 @@ jobs:
         echo --Checking output directory
         find app/build/app-image
         
-    - Name: Modify app-image
+    - name: Modify app-image
       run: |
         #!/bin/bash -x
         ./gradlew --info filterResourcesCopy
