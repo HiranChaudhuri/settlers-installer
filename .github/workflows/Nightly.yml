@@ -121,7 +121,7 @@ jobs:
     - name: Build package
       run: |
         #!/bin/bash -x
-        jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage
+        jpackage --verbose --app-image app/build/app-image/SettlersRemake.app --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage
         find app/build/distributions
 
     - uses: actions/upload-artifact@v2
