@@ -131,7 +131,7 @@
   - name: create data directory
     become: true
     file:
-      path: /home/demo/.jsettlers
+      path: /home/demo/.jsettlers/managed
       owner: demo
       group: demo
       state: directory
@@ -141,7 +141,7 @@
     copy:
       remote_src: yes
       src: /vagrant/S3/
-      dest: /home/demo/.jsettlers/data
+      dest: /home/demo/.jsettlers/managed/data
       owner: demo
       group: demo
 

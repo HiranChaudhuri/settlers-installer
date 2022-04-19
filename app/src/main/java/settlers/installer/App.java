@@ -38,9 +38,13 @@ public class App {
      * @return 
      */
     private static boolean looksOk(File dir) {
-        if (!dir.isDirectory())
+        log.debug("looksOk({})", dir);
+        if (!dir.isDirectory()) {
+            log.warn("File {} is not a directory.", dir);
             return false;
+        }
         if (dir.listFiles().length < 1) {
+            log.warn("File {} contains too few files", dir);
             return false;
         }
         return true;
@@ -201,6 +205,7 @@ public class App {
             log.debug("data folder {}", Util.getDataFolder());
 
             if (!looksOk(Util.getDataFolder())) {
+                log.info("Data folder not ok? Let's install S3...");
                 JFrame f = null;
                 try {
                     File cdrom = findCdRom();

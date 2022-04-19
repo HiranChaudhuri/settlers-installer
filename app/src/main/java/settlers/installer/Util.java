@@ -258,7 +258,22 @@ public class Util {
         File javaHome = new File(System.getProperty("java.home"));
         File java = new File(javaHome, "bin/java"); // may need a tweak on Windows
         
-        ProcessBuilder pb = new ProcessBuilder(java.getAbsolutePath(), "-jar", jarfile.getAbsolutePath(), "settlers-folder="+getDataFolder().getAbsolutePath());
+        if (!java.canExecute()) {
+            // maybe we are pointing to the JLink provided binaries. Let's fall
+            // back to the system-provided java installation
+            log.info("it seems {} is not executable, falling back", java.getAbsolutePath());
+            java = new File("/usr/bin/java");
+        }
+
+        List<String> command = new ArrayList<>();
+        command.add(java.getAbsolutePath());
+        command.add("-Dorg.lwjgl.util.Debug=true");
+        command.add("-jar");
+        command.add(jarfile.getAbsolutePath());
+        command.add("--settlers-folder="+getDataFolder().getAbsolutePath());
+
+        log.info("executing {}", command);
+        ProcessBuilder pb = new ProcessBuilder(command);
         pb.redirectError(ProcessBuilder.Redirect.INHERIT);
         pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
@@ -271,6 +286,8 @@ public class Util {
         
         Process p = pb.start();
         p.waitFor();
+        int rc = p.exitValue();
+        log.info("returned with {}", rc);
     }
     
     public static void addGoodiesToData(File goodiesFile) throws IOException {
