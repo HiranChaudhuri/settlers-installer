@@ -128,6 +128,23 @@
       deb: "{{ debname.stdout }}"
       state: present
 
+  - name: create data directory
+    become: true
+    file:
+      path: /home/demo/.jsettlers
+      owner: demo
+      group: demo
+      state: directory
+
+  - name: copy settlers data (if available)
+    become: true
+    copy:
+      remote_src: yes
+      src: /vagrant/S3/
+      dest: /home/demo/.jsettlers/data
+      owner: demo
+      group: demo
+
 #  - name: Fix Window class
 #    become: true
 #    lineinfile:

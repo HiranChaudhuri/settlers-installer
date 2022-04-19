@@ -21,7 +21,7 @@ echo Preparing Version ${VERSION2}
 
 pushd .
 
-cp app/build/settlersremake_*_amd64.deb testbench
+cp app/build/distributions/settlersremake_*_amd64.deb testbench || exit 1
 cd testbench
 
 time ansible-galaxy collection install community.general || exit 1

@@ -4,5 +4,6 @@
 /save/
 .gradle
 testbench/.vagrant
+testbench/S3
 *.deb
 
