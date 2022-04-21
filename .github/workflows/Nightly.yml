@@ -83,7 +83,7 @@ jobs:
         mkdir -p app/build/resources/jpackage || exit 1
         copy app/src/jpackage/resources/* app/build/resources/jpackage
         $APPVERSION = dir app/build/distributions/*.zip | select -ExpandProperty BaseName
-        $APPVERSION -match "^[^-]*-(.*)"
+        $APPVERSION -match "^[^-]*-([^-]+)(-[^-]+)?"
         echo APPVERSION=$APPVERSION
         $VERSION=$Matches.1
         echo VERSION=$VERSION
