@@ -267,6 +267,7 @@ public class Util {
 
         List<String> command = new ArrayList<>();
         command.add(java.getAbsolutePath());
+        command.add("-Xmx2G");
         command.add("-Dorg.lwjgl.util.Debug=true");
         command.add("-jar");
         command.add(jarfile.getAbsolutePath());
