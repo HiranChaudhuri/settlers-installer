@@ -82,8 +82,8 @@ jobs:
         mkdir -p app/build/jpackage_input || exit 1
         mkdir -p app/build/resources/jpackage || exit 1
         copy app/src/jpackage/resources/* app/build/resources/jpackage
-        APPVERSION = dir app/build/distributions/*.zip | select BaseName
-        VERSION=`echo $APPVERSION | cut -d- -f2-`
+        $APPVERSION = dir app/build/distributions/*.zip | select BaseName
+        $VERSION=`echo $APPVERSION | cut -d- -f2-`
         pushd .;cd app/build/jpackage_input;unzip ../distributions/*.zip;popd
         echo --Checking directories...
         find app/build/jpackage_input
