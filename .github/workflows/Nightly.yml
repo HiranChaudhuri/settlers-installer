@@ -100,6 +100,12 @@ jobs:
         echo "--Checking output directory"
         Get-ChildItem -Recurse app/build/app-image
 
+    - name: Build package
+      run: |
+        # PowerShell
+        jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage
+        Get-ChildItem -Recurse app/build/distributions
+
     - uses: actions/upload-artifact@v2
       with:
         name: SettlersRemake-Windows
