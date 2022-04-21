@@ -32,13 +32,11 @@ jobs:
         cp app/src/jpackage/resources/* app/build/resources/jpackage
         APPVERSION=`basename app/build/distributions/*.zip .zip`
         VERSION=`echo $APPVERSION | cut -d- -f2-`
-        Push-Location app/build/jpackage_input
-        unzip ../distributions/*.zip
-        Pop-Location
+        pushd .; cd app/build/jpackage_input; unzip ../distributions/*.zip; popd
         echo --Checking directories...
-        Get-ChildItem -Recurse app/build/jpackage_input
-        Get-ChildItem -Recurse app/build/distributions
-        Get-ChildItem -Recurse app/build/resources
+        find app/build/jpackage_input
+        find app/build/distributions
+        find app/build/resources
         echo --Running jpackage...
         jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
         echo --Checking output directory
@@ -90,11 +88,13 @@ jobs:
         echo APPVERSION=$APPVERSION
         $VERSION=$Matches.1
         echo VERSION=$VERSION
-        pushd .;cd app/build/jpackage_input;unzip ../distributions/*.zip;popd
-        echo "--Checking directories..."
-        #find app/build/jpackage_input
-        #find app/build/distributions
-        #find app/build/resources
+        Push-Location app/build/jpackage_input
+        unzip ../distributions/*.zip
+        Pop-Location
+        echo --Checking directories...
+        Get-ChildItem -Recurse app/build/jpackage_input
+        Get-ChildItem -Recurse app/build/distributions
+        Get-ChildItem -Recurse app/build/resources
         echo "--Running jpackage..."
         jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
         echo "--Checking output directory"
