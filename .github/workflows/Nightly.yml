@@ -32,7 +32,7 @@ jobs:
         cp app/src/jpackage/resources/* app/build/resources/jpackage
         APPVERSION=`basename app/build/distributions/*.zip .zip`
         VERSION=`echo $APPVERSION | cut -d- -f2-`
-        pushd .;cd app/build/jpackage_input;unzip ../distributions/*.zip;popd
+        pushd .; cd app/build/jpackage_input; unzip ../distributions/*.zip; popd
         echo --Checking directories...
         find app/build/jpackage_input
         find app/build/distributions
@@ -78,21 +78,33 @@ jobs:
     - name: Create app-image using JPackage
       run: |
         # PowerShell
+        Set-PSDebug -Trace 1
         echo --Preparing directories
         mkdir -p app/build/jpackage_input || exit 1
         mkdir -p app/build/resources/jpackage || exit 1
         copy app/src/jpackage/resources/* app/build/resources/jpackage
-        APPVERSION = dir app/build/distributions/*.zip | select BaseName
-        VERSION=`echo $APPVERSION | cut -d- -f2-`
-        pushd .;cd app/build/jpackage_input;unzip ../distributions/*.zip;popd
+        $APPVERSION = dir app/build/distributions/*.zip | select -ExpandProperty BaseName
+        $APPVERSION -match "^[^-]*-([^-]+)(-[^-]+)?"
+        echo APPVERSION=$APPVERSION
+        $VERSION=$Matches.1
+        echo VERSION=$VERSION
+        Push-Location app/build/jpackage_input
+        unzip ../distributions/*.zip
+        Pop-Location
         echo --Checking directories...
-        find app/build/jpackage_input
-        find app/build/distributions
-        find app/build/resources
-        echo --Running jpackage...
-        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
-        echo --Checking output directory
-        find app/build/app-image
+        Get-ChildItem -Recurse app/build/jpackage_input
+        Get-ChildItem -Recurse app/build/distributions
+        Get-ChildItem -Recurse app/build/resources
+        echo "--Running jpackage..."
+        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/${APPVERSION}/lib" --main-jar "${APPVERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
+        echo "--Checking output directory"
+        Get-ChildItem -Recurse app/build/app-image
+
+    - name: Build package
+      run: |
+        # PowerShell
+        jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage
+        Get-ChildItem -Recurse app/build/distributions
 
     - uses: actions/upload-artifact@v2
       with:
