@@ -25,6 +25,7 @@ dependencies {
 version = scmVersion.version
 def inputDir = layout.buildDirectory.dir("jpackage_input")
 def VENDOR = "Hiran"
+def APPNAME = System.getProperty('APPNAME', 'SettlersRemake')
 
 application {
     // Define the main class for the application.
@@ -33,12 +34,17 @@ application {
 
 /* This one declares the main-class in the manifest, but all the other jars
    are still missing on the classpath.
+*/
 jar {
     manifest {
-        attributes 'Main-Class': 'settlers.installer.App'
+        attributes(
+            'Main-Class': 'settlers.installer.App',
+            'Implementation-Title': APPNAME,
+            'Implementation-Version': version
+        )
     }
 }
-*/
+
 
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
@@ -60,7 +66,8 @@ task filterResourcesCopy(type: Copy) {
             APPLICATION_ICON: "/opt/settlersremake/lib/SettlersRemake.png".toString(),
             DEPLOY_BUNDLE_CATEGORY: "Game".toString(),
             DESKTOP_MIMES: '',
-            APPLICATION_StartupWMClass: 'settlers-installer-App'
+            APPLICATION_StartupWMClass: 'settlers-installer-App',
+            APPLICATION_NAME: "${APPNAME}".toString()
         ])
     }
     into layout.buildDirectory.dir('resources/jpackage')
@@ -96,10 +103,10 @@ task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesC
              args 'build'
          }
     }
-    commandLine 'jpackage', '--type', 'app-image', '--dest', 'build/app-image', '-i', "build/jpackage_input/app-${version}/lib", '--main-jar', "app-${version}.jar", '--main-class', 'settlers.installer.App', '--name', 'SettlersRemake', '--app-version', "${version}", '--description', 'Settlers 3 remake - see https://github.com/', '--vendor', "${VENDOR}", '--icon', 'build/resources/main/siedler3-helme-logo.png', '--resource-dir', 'build/resources/jpackage', '--jlink-options', '--strip-debug --no-man-pages --no-header-files'
+    commandLine 'jpackage', '--type', 'app-image', '--dest', 'build/app-image', '-i', "build/jpackage_input/app-${version}/lib", '--main-jar', "app-${version}.jar", '--main-class', 'settlers.installer.App', '--name', "${APPNAME}", '--app-version', "${version}", '--description', 'Settlers 3 remake - see https://github.com/', '--vendor', "${VENDOR}", '--icon', 'build/resources/main/siedler3-helme-logo.png', '--resource-dir', 'build/resources/jpackage', '--jlink-options', '--strip-debug --no-man-pages --no-header-files'
 
     doLast {
-        assert file("build/app-image/SettlersRemake/lib/app/app-${version}.jar").exists()
+        assert file("build/app-image/${APPNAME}/lib/app/app-${version}.jar").exists()
     }
 }
 
@@ -112,17 +119,20 @@ task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
          }
     }
     from "build/resources/jpackage"
-    into "build/app-image/SettlersRemake/lib"
-    include "*.desktop"
+    into "build/app-image/${APPNAME}/lib"
+    include "SettlersRemake.desktop"
+    rename {
+        "${APPNAME}.desktop"
+    }
 
     doLast {
-        assert file("build/app-image/SettlersRemake/lib/SettlersRemake.desktop").exists()
-        assert file("build/app-image/SettlersRemake/lib/SettlersRemake.png").exists()
+        assert file("build/app-image/${APPNAME}/lib/${APPNAME}.desktop").exists()
+        assert file("build/app-image/${APPNAME}/lib/${APPNAME}.png").exists()
     }
 }
 
 task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
-    commandLine 'jpackage', '--app-image', 'build/app-image/SettlersRemake', '--name', 'SettlersRemake', '--dest', 'build/distributions', '--resource-dir', 'build/resources/jpackage', '--vendor', "${VENDOR}"
+    commandLine 'jpackage', '--app-image', "build/app-image/${APPNAME}", '--name', "${APPNAME}", '--dest', 'build/distributions', '--resource-dir', 'build/resources/jpackage', '--vendor', "${VENDOR}"
 
     doFirst {
          exec {
@@ -134,7 +144,7 @@ task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
      }
 
     doLast {
-        assert file("build/distributions/settlersremake_1.0-1_amd64.deb").exists()
+        assert file("build/distributions/" + "${APPNAME}".toLowerCase() + "_1.0-1_amd64.deb").exists()
     }
 }
 

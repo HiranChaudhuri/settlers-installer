@@ -20,7 +20,7 @@ set -e
 case "${1}" in
     configure)
     DESKTOP_COMMANDS_INSTALL
-    xdg-desktop-menu install --novendor /opt/settlersremake/lib/SettlersRemake.desktop || exit 1
+    xdg-desktop-menu install --novendor /opt/settlersremake/lib/APPLICATION_NAME.desktop || exit 1
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

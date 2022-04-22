@@ -1,7 +1,6 @@
 - hosts: all
   vars:
     DEMO_HOME: /home/demo/oolite
-    OOLITE_VERSION: oolite-1.90-test.linux-x86_64
   tasks:
   # add user
   - name: Make sure we have a 'wheel' group
@@ -122,10 +121,16 @@
   - debug:
       var: debname.stdout
     
-  - name: Install application via DEB
+  - name: Install local application via DEB
     become: true
     apt:
       deb: "{{ debname.stdout }}"
+      state: present
+
+  - name: Install Github application via DEB
+    become: true
+    apt:
+      deb: "https://github.com/HiranChaudhuri/settlers-installer/releases/download/nightly/settlersremake_1.0-1_amd64.deb"
       state: present
 
   - name: create data directory

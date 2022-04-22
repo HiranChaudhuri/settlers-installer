@@ -10,7 +10,7 @@ VERSION2="${VERSION1/%SNAPSHOT/$DATUM}"
 #fi
 
 rm testbench/*.deb
-time ./gradlew --info clean jpackage || exit 1
+time ./gradlew -DAPPNAME=SettlersRemakeLocal --info clean jpackage || exit 1
 
 #if [ "$VERSION1" != "$VERSION" ]
 #then
@@ -21,7 +21,7 @@ echo Preparing Version ${VERSION2}
 
 pushd .
 
-cp app/build/distributions/settlersremake_*_amd64.deb testbench || exit 1
+cp app/build/distributions/settlersremake*_amd64.deb testbench || exit 1
 cd testbench
 
 time ansible-galaxy collection install community.general || exit 1
