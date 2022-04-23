@@ -33,6 +33,28 @@ If not, you are prompted to insert the installation CD.
 After all these prerequisites are met, the SettlersRemake game is started.
 Have fun!
 
+## MacOS
+
+Install the DMG package you can download from 
+https://github.com/HiranChaudhuri/settlers-installer/releases. Once done, search 
+for the application SettlersRemake in your desktop environment and click the 
+icon.
+
+On startup, the application will download the latest available release of 
+Settlers-Remake (remember, you actually downloaded the installer only). It also
+ensures you have the game files from the original release at the right location.
+If not, you are prompted to insert the installation CD.
+
+After all these prerequisites are met, the SettlersRemake game is started.
+Have fun!
+
+## Windows
+
+Install the executable installer you can download from 
+https://github.com/HiranChaudhuri/settlers-installer/releases. Once done, search 
+for the application SettlersRemake in your desktop environment and click the 
+icon.
+
 # Troubleshooting
 
 The installer will host the necessary files all under $HOME/.jsettlers/managed.
