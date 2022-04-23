@@ -113,13 +113,6 @@ task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesC
 }
 
 task jpackageInterfere(type: Copy, dependsOn: ['filterResourcesCopy']) {
-    doFirst {
-         exec {
-             workingDir "."
-             executable 'find'
-             args 'build'
-         }
-    }
     from "build/resources/jpackage"
     into "build/app-image/${APPNAME}/lib"
     include "SettlersRemake.desktop"
