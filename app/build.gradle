@@ -55,6 +55,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 // create control, postinst and desktop files
 task filterResourcesCopy(type: Copy) {
+    outputs.dir('build/resources/jpackage')
+
     doFirst {
         layout.buildDirectory.dir('resources/jpackage')
     }
