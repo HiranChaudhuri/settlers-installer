@@ -53,6 +53,7 @@ tasks.named('test') {
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
+// create control, postinst and desktop files
 task filterResourcesCopy(type: Copy) {
     doFirst {
         layout.buildDirectory.dir('resources/jpackage')
@@ -112,6 +113,7 @@ task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesC
     }
 }
 
+// depend from creating jpackage resources, then copy desktop file
 task jpackageInterfere(type: Copy, dependsOn: ['filterResourcesCopy']) {
     from "build/resources/jpackage"
     into "build/app-image/${APPNAME}/lib"
