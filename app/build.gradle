@@ -62,12 +62,13 @@ task filterResourcesCopy(type: Copy) {
         filter(ReplaceTokens, tokens: [
             APPLICATION_NAME: "Settlers Remake ${version}".toString(), 
             APPLICATION_DESCRIPTION: 'Wrapper project settlers-installer to easily use https://github.com/paulwedeck/settlers-remake',
-            APPLICATION_LAUNCHER: "/opt/settlersremake/bin/SettlersRemake".toString(),
+            APPLICATION_LAUNCHER: "/opt/settlersremake/bin/${APPNAME}".toString(),
             APPLICATION_ICON: "/opt/settlersremake/lib/SettlersRemake.png".toString(),
             DEPLOY_BUNDLE_CATEGORY: "Game".toString(),
             DESKTOP_MIMES: '',
             APPLICATION_StartupWMClass: 'settlers-installer-App',
-            APPLICATION_NAME: "${APPNAME}".toString()
+            PACKAGE_NAME_LOWER: "${APPNAME}".toString().toLowerCase(),
+            PACKAGE_NAME_NORMAL: "${APPNAME}".toString()
         ])
     }
     into layout.buildDirectory.dir('resources/jpackage')
