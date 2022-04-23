@@ -55,7 +55,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 // create control, postinst and desktop files
 task filterResourcesCopy(type: Copy) {
-    outputs.dir('build/resources/jpackage')
+    //outputs.dir('build/resources/jpackage')
+    doNotTrackState("We just generate additional files")
 
     doFirst {
         layout.buildDirectory.dir('resources/jpackage')
@@ -117,6 +118,9 @@ task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesC
 
 // depend from creating jpackage resources, then copy desktop file
 task jpackageInterfere(type: Copy, dependsOn: ['filterResourcesCopy']) {
+    //outputs.dir('build/app-image/SettlersRemake/lib')
+    doNotTrackState("We just generate additional files")
+
     from "build/resources/jpackage"
     into "build/app-image/${APPNAME}/lib"
     include "SettlersRemake.desktop"
