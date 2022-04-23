@@ -45,7 +45,7 @@ jobs:
     - name: Modify app-image
       run: |
         #!/bin/bash -x
-        ./gradlew --info filterResourcesCopy
+        ./gradlew --info filterResourcesCopy jpackageInterfere
         find app/build/resources
 
     - name: Build package
@@ -98,6 +98,14 @@ jobs:
         echo "--Running jpackage..."
         jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/${APPVERSION}/lib" --main-jar "${APPVERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
         echo "--Checking output directory"
+        Get-ChildItem -Recurse app/build/app-image
+
+    - name: Modify app-image
+      run: |
+        # PowerShell
+        ./gradlew --info filterResourcesCopy jpackageInterfere
+        echo "--Checking output directory"
+        Get-ChildItem -Recurse app/build/resources
         Get-ChildItem -Recurse app/build/app-image
 
     - name: Build package

@@ -60,10 +60,10 @@ task filterResourcesCopy(type: Copy) {
 
     from('src/jpackage/resources') {
         filter(ReplaceTokens, tokens: [
-            APPLICATION_NAME: "Settlers Remake ${version}".toString(), 
+            APPLICATION_NAME: "${APPNAME} ${version}".toString(), 
             APPLICATION_DESCRIPTION: 'Wrapper project settlers-installer to easily use https://github.com/paulwedeck/settlers-remake',
-            APPLICATION_LAUNCHER: "/opt/settlersremake/bin/${APPNAME}".toString(),
-            APPLICATION_ICON: "/opt/settlersremake/lib/SettlersRemake.png".toString(),
+            APPLICATION_LAUNCHER: ("/opt/" + "${APPNAME}".toLowerCase() + "/bin/${APPNAME}").toString(),
+            APPLICATION_ICON: ("/opt/" + "${APPNAME}".toLowerCase() + "/lib/${APPNAME}.png").toString(),
             DEPLOY_BUNDLE_CATEGORY: "Game".toString(),
             DESKTOP_MIMES: '',
             APPLICATION_StartupWMClass: 'settlers-installer-App',
@@ -108,10 +108,11 @@ task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesC
 
     doLast {
         assert file("build/app-image/${APPNAME}/lib/app/app-${version}.jar").exists()
+        assert file("build/app-image/${APPNAME}/lib/${APPNAME}.png").exists()
     }
 }
 
-task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
+task jpackageInterfere(type: Copy, dependsOn: ['filterResourcesCopy']) {
     doFirst {
          exec {
              workingDir "."
@@ -128,11 +129,10 @@ task jpackageInterfere(type: Copy, dependsOn: ['jpackagePhase1']) {
 
     doLast {
         assert file("build/app-image/${APPNAME}/lib/${APPNAME}.desktop").exists()
-        assert file("build/app-image/${APPNAME}/lib/${APPNAME}.png").exists()
     }
 }
 
-task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
+task jpackagePhase2(type: Exec, dependsOn: ['jpackagePhase1', 'jpackageInterfere']) {
     commandLine 'jpackage', '--app-image', "build/app-image/${APPNAME}", '--name', "${APPNAME}", '--dest', 'build/distributions', '--resource-dir', 'build/resources/jpackage', '--vendor', "${VENDOR}"
 
     doFirst {
@@ -149,7 +149,7 @@ task jpackagePhase2(type: Exec, dependsOn: ['jpackageInterfere']) {
     }
 }
 
-task jpackage(description: "Build native installation package", dependsOn: ['filterResourcesCopy', 'jpackagePhase2']) {
+task jpackage(description: "Build native installation package", dependsOn: ['jpackagePhase1', 'filterResourcesCopy', 'jpackagePhase2']) {
     doLast {
          exec {
              workingDir "."
