@@ -130,7 +130,7 @@ jobs:
         Get-ChildItem -Recurse app/build/distributions
         Get-ChildItem -Recurse app/build/resources
         echo "--Running jpackage..."
-        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/${APPVERSION}/lib" --main-jar "${APPVERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
+        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/${APPVERSION}/lib" --main-jar "${APPVERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' --vendor Hiran, --icon "app/build/resources/main/siedler3-helme-logo.ico" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
         echo "--Checking output directory"
         Get-ChildItem -Recurse app/build/app-image
 
