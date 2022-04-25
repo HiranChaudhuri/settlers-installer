@@ -61,7 +61,9 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: SettlersRemake-Debian
-        path: app/build/distributions/*
+        path: |
+          app/build/distributions/*
+          app/build/app-image
 
   build-Arch:
     runs-on: ubuntu-latest
@@ -149,9 +151,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: SettlersRemake-Windows
-        path: |
-          app/build/distributions/*
-          app/build/app-image
+        path: app/build/distributions/*
 
   build-MacOS:
     runs-on: macos-latest
