@@ -192,7 +192,28 @@ public class Util {
                 log.debug("check asset {}", a);
                 File f = downloadAsset(a);
                 File target = new File(getGamesFolder(), release.getId());
-                unzip(f, target);
+                
+                int retries = 6;
+                boolean done = false;
+                while (retries>0 && !done) {
+                    try {
+                        unzip(f, target);
+                        done = true;
+                        continue;
+                    } catch (IOException e) {
+                        log.info("Could not unzip release. Maybe a virus scanner? Waiting for retry...", e);
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException ex) {
+                            log.debug("Interrupted sleep");
+                        }
+                    }
+                    
+                    retries--;
+                }
+                if (!done) {
+                    throw new IOException(String.format("Could not unzip %s to %s", f, target));
+                }
                 
                 Files.setLastModifiedTime(target.toPath(), FileTime.from(release.getPublished_at().toInstant()));
                 
