@@ -48,7 +48,7 @@ jobs:
         ./gradlew --info filterResourcesCopy jpackageInterfere
         find app/build/resources
 
-    - name: Build package
+    - name: Build Debian package
       run: |
         #!/bin/bash -x
         echo "-- Checking input directory"
@@ -57,6 +57,13 @@ jobs:
         jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage
         echo "-- Checking output directory"
         find app/build/distributions
+        
+    # https://github.com/marketplace/actions/build-arch-package
+    - name: Build Arch Linux package
+      uses: FFY00/build-arch-package@v1
+      with:
+        PKGBUILD: app/build/app-image/SettlersRemake
+        OUTDIR: app/build/distributions
 
     - uses: actions/upload-artifact@v2
       with:
