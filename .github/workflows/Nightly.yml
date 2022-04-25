@@ -214,7 +214,7 @@ jobs:
     needs:
       - build-Windows
       - build-Debian
-      - build-Arch
+      #- build-Arch      need to rethink
       - build-MacOS
     runs-on: ubuntu-latest
     steps:
