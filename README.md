@@ -71,5 +71,8 @@ When running settlers-remake, var is the current working directory.
 # Troubleshooting
 
 If you are unsure about the installer's behaviour or want to know about it's 
-decisions check the logs. These are presented on STDOUT only. You should see
-it if you launch a terminal and run /opt/slettersremake/bin/SettlersRemake.
+decisions check the logs. These are presented on STDOUT and in logfiles.
+
+- You should see STDOUT if you launch a terminal and run 
+/opt/slettersremake/bin/SettlersRemake.
+- Otherwise, check for logfiles in $HOME/.jsettlers.
