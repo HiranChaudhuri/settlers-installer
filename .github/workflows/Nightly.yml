@@ -90,8 +90,8 @@ jobs:
     - name: Build Arch Linux package
       uses: FFY00/build-arch-package@v1
       with:
-        PKGBUILD: app/build/app-image/SettlersRemake
-        OUTDIR: app/build/distributions
+        PKGBUILD: app-image/SettlersRemake
+        OUTDIR: distributions
 
   build-Windows:
     runs-on: windows-latest
