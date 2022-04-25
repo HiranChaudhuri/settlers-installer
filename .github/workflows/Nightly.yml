@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-Linux:
+  build-Debian:
     runs-on: ubuntu-latest
 
     steps:
@@ -58,22 +58,28 @@ jobs:
         echo "-- Checking output directory"
         find app/build/distributions
 
-    - name: Install pacman for Arch
-      run: |
-        #!/bin/bash -x
-        sudo apt-get install -y pacman
-        
+    - uses: actions/upload-artifact@v2
+      with:
+        name: SettlersRemake-Linux
+        path: app/build/distributions/*
+
+  build-Arch:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+      options: --privileged
+      volumes:
+        - /sys/fs/cgroup:/sys/fs/cgroup
+    needs:
+      - build-Debian
+    
+    steps:
     # https://github.com/marketplace/actions/build-arch-package
     - name: Build Arch Linux package
       uses: FFY00/build-arch-package@v1
       with:
         PKGBUILD: app/build/app-image/SettlersRemake
         OUTDIR: app/build/distributions
-
-    - uses: actions/upload-artifact@v2
-      with:
-        name: SettlersRemake-Linux
-        path: app/build/distributions/*
 
   build-Windows:
     runs-on: windows-latest
@@ -133,7 +139,9 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: SettlersRemake-Windows
-        path: app/build/distributions/*
+        path: |
+          app/build/distributions/*
+          app/build/app-image
 
   build-MacOS:
     runs-on: macos-latest
@@ -195,7 +203,8 @@ jobs:
     if: ${{ always() }}
     needs:
       - build-Windows
-      - build-Linux
+      - build-Debian
+      - build-Arch
       - build-MacOS
     runs-on: ubuntu-latest
     steps:
