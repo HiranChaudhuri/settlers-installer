@@ -233,6 +233,6 @@ jobs:
           prerelease: false
           title: "Settlers-Installer Nightly"
           files: |
-            SettlersRemake-Linux/*.deb
+            SettlersRemake-Debian/*.deb
             SettlersRemake-Windows/*
             SettlersRemake-MacOS/*.dmg
