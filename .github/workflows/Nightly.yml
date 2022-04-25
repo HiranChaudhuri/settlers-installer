@@ -60,7 +60,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: SettlersRemake-Linux
+        name: SettlersRemake-Debian
         path: app/build/distributions/*
 
   build-Arch:
@@ -74,6 +74,11 @@ jobs:
       - build-Debian
     
     steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: SettlersRemake-Debian
+
     # https://github.com/marketplace/actions/build-arch-package
     - name: Build Arch Linux package
       uses: FFY00/build-arch-package@v1
