@@ -24,6 +24,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import settlers.installer.model.Release;
@@ -43,7 +45,7 @@ public class App {
             log.warn("File {} is not a directory.", dir);
             return false;
         }
-        if (dir.listFiles().length < 1) {
+        if (dir.listFiles().length < 2) {
             log.warn("File {} contains too few files", dir);
             return false;
         }
@@ -132,27 +134,6 @@ public class App {
         }
     }
     
-    /**
-     * 
-     * @throws IOException
-     * @deprecated  use findCdRom instead
-     */
-    @Deprecated
-    private static void guessCdRom() throws IOException {
-        {
-            for (Path root : FileSystems.getDefault().getRootDirectories()) {
-                FileStore fileStore = Files.getFileStore(root);
-                try {
-                    log.debug("%s\t%s\n", root, fileStore.getAttribute("volume:isRemovable"));
-                } catch(Exception e) {
-                    log.debug("Could not get type of {}", root);
-                }
-            }
-        }
-        
-        log.debug("roots {}", Arrays.asList(File.listRoots()));
-    }
-
     public static void main(String[] args) throws Exception {
         try {
             List<Release> githubReleases = Util.getGithubReleases();
@@ -177,7 +158,7 @@ public class App {
                     Util.installRelease(latest);
                 } catch (Exception e) {
                     f.setVisible(false);
-                    throw new Exception(String.format("Could not install %s", latest));
+                    throw new Exception(String.format("Could not install %s", latest.getName()), e);
                 } finally {
                     f.setVisible(false);
                 }
@@ -241,7 +222,20 @@ public class App {
             log.debug("Done.");
         } catch (Exception e) {
             log.error("something went wrong", e);
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            String msg = e.getMessage() + "\nSee logfile for more information.";
+            
+            if (msg.length()>80) {
+                JTextArea jta = new JTextArea();
+                jta.setColumns(80);
+                jta.setRows(10);
+                jta.setLineWrap(true);
+                jta.setWrapStyleWord(true);
+                jta.setEditable(false);
+                jta.setText(msg);
+                JOptionPane.showMessageDialog(null, new JScrollPane(jta), "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
+            }
             System.exit(1);
         }
         System.exit(0);
