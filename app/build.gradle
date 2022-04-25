@@ -65,7 +65,7 @@ task filterResourcesCopy(type: Copy) {
     from('src/jpackage/resources') {
         filter(ReplaceTokens, tokens: [
             APPLICATION_NAME: "${APPNAME} ${version}".toString(), 
-            APPLICATION_DESCRIPTION: 'Wrapper project settlers-installer to easily use https://github.com/paulwedeck/settlers-remake',
+            APPLICATION_DESCRIPTION: 'Wrapper project settlers-installer to easily use settlers-remake. See https://github.com/HiranChaudhuri/settlers-installer',
             APPLICATION_LAUNCHER: ("/opt/" + "${APPNAME}".toLowerCase() + "/bin/${APPNAME}").toString(),
             APPLICATION_ICON: ("/opt/" + "${APPNAME}".toLowerCase() + "/lib/${APPNAME}.png").toString(),
             DEPLOY_BUNDLE_CATEGORY: "Game".toString(),
