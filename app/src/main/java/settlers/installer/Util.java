@@ -135,7 +135,9 @@ public class Util {
         log.debug("unzip({}, {})", archive, target);
         
         if (!target.exists()) {
-            target.mkdirs();
+            if (!target.mkdirs()) {
+                throw new IOException(String.format("Could not create folder %s", target.getAbsolutePath()));
+            }
         }
         
         try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(archive))) {
