@@ -74,10 +74,15 @@ jobs:
       - build-Debian
     
     steps:
-    - name: Download all artifacts
+    - name: Download Debian results
       uses: actions/download-artifact@v2
       with:
         name: SettlersRemake-Debian
+
+    - name: Check directories
+      run: |
+        #!/bin/bash -x
+        find .
 
     # https://github.com/marketplace/actions/build-arch-package
     - name: Build Arch Linux package
