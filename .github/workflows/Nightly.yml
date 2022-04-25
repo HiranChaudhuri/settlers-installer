@@ -57,6 +57,11 @@ jobs:
         jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage
         echo "-- Checking output directory"
         find app/build/distributions
+
+    - name: Install pacman for Arch
+      run: |
+        #!/bin/bash -x
+        sudo apt-get install -y pacman
         
     # https://github.com/marketplace/actions/build-arch-package
     - name: Build Arch Linux package
