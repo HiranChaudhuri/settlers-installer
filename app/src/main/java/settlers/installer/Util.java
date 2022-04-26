@@ -117,7 +117,7 @@ public class Util {
         
         URL url = new URL(asset.getBrowser_download_url());
         log.debug("downloading from {}", url);
-        try (InputStream in = url.openStream(); OutputStream out = new FileOutputStream(download)) {
+        try (InputStream in = url.openStream()) {
             Files.copy(in, download.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             throw new IOException(String.format("Could not download %s to %s", url, download));
