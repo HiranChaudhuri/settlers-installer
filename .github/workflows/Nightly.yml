@@ -45,7 +45,7 @@ jobs:
     - name: Modify app-image
       run: |
         #!/bin/bash -x
-        ./gradlew --info filterResourcesCopy jpackageInterfere
+        ./gradlew --info filterResourcesCopy1 filterResourcesCopy2 jpackageInterfere
         find app/build/resources
 
     - name: Build Debian package
@@ -141,7 +141,7 @@ jobs:
     - name: Modify app-image
       run: |
         # PowerShell
-        ./gradlew --info filterResourcesCopy jpackageInterfere
+        ./gradlew --info filterResourcesCopy1 filterResourcesCopy2 jpackageInterfere
         echo "--Checking output directory"
         Get-ChildItem -Recurse app/build/resources
         Get-ChildItem -Recurse app/build/app-image
@@ -199,7 +199,7 @@ jobs:
     - name: Modify app-image
       run: |
         #!/bin/bash -x
-        ./gradlew --info filterResourcesCopy
+        ./gradlew --info filterResourcesCopy1 filterResourcesCopy2
         find app/build/resources
 
     - name: Build package
