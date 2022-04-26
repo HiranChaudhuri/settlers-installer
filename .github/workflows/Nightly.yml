@@ -85,11 +85,15 @@ jobs:
         name: SettlersRemake-Debian
         path: app/build
 
-    - name: Check directories
+    - name: Check environment
       run: |
         #!/bin/bash -x
         printenv | sort
+        echo PWD=
+        pwd
+        echo find...
         find .
+        ls -l ${GITHUB_WORKSPACE}/build/resources/arch/PKGINFO
 
     # https://github.com/marketplace/actions/build-arch-package
     - name: Build Arch Linux package
