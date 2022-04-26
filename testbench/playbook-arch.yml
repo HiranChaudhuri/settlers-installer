@@ -1,0 +1,234 @@
+- hosts: all
+  vars:
+    DEMO_HOME: /home/demo/oolite
+  tasks:
+  # add user
+  - name: Make sure we have a 'wheel' group
+    become: true
+    group:
+      name: wheel
+      state: present
+
+  - name: Allow 'wheel' group to have passwordless sudo
+    become: true
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^%wheel'
+      line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+      validate: visudo -cf %s
+
+  - name: "Add user"
+    become: true
+    user:
+      name: demo
+#      groups: wheel,cdrom
+      groups: wheel
+      append: yes
+      password: "{{ 'demo' | password_hash('sha512', 'mysecretsalt') }}"
+      shell: /bin/bash
+
+#  # install OS
+#  - name: install packages
+#    become: true
+#    apt:
+#      name: unzip
+#      state: present
+      
+  # update OS
+  - name: update OS
+    become: true
+    pacman:
+      update_cache: yes
+      upgrade: yes
+
+  # install UI    
+  - name: install packages
+    become: true
+    pacman:
+      name: gnome
+      state: present
+
+  - name: enable GDM for next boot
+    become: true
+    service:
+      name: gdm
+      enabled: true
+      state: started
+
+#  - name: Enable autologin
+#    become: true
+#    lineinfile:
+#      path: /etc/gdm/custom.conf
+#      regexp: "^(#\\s*)?AutomaticLoginEnable\\s*="
+#      line: "AutomaticLoginEnable = true"
+#
+#  - name: Enable autologin for user demo
+#    become: true
+#    lineinfile:
+#      path: /etc/gdm3/custom.conf
+#      regexp: "^(#\\s*)AutomaticLogin\\s*="
+#      line: "AutomaticLogin = demo"
+#
+#  # install scripts/icons
+#  - name: create menu folder
+#    become: true
+#    file:
+#      path: "/home/demo/.local/share/applications"
+#      state: directory
+#      owner: demo
+#      group: demo
+#      mode: "755"
+#
+#  - name: create menu folder
+#    become: true
+#    file:
+#      path: "/home/demo/.local/share/backgrounds"
+#      state: directory
+#      owner: demo
+#      group: demo
+#      mode: "755"
+#
+#  - name: "disable gnome initial setup for this user 1/2"
+#    become: true
+#    file:
+#      path: "/home/demo/.config"
+#      state: directory
+#      owner: demo
+#      group: demo
+#      mode: "755"
+#    
+#  - name: "disable gnome initial setup for this user 2/2"
+#    become: true
+#    copy:
+#      dest: "/home/demo/.config/gnome-initial-setup-done"
+#      owner: demo
+#      group: demo
+#      mode: "755"
+#      content: |-
+#        yes
+#
+#  - name: List available application packages
+#    command: "find /vagrant -name settlers*.deb"
+#    register: debname
+#    
+#  - debug:
+#      var: debname.stdout
+#    
+#  - name: Install local application via DEB
+#    become: true
+#    apt:
+#      deb: "{{ debname.stdout }}"
+#      state: present
+#
+#  - name: Install Github application via DEB
+#    become: true
+#    apt:
+#      deb: "https://github.com/HiranChaudhuri/settlers-installer/releases/download/nightly/settlersremake_1.0-1_amd64.deb"
+#      state: present
+#
+#  - name: create data directory
+#    become: true
+#    file:
+#      path: /home/demo/.jsettlers/managed
+#      owner: demo
+#      group: demo
+#      state: directory
+#
+#  - name: copy settlers data (if available)
+#    become: true
+#    copy:
+#      remote_src: yes
+#      src: /vagrant/S3/
+#      dest: /home/demo/.jsettlers/managed/data
+#      owner: demo
+#      group: demo
+#
+##  - name: Fix Window class
+##    become: true
+##    lineinfile:
+##      path: "{{ item }}"
+##      regexp: "^StartupWMClass=.*"
+##      line: "StartupWMClass=org-oolite-hiran-nexus-Main"
+##    with_items:
+##        - /opt/nexus/lib/nexus-Nexus.desktop
+##        - /usr/share/applications/nexus-Nexus.desktop
+#  
+##  - name: Fix icon reference
+##    become: true
+##    lineinfile:
+##      path: "/home/demo/GNUstep/Applications/Oolite/FreeDesktop/oolite.org.desktop"
+##      regexp: "^Icon=.*"
+##      line: "Icon=/home/demo/GNUstep/Applications/Oolite/FreeDesktop/oolite.org-icon.png"
+#  
+##  - name: Fix Window class for oolite
+##    become: true
+##    lineinfile:
+##      path: "/home/demo/GNUstep/Applications/Oolite/FreeDesktop/oolite.org.desktop"
+##      regexp: "^StartupWMClass=.*"
+##      line: "StartupWMClass=oolite"
+#
+##  - name: set favorites script
+##    become: true
+##    copy:
+##      dest: "{{ DEMO_HOME }}/setupFavorites.py"
+##      owner: demo
+##      group: demo
+##      mode: "755"
+##      content: |
+##        #!/usr/bin/python3
+##        import os
+##        import re
+##        import urllib.request
+##        
+##        print("1")
+##        os.system("dconf write /org/gnome/shell/favorite-apps \"['firefox.desktop', 'org.gnome.Nautilus.desktop', 'nexus-Nexus.desktop', 'oolite.org.desktop', 'org.gnome.Terminal.desktop']\"")
+##        
+##        print("21")
+##        os.system("dconf write /org/gnome/desktop/background/picture-options \"'zoom'\"")
+##        print("22")
+##        os.system("dconf write /org/gnome/desktop/background/picture-uri \"'file:///home/demo/.local/share/backgrounds/Digebiti.png'\"")
+##        print("23")
+##        os.system("gsettings set org.gnome.desktop.screensaver lock-enabled false")
+##        print("24")
+##        os.system("gsettings set org.gnome.desktop.screensaver ubuntu-lock-on-suspend false")
+##        print("25")
+##        os.system("gsettings set org.gnome.desktop.session idle-delay 0")
+##        #print("26")
+##        #os.system("gsettings set org.gnome.desktop.lockdown disable-log-out true")
+##        #print("27")
+##        #os.system("gsettings set org.gnome.desktop.lockdown disable-user-switching true")
+#  
+##  - name: install autostart for favorites script
+##    become: true
+##    file:
+##      path: "/home/demo/.config/autostart/"
+##      state: directory
+##      owner: demo
+##      group: demo
+##      mode: "755"
+#
+##  - name: create launcher for favorites script
+##    become: true
+##    copy:
+##      dest: "/home/demo/.config/autostart/OoliteDemo.desktop"
+##      owner: demo
+##      group: demo
+##      mode: "755"
+##      content: |
+##        [Desktop Entry]
+##        Name="Demo for Oolite & Nexus"
+##        Comment=Sets favorites so users can see the goodies
+##        Exec={{ DEMO_HOME }}/setupFavorites.py
+##        Terminal=false
+##        Type=Application
+##        Categories=Game;Simulation;
+##        MimeTypes=
+##        Path={{ DEMO_HOME }}
+#
+##        Icon={{ DEMO_HOME }}/{{ latestRelease.stdout }}/Communicator_Logo_Icon.png
+#
+#  - name: shutdown
+#    become: true
+#    shell: "/sbin/shutdown +1"
+#  
