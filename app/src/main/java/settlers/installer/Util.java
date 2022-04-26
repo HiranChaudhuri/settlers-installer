@@ -33,7 +33,16 @@ import settlers.installer.model.Asset;
 import settlers.installer.model.Release;
 
 /**
- *
+ * Windows:
+ * <pre>
+ * reg EXPORT "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\s3.exe" test.key
+ * <pre>
+ * Windows Registry Editor Version 5.00
+ * 
+ * [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\s3.exe]
+ * "Path"="f:/Ubisoft/Ubisoft Game Launcher/games/thesettlers3\\"
+ * "@"="f:/Ubisoft/Ubisoft Game Launcher/games/thesettlers3\\Siedler3R.exe"
+ * </pre>
  * @author hiran
  */
 public class Util {
@@ -104,7 +113,7 @@ public class Util {
     }
 
     /**
-     * Doenloads an asset into a temporary file and returns the file.
+     * Downloads an asset into a temporary file and returns the file.
      * 
      * @param asset the asset to download
      * @return the local file
@@ -160,6 +169,14 @@ public class Util {
         }
     }
     
+    /**
+     * Extracts a self-extracting ZIP archive (it is actually an EXE).
+     * 
+     * @param zipfile The archive to unzip
+     * @param target the directory to store it's content
+     * @throws IOException something went wrong
+     * @throws FileNotFoundException something went wrong
+     */
     public static void unzipSelfExtractingZip(File zipfile, File target) throws FileNotFoundException, IOException {
         try (ZipInputStream zis = new ZipInputStream(new WinZipInputStream(new FileInputStream(zipfile)))) {
             ZipEntry entry = null;
@@ -226,6 +243,11 @@ public class Util {
         }
     }
     
+    /**
+     * Deletes a file/directory recursively.
+     * 
+     * @param file the file to delete
+     */
     public static void deleteDir(File file) {
         File[] contents = file.listFiles();
         if (contents != null) {
@@ -237,7 +259,13 @@ public class Util {
         }
         file.delete();
     }
-    
+
+    /**
+     * Removes a release from the games folder.
+     * 
+     * @param release
+     * @throws IOException 
+     */
     public static void removeRelease(Release release) throws IOException {
         log.debug("removeRelease({})", release);
         File target = new File(getGamesFolder(), release.getId());
@@ -278,7 +306,14 @@ public class Util {
         
         execJarFile(jarfile);
     }
-    
+
+    /**
+     * Runs an executable jar in a separate JVM.
+     * 
+     * @param jarfile the jar file to run
+     * @throws IOException something went wrong
+     * @throws InterruptedException something went wrong
+     */
     public static void execJarFile(File jarfile) throws IOException, InterruptedException {
         File javaHome = new File(System.getProperty("java.home"));
         File java = new File(javaHome, "bin/java"); // may need a tweak on Windows
