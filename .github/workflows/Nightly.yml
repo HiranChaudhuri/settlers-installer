@@ -93,13 +93,13 @@ jobs:
         pwd
         echo find...
         find .
-        ls -l ${GITHUB_WORKSPACE}/build/resources/arch/PKGINFO
+        ls -l ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
 
     # https://github.com/marketplace/actions/build-arch-package
     - name: Build Arch Linux package
       uses: FFY00/build-arch-package@v1
       with:
-        PKGBUILD: ${GITHUB_WORKSPACE}/build/resources/arch/PKGINFO
+        PKGBUILD: ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
         OUTDIR: app/build/distributions
 
   build-Windows:
