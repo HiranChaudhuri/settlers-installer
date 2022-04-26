@@ -130,7 +130,7 @@ task jpackagePrepare(type: Copy, dependsOn: ['distZip']) {
     }
 }
 
-task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesCopy']) {
+task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesCopy1', 'filterResourcesCopy2']) {
     doFirst {
          exec {
              workingDir "."
@@ -147,7 +147,7 @@ task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesC
 }
 
 // depend from creating jpackage resources, then copy desktop file
-task jpackageInterfere(type: Copy, dependsOn: ['filterResourcesCopy']) {
+task jpackageInterfere(type: Copy, dependsOn: ['filterResourcesCopy1', 'filterResourcesCopy2']) {
     //outputs.dir('build/app-image/SettlersRemake/lib')
     doNotTrackState("We just generate additional files")
 
@@ -180,7 +180,7 @@ task jpackagePhase2(type: Exec, dependsOn: ['jpackagePhase1', 'jpackageInterfere
     }
 }
 
-task jpackage(description: "Build native installation package", dependsOn: ['jpackagePhase1', 'filterResourcesCopy', 'jpackagePhase2']) {
+task jpackage(description: "Build native installation package", dependsOn: ['jpackagePhase1', 'filterResourcesCopy1', 'filterResourcesCopy2', 'jpackagePhase2']) {
     doLast {
          exec {
              workingDir "."
