@@ -94,6 +94,8 @@ jobs:
         echo find...
         find .
         ls -l ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
+        echo PKGINFO content:
+        cat ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
 
     # https://github.com/marketplace/actions/build-arch-package
     - name: Build Arch Linux package

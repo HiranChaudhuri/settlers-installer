@@ -1,12 +1,14 @@
-# Following https://wiki.archlinux.org/title/Arch_package_guidelines
+# Documentation:   https://wiki.archlinux.org/title/Creating_packages
+# Guidelines:      https://wiki.archlinux.org/title/Arch_package_guidelines
+# working example: https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=kodi-addon-kodi-karaoke
 #
 # Maintainer: Your Name <HiranChaudhuri@github.com>
 pkgname="@PACKAGE_NAME_NORMAL@"
-pkgver="@APPLICATION_VERSION@"
+pkgver="@APPLICATION_ARCHVERSION@"
 pkgrel=1
-pkgdesc=""
+pkgdesc="@APPLICATION_DESCRIPTION@"
 arch=('x86_64')
-url=""
+url="https://github.com/HiranChaudhuri/settlers-installer"
 license=('')
 groups=()
 depends=()
@@ -19,7 +21,7 @@ backup=()
 options=()
 install=
 changelog=
-source=($pkgname-$pkgver.tar.gz)
+source=($pkgname-$pkgver.tar::https://github.com/HiranChaudhuri/settlers-installer/releases/download/nightly/app-0.1.0-SNAPSHOT.tar)
 noextract=()
 md5sums=() #autofill using updpkgsums
 
