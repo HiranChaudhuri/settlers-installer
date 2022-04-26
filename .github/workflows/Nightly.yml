@@ -62,8 +62,9 @@ jobs:
       with:
         name: SettlersRemake-Debian
         path: |
-          app/build/distributions/*
           app/build/app-image
+          app/build/distributions/*
+          app/build/resources
 
   build-Arch:
     runs-on: ubuntu-latest

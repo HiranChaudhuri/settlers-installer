@@ -54,7 +54,7 @@ tasks.named('test') {
 import org.apache.tools.ant.filters.ReplaceTokens
 
 // create control, postinst and desktop files
-task filterResourcesCopy(type: Copy) {
+task filterResourcesCopy1(type: Copy) {
     //outputs.dir('build/resources/jpackage')
     doNotTrackState("We just generate additional files")
 
@@ -65,6 +65,7 @@ task filterResourcesCopy(type: Copy) {
     from('src/jpackage/resources') {
         filter(ReplaceTokens, tokens: [
             APPLICATION_NAME: "${APPNAME} ${version}".toString(), 
+            APPLICATION_VERSION: "${version}".toString(), 
             APPLICATION_DESCRIPTION: 'Wrapper project settlers-installer to easily use settlers-remake. See https://github.com/HiranChaudhuri/settlers-installer',
             APPLICATION_LAUNCHER: ("/opt/" + "${APPNAME}".toLowerCase() + "/bin/${APPNAME}").toString(),
             APPLICATION_ICON: ("/opt/" + "${APPNAME}".toLowerCase() + "/lib/${APPNAME}.png").toString(),
@@ -76,6 +77,35 @@ task filterResourcesCopy(type: Copy) {
         ])
     }
     into layout.buildDirectory.dir('resources/jpackage')
+    
+    doLast {
+        assert file("build/resources/jpackage/control").exists()
+    }
+}
+
+task filterResourcesCopy2(type: Copy) {
+    //outputs.dir('build/resources/arch')
+    doNotTrackState("We just generate additional files")
+
+    doFirst {
+        layout.buildDirectory.dir('resources/arch')
+    }
+
+    from('src/jpackage/resources') {
+        filter(ReplaceTokens, tokens: [
+            APPLICATION_NAME: "${APPNAME} ${version}".toString(), 
+            APPLICATION_VERSION: "${version}".toString(), 
+            APPLICATION_DESCRIPTION: 'Wrapper project settlers-installer to easily use settlers-remake. See https://github.com/HiranChaudhuri/settlers-installer',
+            APPLICATION_LAUNCHER: ("/opt/" + "${APPNAME}".toLowerCase() + "/bin/${APPNAME}").toString(),
+            APPLICATION_ICON: ("/opt/" + "${APPNAME}".toLowerCase() + "/lib/${APPNAME}.png").toString(),
+            DEPLOY_BUNDLE_CATEGORY: "Game".toString(),
+            DESKTOP_MIMES: '',
+            APPLICATION_StartupWMClass: 'settlers-installer-App',
+            PACKAGE_NAME_LOWER: "${APPNAME}".toString().toLowerCase(),
+            PACKAGE_NAME_NORMAL: "${APPNAME}".toString()
+        ])
+    }
+    into layout.buildDirectory.dir('resources/arch')
     
     doLast {
         assert file("build/resources/jpackage/control").exists()
