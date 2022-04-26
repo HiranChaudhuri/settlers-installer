@@ -56,20 +56,22 @@
       enabled: true
       state: started
 
-#  - name: Enable autologin
-#    become: true
-#    lineinfile:
-#      path: /etc/gdm/custom.conf
-#      regexp: "^(#\\s*)?AutomaticLoginEnable\\s*="
-#      line: "AutomaticLoginEnable = true"
-#
-#  - name: Enable autologin for user demo
-#    become: true
-#    lineinfile:
-#      path: /etc/gdm3/custom.conf
-#      regexp: "^(#\\s*)AutomaticLogin\\s*="
-#      line: "AutomaticLogin = demo"
-#
+  - name: Enable autologin
+    become: true
+    lineinfile:
+      path: /etc/gdm/custom.conf
+      regexp: "^(#\\s*)?AutomaticLoginEnable\\s*="
+      line: "AutomaticLoginEnable = true"
+      insertafter: "\\[daemon\\]"
+
+  - name: Enable autologin for user demo
+    become: true
+    lineinfile:
+      path: /etc/gdm/custom.conf
+      regexp: "^(#\\s*)AutomaticLogin\\s*="
+      line: "AutomaticLogin = demo"
+      insertafter: "\\[daemon\\]"
+
 #  # install scripts/icons
 #  - name: create menu folder
 #    become: true
@@ -227,8 +229,8 @@
 ##        Path={{ DEMO_HOME }}
 #
 ##        Icon={{ DEMO_HOME }}/{{ latestRelease.stdout }}/Communicator_Logo_Icon.png
-#
-#  - name: shutdown
-#    become: true
-#    shell: "/sbin/shutdown +1"
-#  
+
+  - name: shutdown
+    become: true
+    shell: "/sbin/shutdown +1"
+  
