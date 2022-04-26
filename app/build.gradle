@@ -91,7 +91,7 @@ task filterResourcesCopy2(type: Copy) {
         layout.buildDirectory.dir('resources/arch')
     }
 
-    from('src/jpackage/resources') {
+    from('src/arch') {
         filter(ReplaceTokens, tokens: [
             APPLICATION_NAME: "${APPNAME} ${version}".toString(), 
             APPLICATION_VERSION: "${version}".toString(), 
@@ -108,7 +108,7 @@ task filterResourcesCopy2(type: Copy) {
     into layout.buildDirectory.dir('resources/arch')
     
     doLast {
-        assert file("build/resources/jpackage/control").exists()
+        assert file("build/resources/arch/PKGINFO").exists()
     }
 }
 

@@ -94,7 +94,7 @@ jobs:
     - name: Build Arch Linux package
       uses: FFY00/build-arch-package@v1
       with:
-        PKGBUILD: app-image/SettlersRemake
+        PKGBUILD: build/resources/arch/PKGINFO
         OUTDIR: app/build/distributions
 
   build-Windows:
