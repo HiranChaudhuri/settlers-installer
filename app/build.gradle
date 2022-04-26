@@ -53,7 +53,7 @@ tasks.named('test') {
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
-// create control, postinst and desktop files
+// create control, postinst and desktop files for Debian builds
 task filterResourcesCopy1(type: Copy) {
     //outputs.dir('build/resources/jpackage')
     doNotTrackState("We just generate additional files")
@@ -83,6 +83,7 @@ task filterResourcesCopy1(type: Copy) {
     }
 }
 
+// Create PKGINFO for Arch build
 task filterResourcesCopy2(type: Copy) {
     //outputs.dir('build/resources/arch')
     doNotTrackState("We just generate additional files")
@@ -95,6 +96,7 @@ task filterResourcesCopy2(type: Copy) {
         filter(ReplaceTokens, tokens: [
             APPLICATION_NAME: "${APPNAME} ${version}".toString(), 
             APPLICATION_VERSION: "${version}".toString(), 
+            APPLICATION_ARCHVERSION: "${version}".toString().replace("-", "_"), 
             APPLICATION_DESCRIPTION: 'Wrapper project settlers-installer to easily use settlers-remake. See https://github.com/HiranChaudhuri/settlers-installer',
             APPLICATION_LAUNCHER: ("/opt/" + "${APPNAME}".toLowerCase() + "/bin/${APPNAME}").toString(),
             APPLICATION_ICON: ("/opt/" + "${APPNAME}".toLowerCase() + "/lib/${APPNAME}.png").toString(),
