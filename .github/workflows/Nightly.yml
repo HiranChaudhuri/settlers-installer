@@ -76,10 +76,13 @@ jobs:
       - build-Debian
     
     steps:
+    - uses: actions/checkout@v2
+
     - name: Download Debian results
       uses: actions/download-artifact@v2
       with:
         name: SettlersRemake-Debian
+        path: app/build
 
     - name: Check directories
       run: |
@@ -91,7 +94,7 @@ jobs:
       uses: FFY00/build-arch-package@v1
       with:
         PKGBUILD: app-image/SettlersRemake
-        OUTDIR: distributions
+        OUTDIR: app/build/distributions
 
   build-Windows:
     runs-on: windows-latest
