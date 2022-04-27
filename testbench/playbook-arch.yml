@@ -128,24 +128,24 @@
 #    apt:
 #      deb: "https://github.com/HiranChaudhuri/settlers-installer/releases/download/nightly/settlersremake_1.0-1_amd64.deb"
 #      state: present
-#
-#  - name: create data directory
-#    become: true
-#    file:
-#      path: /home/demo/.jsettlers/managed
-#      owner: demo
-#      group: demo
-#      state: directory
-#
-#  - name: copy settlers data (if available)
-#    become: true
-#    copy:
-#      remote_src: yes
-#      src: /vagrant/S3/
-#      dest: /home/demo/.jsettlers/managed/data
-#      owner: demo
-#      group: demo
-#
+
+  - name: create data directory
+    become: true
+    file:
+      path: /home/demo/.jsettlers/managed
+      owner: demo
+      group: demo
+      state: directory
+
+  - name: copy settlers data (if available)
+    become: true
+    copy:
+      remote_src: yes
+      src: /vagrant/S3/
+      dest: /home/demo/.jsettlers/managed/data
+      owner: demo
+      group: demo
+
 ##  - name: Fix Window class
 ##    become: true
 ##    lineinfile:
