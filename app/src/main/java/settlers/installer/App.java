@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.filechooser.FileSystemView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import settlers.installer.model.Release;
@@ -52,30 +53,6 @@ public class App {
         return true;
     }
     
-    private static File getCdMountPoint() {
-        // we assume to run on Linux
-        // read /proc/mounts and scan for iso9660 filesystem
-        try (Scanner scanner = new Scanner(new File("/proc/mounts"))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                if (line.toLowerCase().contains("iso9660")) {
-                    log.debug("line: {}", line);
-                    StringTokenizer st = new StringTokenizer(line);
-                    st.nextToken();
-                    String mountPoint = st.nextToken();
-                    log.debug("mount point: {}", mountPoint);
-                    
-                    return new File(mountPoint);
-                }
-            }
-        } catch (Exception e) {
-            log.error("Could not get cd mount point", e);
-            return null;
-        }
-        
-        return null;
-    }
-
     private static ImageIcon settlersIcon = new javax.swing.ImageIcon(App.class.getResource("/siedler3-helme-shape.png"));
     private static ImageIcon settlersLogoIcon = new javax.swing.ImageIcon(App.class.getResource("/siedler3-helme-logo.png"));
     
@@ -110,7 +87,7 @@ public class App {
             frame.setVisible(true);
 
             while (mountedCd == null) {
-                mountedCd = getCdMountPoint();
+                mountedCd = Util.getCdMountPoint();
                 if (mountedCd == null) {
                     hint.setText("No CD inserted");
                 } else {

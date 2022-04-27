@@ -23,8 +23,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Scanner;
+import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.swing.filechooser.FileSystemView;
 import net.sf.fikin.ant.EmbeddedAntProject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -394,6 +397,75 @@ public class Util {
         };
         prj.executeTarget( prj.getDefaultTarget() );
 
+    }
+    
+    /**
+     * Finds the CD mount point in Linux.
+     * If several CDROM drives are installed, only the first will be returned.
+     * 
+     * @return the file object to the CDROM, or null if not found
+     */
+    private static File getCdMountPointLinux() {
+        // we assume to run on Linux
+        // read /proc/mounts and scan for iso9660 filesystem
+        try (Scanner scanner = new Scanner(new File("/proc/mounts"))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                if (line.toLowerCase().contains("iso9660")) {
+                    log.debug("line: {}", line);
+                    StringTokenizer st = new StringTokenizer(line);
+                    st.nextToken();
+                    String mountPoint = st.nextToken();
+                    log.debug("mount point: {}", mountPoint);
+                    
+                    return new File(mountPoint);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Could not get cd mount point", e);
+            return null;
+        }
+        
+        return null;
+    }
+
+    /**
+     * Finds the CD mount point in Linux.
+     * If several CDROM drives are installed, only the first will be returned.
+     * 
+     * @return the file object to the CDROM, or null if not found
+     */
+    private static File getCdMountPointWindows() {
+        File result = null;
+        
+        FileSystemView fsv = FileSystemView.getFileSystemView();
+        for (File root: fsv.getRoots()) {
+            String type = fsv.getSystemTypeDescription(root);
+            log.debug("Filesystem {} is {}", root, type);
+            
+            if (type.toLowerCase().contains("cd") && null == result) {
+                result = root;
+                log.debug("  seems {} is the CDROM", root);
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Returns the mount point or the filesystem root of the CDROM drive.
+     * If several CDROM drives are installed, only the first will be returned.
+     * 
+     * @return the file object to the CDROM, or null if not found
+     */
+    public static File getCdMountPoint() {
+        if (OsDetector.IS_UNIX) {
+            return getCdMountPointLinux();
+        } else if (OsDetector.IS_WINDOWS) {
+            return getCdMountPointWindows();
+        } else {
+            log.warn("Unknown operating system {}", OsDetector.OS);
+            return null;
+        }
     }
     
 }
