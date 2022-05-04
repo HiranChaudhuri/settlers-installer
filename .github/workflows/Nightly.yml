@@ -66,43 +66,43 @@ jobs:
           app/build/distributions/*
           app/build/resources
 
-  build-Arch:
-    runs-on: ubuntu-latest
-    container:
-      image: archlinux
-      options: --privileged
-      volumes:
-        - /sys/fs/cgroup:/sys/fs/cgroup
-    needs:
-      - build-Debian
-    
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Download Debian results
-      uses: actions/download-artifact@v2
-      with:
-        name: SettlersRemake-Debian
-        path: app/build
-
-    - name: Check environment
-      run: |
-        #!/bin/bash -x
-        printenv | sort
-        echo PWD=
-        pwd
-        echo find...
-        find .
-        ls -l ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
-        echo PKGINFO content:
-        cat ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
-
-    # https://github.com/marketplace/actions/build-arch-package
-    - name: Build Arch Linux package
-      uses: FFY00/build-arch-package@v1
-      with:
-        PKGBUILD: ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
-        OUTDIR: app/build/distributions
+#  build-Arch:
+#    runs-on: ubuntu-latest
+#    container:
+#      image: archlinux
+#      options: --privileged
+#      volumes:
+#        - /sys/fs/cgroup:/sys/fs/cgroup
+#    needs:
+#      - build-Debian
+#    
+#    steps:
+#    - uses: actions/checkout@v2
+#
+#    - name: Download Debian results
+#      uses: actions/download-artifact@v2
+#      with:
+#        name: SettlersRemake-Debian
+#        path: app/build
+#
+#    - name: Check environment
+#      run: |
+#        #!/bin/bash -x
+#        printenv | sort
+#        echo PWD=
+#        pwd
+#        echo find...
+#        find .
+#        ls -l ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
+#        echo PKGINFO content:
+#        cat ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
+#
+#    # https://github.com/marketplace/actions/build-arch-package
+#    - name: Build Arch Linux package
+#      uses: FFY00/build-arch-package@v1
+#      with:
+#        PKGBUILD: ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
+#        OUTDIR: app/build/distributions
 
   build-Windows:
     runs-on: windows-latest

@@ -36,27 +36,27 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.define :arch do |arch|
-    arch.vm.boot_timeout = 120
-    arch.vm.box = "archlinux/archlinux"
-    arch.vm.hostname = "Settlers-Arch"
-    arch.vm.provider "virtualbox" do |avb|
-      avb.gui = true
-      avb.name = "Settlers-Arch"
-      avb.memory = "4096"
-
-      avb.customize ["storageattach", :id, "--storagectl", "IDE Controller", "--port", "0", "--device", "1", "--type", "dvddrive", "--medium", "emptydrive"]
-      avb.customize ["modifyvm", :id, "--boot1", "disk", "--boot2", "dvd", "--boot3", "none", "--boot4", "none"]
-      avb.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
-      #avb.customize ["modifyvm", :id, "--iconfile", "Appliance_Logo.png"]
-      #avb.customize ["modifyvm", :id, "--graphicscontroller", "vboxsvga"] -- it seems vmsvga is the recommended adapter
-      avb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
-    end
-
-    arch.vm.provision :ansible do |ansible|
-      ansible.playbook = "playbook-arch.yml"
-      ansible.verbose = "vv"
-    end
-  end
+#  config.vm.define :arch do |arch|
+#    arch.vm.boot_timeout = 120
+#    arch.vm.box = "archlinux/archlinux"
+#    arch.vm.hostname = "Settlers-Arch"
+#    arch.vm.provider "virtualbox" do |avb|
+#      avb.gui = true
+#      avb.name = "Settlers-Arch"
+#      avb.memory = "4096"
+#
+#      avb.customize ["storageattach", :id, "--storagectl", "IDE Controller", "--port", "0", "--device", "1", "--type", "dvddrive", "--medium", "emptydrive"]
+#      avb.customize ["modifyvm", :id, "--boot1", "disk", "--boot2", "dvd", "--boot3", "none", "--boot4", "none"]
+#      avb.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
+#      #avb.customize ["modifyvm", :id, "--iconfile", "Appliance_Logo.png"]
+#      #avb.customize ["modifyvm", :id, "--graphicscontroller", "vboxsvga"] -- it seems vmsvga is the recommended adapter
+#      avb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+#    end
+#
+#    arch.vm.provision :ansible do |ansible|
+#      ansible.playbook = "playbook-arch.yml"
+#      ansible.verbose = "vv"
+#    end
+#  end
 
 end
