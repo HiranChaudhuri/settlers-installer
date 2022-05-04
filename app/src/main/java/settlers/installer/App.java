@@ -2,219 +2,127 @@
  */
 package settlers.installer;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Scanner;
-import java.util.StringTokenizer;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.filechooser.FileSystemView;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import settlers.installer.model.Release;
 
-public class App {
+/**
+ *
+ * @author hiran
+ */
+public class App extends javax.swing.JFrame {
     private static final Logger log = LogManager.getLogger(App.class);
-    
+
     /**
-     * Validated a S3 data folder.
-     * 
-     * @param dir
-     * @return 
+     * Creates new form App
      */
-    private static boolean looksOk(File dir) {
-        log.debug("looksOk({})", dir);
-        if (!dir.isDirectory()) {
-            log.warn("File {} is not a directory.", dir);
-            return false;
-        }
-        if (dir.listFiles().length < 2) {
-            log.warn("File {} contains too few files", dir);
-            return false;
-        }
-        return true;
-    }
-    
-    private static ImageIcon settlersIcon = new javax.swing.ImageIcon(App.class.getResource("/siedler3-helme-shape.png"));
-    private static ImageIcon settlersLogoIcon = new javax.swing.ImageIcon(App.class.getResource("/siedler3-helme-logo.png"));
-    
-    private static JFrame showNakedFrame(JComponent message) {
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setUndecorated(true);
-        frame.setResizable(false);
-        frame.setLayout(new GridBagLayout());
-        frame.setIconImage(settlersLogoIcon.getImage());
-
-        frame.add(new JLabel(settlersIcon), new GridBagConstraints(0, 0, 1, 1, 1, 1, GridBagConstraints.CENTER, 0, new Insets(5, 5, 5, 5), 0, 0));
-        frame.add(message, new GridBagConstraints(0, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, 0, new Insets(5, 5, 5, 5), 0, 0));
-
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        return frame;
-    }
-
-    private static File findCdRom() throws InterruptedException {
-        File mountedCd = null;
+    public App() {
+        initComponents();
         
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.add(new JLabel("Please insert the Settlers installation CD now"), BorderLayout.CENTER);
-        JLabel hint = new JLabel("No CD found");
-        panel.add(hint, BorderLayout.SOUTH);
-        
-        JFrame frame = showNakedFrame(panel);
-        
-        try {
-            frame.setVisible(true);
-
-            while (mountedCd == null) {
-                mountedCd = Util.getCdMountPoint();
-                if (mountedCd == null) {
-                    hint.setText("No CD inserted");
-                } else {
-                    File data1 = new File(mountedCd, "s3/install/data1.cab");
-                    log.debug("checking for {}", data1);
-                    if (!data1.exists()) {
-                        hint.setText("No S3 installation files in "+mountedCd.getAbsolutePath());
-                        mountedCd = null;
-                    } else {
-                        log.info("Found {}", data1);
-                        return mountedCd;
-                    }
-                }
+        Timer timer = new Timer(1500, new ActionListener() {
+            
+            private int x = 0;
+            
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                x = (x + 1) % 4;
+                log.warn(String.format("x = %d", x));
                 
-                Thread.sleep(3000);
+                lbDataFound.setVisible( (x & 1) == 0);
+                lbGameFound.setVisible( (x & 2) == 0);
+                lbDataMissing.setVisible( (x & 1) != 0);
+                lbGameMissing.setVisible( (x & 2) != 0);
             }
-            
-            return mountedCd;
-        } finally {
-            frame.setVisible(false);
-        }
+        });
+        timer.start();
     }
-    
-    public static void main(String[] args) throws Exception {
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLayeredPane1 = new javax.swing.JLayeredPane();
+        lbGameFound = new javax.swing.JLabel();
+        lbGameMissing = new javax.swing.JLabel();
+        jLayeredPane2 = new javax.swing.JLayeredPane();
+        lbDataFound = new javax.swing.JLabel();
+        lbDataMissing = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Settlers-Installer");
+        getContentPane().setLayout(new java.awt.GridLayout(2, 1));
+
+        jLayeredPane1.setLayout(new javax.swing.BoxLayout(jLayeredPane1, javax.swing.BoxLayout.LINE_AXIS));
+
+        lbGameFound.setText("Game Found");
+        jLayeredPane1.add(lbGameFound);
+
+        lbGameMissing.setText("Game Missing");
+        jLayeredPane1.add(lbGameMissing);
+
+        getContentPane().add(jLayeredPane1);
+
+        jLayeredPane2.setLayout(new javax.swing.BoxLayout(jLayeredPane2, javax.swing.BoxLayout.LINE_AXIS));
+
+        lbDataFound.setText("Data Found");
+        jLayeredPane2.add(lbDataFound);
+
+        lbDataMissing.setText("Data Missing");
+        jLayeredPane2.add(lbDataMissing);
+
+        getContentPane().add(jLayeredPane2);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
         try {
-            List<Release> githubReleases = Util.getGithubReleases();
-            List<Release> installedReleases = Util.getInstalledReleases();
-
-            // install if a newer one is available
-            if (installedReleases.isEmpty() || installedReleases.get(0).getPublished_at().before(githubReleases.get(0).getPublished_at())) {
-                Release latest = githubReleases.get(0);
-                log.debug("Installing latest release {}", latest);
-
-                JFrame f = null;
-                try {
-                    JPanel panel = new JPanel();
-                    JProgressBar pb = new JProgressBar();
-                    pb.setIndeterminate(true);
-                    panel.add(new JLabel(String.format("Installing release %s", latest.getName())));
-                    panel.add(pb);
-                    
-                    f = showNakedFrame(panel);
-                    f.setVisible(true);
-
-                    Util.installRelease(latest);
-                } catch (Exception e) {
-                    f.setVisible(false);
-                    throw new Exception(String.format("Could not install %s", latest.getName()), e);
-                } finally {
-                    f.setVisible(false);
-                }
-
-                installedReleases = Util.getInstalledReleases();
-            }
-
-            // remove if we have more than five
-            while (installedReleases.size()>5) {
-                Release r = installedReleases.get(installedReleases.size()-1);
-                Util.removeRelease(r);
-                installedReleases = Util.getInstalledReleases();
-            }
-
-            for (Release r: installedReleases) {
-                log.debug("  installed: {}", r.getName());
-            }
-            for (Release r: githubReleases) {
-                log.debug("  github   : {}", r.getName());
-            }
-
-            log.debug("{} releases installed: {}", installedReleases.size(), installedReleases);
-
-
-            log.debug("data folder {}", Util.getDataFolder());
-
-            if (!looksOk(Util.getDataFolder())) {
-                log.info("Data folder not ok? Let's install S3...");
-                JFrame f = null;
-                try {
-                    File cdrom = findCdRom();
-
-                    JPanel panel = new JPanel();
-                    JProgressBar pb = new JProgressBar();
-                    pb.setIndeterminate(true);
-                    panel.add(new JLabel("Installing from CD..."));
-                    panel.add(pb);
-                    
-                    f = showNakedFrame(panel);
-                    f.setVisible(true);
-                    
-                    Properties props = new Properties();
-                    //props.put("cdrom", "/media/hiran/S3GOLD2_G");
-                    props.put("cdrom", cdrom.getAbsolutePath());
-                    props.put("data", Util.getDataFolder().getAbsolutePath());
-                    Util.runAnt(new File("src/main/resources/S3_Installer.xml"), props);
-                } catch (Exception e) {
-                    // delete data directory recursively
-                    Util.deleteDir(Util.getDataFolder());
-                    log.info("Removed {}", Util.getDataFolder());
-
-                    f.setVisible(false);
-                    throw new Exception("Could not install S3");        
-                } finally {
-                    f.setVisible(false);
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
                 }
             }
-
-            Util.runRelease(installedReleases.get(0));
-
-            log.debug("Done.");
-        } catch (Exception e) {
-            log.error("something went wrong", e);
-            String msg = e.getMessage() + "\nSee logfile for more information.";
-            
-            if (msg.length()>80) {
-                JTextArea jta = new JTextArea();
-                jta.setColumns(80);
-                jta.setRows(10);
-                jta.setLineWrap(true);
-                jta.setWrapStyleWord(true);
-                jta.setEditable(false);
-                jta.setText(msg);
-                JOptionPane.showMessageDialog(null, new JScrollPane(jta), "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            System.exit(1);
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        System.exit(0);
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new App().setVisible(true);
+            }
+        });
     }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLayeredPane jLayeredPane1;
+    private javax.swing.JLayeredPane jLayeredPane2;
+    private javax.swing.JLabel lbDataFound;
+    private javax.swing.JLabel lbDataMissing;
+    private javax.swing.JLabel lbGameFound;
+    private javax.swing.JLabel lbGameMissing;
+    // End of variables declaration//GEN-END:variables
 }
