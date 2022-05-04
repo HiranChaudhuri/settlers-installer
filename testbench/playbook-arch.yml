@@ -28,13 +28,15 @@
       password: "{{ 'demo' | password_hash('sha512', 'mysecretsalt') }}"
       shell: /bin/bash
 
-#  # install OS
-#  - name: install packages
+#  # enable AUR repository
+#  - name: enable AUR repository
 #    become: true
-#    apt:
-#      name: unzip
-#      state: present
-      
+#    shell: 'sed --in-place "s/#EnableAUR/EnableAUR/" /etc/pamac.conf'
+#
+#  - name: enable AUR update checks
+#    become: true
+#    shell: 'sed --in-place "s/#CheckAURUpdates/CheckAURUpdates/" "/etc/pamac.conf"'
+    
   # update OS
   - name: update OS
     become: true
