@@ -15,6 +15,9 @@ import org.apache.logging.log4j.Logger;
 public class App extends javax.swing.JFrame {
     private static final Logger log = LogManager.getLogger(App.class);
 
+    private javax.swing.ImageIcon iiFound = new javax.swing.ImageIcon(getClass().getResource("/done_outline_FILL0_wght400_GRAD0_opsz48.png"));
+    private javax.swing.ImageIcon iiMissing = new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"));
+    
     /**
      * Creates new form App
      */
@@ -29,11 +32,23 @@ public class App extends javax.swing.JFrame {
             public void actionPerformed(ActionEvent ae) {
                 x = (x + 1) % 4;
                 log.warn(String.format("x = %d", x));
+
+                if ((x & 1) == 0) {
+                    lbResultGame.setIcon(iiFound);
+                    btInstallGame.setVisible(false);
+                } else {
+                    lbResultGame.setIcon(iiMissing);
+                    btInstallGame.setVisible(true);
+                }
+                if ((x & 2) == 0) {
+                    lbResultData.setIcon(iiFound);
+                    btInstallData.setVisible(false);
+                } else {
+                    lbResultData.setIcon(iiMissing);
+                    btInstallData.setVisible(true);
+                }
                 
-                lbDataFound.setVisible( (x & 1) == 0);
-                lbGameFound.setVisible( (x & 2) == 0);
-                lbDataMissing.setVisible( (x & 1) != 0);
-                lbGameMissing.setVisible( (x & 2) != 0);
+                btPlay.setVisible(x == 0);
             }
         });
         timer.start();
@@ -47,40 +62,134 @@ public class App extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        jLayeredPane1 = new javax.swing.JLayeredPane();
-        lbGameFound = new javax.swing.JLabel();
-        lbGameMissing = new javax.swing.JLabel();
-        jLayeredPane2 = new javax.swing.JLayeredPane();
-        lbDataFound = new javax.swing.JLabel();
-        lbDataMissing = new javax.swing.JLabel();
+        lbIconGithub = new javax.swing.JLabel();
+        lbGameFiles = new javax.swing.JLabel();
+        lbIconSettlers = new javax.swing.JLabel();
+        lbDataFiles = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        lbResultGame = new javax.swing.JLabel();
+        lbResultData = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        btInstallGame = new javax.swing.JButton();
+        btInstallData = new javax.swing.JButton();
+        btPlay = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Settlers-Installer");
-        getContentPane().setLayout(new java.awt.GridLayout(2, 1));
+        setName("Settlers-Installer"); // NOI18N
+        setResizable(false);
+        getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        jLayeredPane1.setLayout(new javax.swing.BoxLayout(jLayeredPane1, javax.swing.BoxLayout.LINE_AXIS));
+        lbIconGithub.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbIconGithub.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GitHub-Mark-120px-plus.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.ipadx = 30;
+        gridBagConstraints.ipady = 30;
+        getContentPane().add(lbIconGithub, gridBagConstraints);
 
-        lbGameFound.setText("Game Found");
-        jLayeredPane1.add(lbGameFound);
+        lbGameFiles.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        lbGameFiles.setText("Game files");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.ipadx = 30;
+        gridBagConstraints.ipady = 30;
+        getContentPane().add(lbGameFiles, gridBagConstraints);
 
-        lbGameMissing.setText("Game Missing");
-        jLayeredPane1.add(lbGameMissing);
+        lbIconSettlers.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lbIconSettlers.setIcon(new javax.swing.ImageIcon(getClass().getResource("/siedler3-helme-circle-120.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.ipadx = 30;
+        gridBagConstraints.ipady = 30;
+        getContentPane().add(lbIconSettlers, gridBagConstraints);
 
-        getContentPane().add(jLayeredPane1);
+        lbDataFiles.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        lbDataFiles.setText("Data Files");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.ipadx = 30;
+        gridBagConstraints.ipady = 30;
+        getContentPane().add(lbDataFiles, gridBagConstraints);
 
-        jLayeredPane2.setLayout(new javax.swing.BoxLayout(jLayeredPane2, javax.swing.BoxLayout.LINE_AXIS));
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel5.setText("Welcome to settlers-remake, a clone of Bluebyte’s Settlers III.");
+        jLabel5.setAutoscrolls(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.ipadx = 30;
+        gridBagConstraints.ipady = 30;
+        gridBagConstraints.weightx = 1.0;
+        getContentPane().add(jLabel5, gridBagConstraints);
 
-        lbDataFound.setText("Data Found");
-        jLayeredPane2.add(lbDataFound);
+        lbResultGame.setIcon(new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        getContentPane().add(lbResultGame, gridBagConstraints);
 
-        lbDataMissing.setText("Data Missing");
-        jLayeredPane2.add(lbDataMissing);
+        lbResultData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 2;
+        getContentPane().add(lbResultData, gridBagConstraints);
 
-        getContentPane().add(jLayeredPane2);
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        btInstallGame.setText("Install Game");
+        btInstallGame.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btInstallGameActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btInstallGame, new java.awt.GridBagConstraints());
+
+        btInstallData.setText("Install Data");
+        btInstallData.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btInstallDataActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btInstallData, new java.awt.GridBagConstraints());
+
+        btPlay.setText("Play!");
+        btPlay.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btPlayActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btPlay, new java.awt.GridBagConstraints());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.ipadx = 30;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        getContentPane().add(jPanel1, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btInstallGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInstallGameActionPerformed
+        log.debug("btInstallGameActionPerformed(...)");
+    }//GEN-LAST:event_btInstallGameActionPerformed
+
+    private void btInstallDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInstallDataActionPerformed
+        log.debug("btInstallDataActionPerformed(...)");
+    }//GEN-LAST:event_btInstallDataActionPerformed
+
+    private void btPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPlayActionPerformed
+        log.debug("btPlayActionPerformed(...)");
+    }//GEN-LAST:event_btPlayActionPerformed
 
     /**
      * @param args the command line arguments
@@ -112,17 +221,24 @@ public class App extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new App().setVisible(true);
+                App app = new App();
+                app.setLocationRelativeTo(null);
+                app.setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLayeredPane jLayeredPane1;
-    private javax.swing.JLayeredPane jLayeredPane2;
-    private javax.swing.JLabel lbDataFound;
-    private javax.swing.JLabel lbDataMissing;
-    private javax.swing.JLabel lbGameFound;
-    private javax.swing.JLabel lbGameMissing;
+    private javax.swing.JButton btInstallData;
+    private javax.swing.JButton btInstallGame;
+    private javax.swing.JButton btPlay;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lbDataFiles;
+    private javax.swing.JLabel lbGameFiles;
+    private javax.swing.JLabel lbIconGithub;
+    private javax.swing.JLabel lbIconSettlers;
+    private javax.swing.JLabel lbResultData;
+    private javax.swing.JLabel lbResultGame;
     // End of variables declaration//GEN-END:variables
 }
