@@ -4,10 +4,13 @@ package settlers.installer;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import settlers.installer.model.Release;
 
 /**
  *
@@ -203,17 +206,11 @@ public class App extends javax.swing.JFrame {
             public void run() {
                 int x = 0;
                 try {
+
+                    Util.installLatest();
                     
-                    while (x<100) {
-                        x++;
-                        //pm.setProgress(x);
-                        try {
-                            Thread.sleep(400);
-                        } catch (InterruptedException ex) {
-                            log.error("sleep interrupted", ex);
-                        }
-                    }
-                    
+                } catch(Exception e) {
+                    JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                 } finally {
                     btInstallGame.setEnabled(true);
                     btInstallData.setEnabled(true);
@@ -247,6 +244,8 @@ public class App extends javax.swing.JFrame {
                         }
                     }
                     
+                } catch(Exception e) {
+                    JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                 } finally {
                     btInstallGame.setEnabled(true);
                     btInstallData.setEnabled(true);
@@ -269,17 +268,13 @@ public class App extends javax.swing.JFrame {
             public void run() {
                 int x = 0;
                 try {
-                    
-                    while (x<100) {
-                        x++;
-                        //pm.setProgress(x);
-                        try {
-                            Thread.sleep(400);
-                        } catch (InterruptedException ex) {
-                            log.error("sleep interrupted", ex);
-                        }
+
+                    List<Release> installedReleases = Util.getInstalledReleases();
+                    if (installedReleases != null && !installedReleases.isEmpty()) {
+                        Util.runRelease(installedReleases.get(0));
                     }
-                    
+                } catch(Exception e) {
+                    JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                 } finally {
                     btInstallGame.setEnabled(true);
                     btInstallData.setEnabled(true);

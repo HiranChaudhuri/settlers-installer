@@ -27,6 +27,10 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileSystemView;
 import net.sf.fikin.ant.EmbeddedAntProject;
 import org.apache.logging.log4j.LogManager;
@@ -65,6 +69,12 @@ public class Util {
                 .create();
     }
     
+    /**
+     * Sorts the list by publishing date.
+     * 
+     * @param releases the list to be sorted
+     * @return the sorted list
+     */
     public static List<Release> sortByDate(List<Release> releases) {
         List<Release> result = new ArrayList<>(releases);
         Collections.sort(result, new Comparator<Release>() {
@@ -80,6 +90,7 @@ public class Util {
     }
 
     /** Returns the releases available on Github.
+     * The list is sorted by publishing date.
      * 
      * @return the list of releases
      * @throws MalformedURLException something went wrong
@@ -95,6 +106,7 @@ public class Util {
     }
     
     /** Returns the releases locally installed.
+     * The list is sorted by publishing date.
      * 
      * @return the list of releases
      * @throws FileNotFoundException something went wrong
@@ -465,6 +477,32 @@ public class Util {
         } else {
             log.warn("Unknown operating system {}", OsDetector.OS);
             return null;
+        }
+    }
+    
+    /**
+     * Ensures the latest release on Github is also installed locally.
+     * Also ensures we have no more than the last 5 releases and cleans up
+     * older ones.
+     */
+    public static void installLatest() throws IOException {
+        List<Release> githubReleases = Util.getGithubReleases();
+        List<Release> installedReleases = Util.getInstalledReleases();
+
+        // install if a newer one is available
+        if (installedReleases.isEmpty() || installedReleases.get(0).getPublished_at().before(githubReleases.get(0).getPublished_at())) {
+            Release latest = githubReleases.get(0);
+            log.debug("Installing latest release {}", latest);
+
+            installRelease(latest);
+
+        }
+
+        // remove if we have more than five
+        while (installedReleases.size()>5) {
+            Release r = installedReleases.get(installedReleases.size()-1);
+            Util.removeRelease(r);
+            installedReleases = Util.getInstalledReleases();
         }
     }
     
