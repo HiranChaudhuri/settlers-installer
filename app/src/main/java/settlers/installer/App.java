@@ -4,6 +4,7 @@ package settlers.installer;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Level;
 import javax.swing.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,35 +24,36 @@ public class App extends javax.swing.JFrame {
      */
     public App() {
         initComponents();
+        jProgressBar.setVisible(false);
         
-        Timer timer = new Timer(1500, new ActionListener() {
-            
-            private int x = 0;
-            
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                x = (x + 1) % 4;
-                log.warn(String.format("x = %d", x));
-
-                if ((x & 1) == 0) {
-                    lbResultGame.setIcon(iiFound);
-                    btInstallGame.setVisible(false);
-                } else {
-                    lbResultGame.setIcon(iiMissing);
-                    btInstallGame.setVisible(true);
-                }
-                if ((x & 2) == 0) {
-                    lbResultData.setIcon(iiFound);
-                    btInstallData.setVisible(false);
-                } else {
-                    lbResultData.setIcon(iiMissing);
-                    btInstallData.setVisible(true);
-                }
-                
-                btPlay.setVisible(x == 0);
-            }
-        });
-        timer.start();
+//        Timer timer = new Timer(1500, new ActionListener() {
+//            
+//            private int x = 0;
+//            
+//            @Override
+//            public void actionPerformed(ActionEvent ae) {
+//                x = (x + 1) % 4;
+//                log.warn(String.format("x = %d", x));
+//
+//                if ((x & 1) == 0) {
+//                    lbResultGame.setIcon(iiFound);
+//                    btInstallGame.setVisible(false);
+//                } else {
+//                    lbResultGame.setIcon(iiMissing);
+//                    btInstallGame.setVisible(true);
+//                }
+//                if ((x & 2) == 0) {
+//                    lbResultData.setIcon(iiFound);
+//                    btInstallData.setVisible(false);
+//                } else {
+//                    lbResultData.setIcon(iiMissing);
+//                    btInstallData.setVisible(true);
+//                }
+//                
+//                btPlay.setVisible(x == 0);
+//            }
+//        });
+//        timer.start();
     }
 
     /**
@@ -71,10 +73,11 @@ public class App extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         lbResultGame = new javax.swing.JLabel();
         lbResultData = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
+        buttonBar = new javax.swing.JPanel();
         btInstallGame = new javax.swing.JButton();
         btInstallData = new javax.swing.JButton();
         btPlay = new javax.swing.JButton();
+        jProgressBar = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Settlers-Installer");
@@ -142,7 +145,7 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.gridy = 2;
         getContentPane().add(lbResultData, gridBagConstraints);
 
-        jPanel1.setLayout(new java.awt.GridBagLayout());
+        buttonBar.setLayout(new java.awt.GridBagLayout());
 
         btInstallGame.setText("Install Game");
         btInstallGame.addActionListener(new java.awt.event.ActionListener() {
@@ -150,7 +153,7 @@ public class App extends javax.swing.JFrame {
                 btInstallGameActionPerformed(evt);
             }
         });
-        jPanel1.add(btInstallGame, new java.awt.GridBagConstraints());
+        buttonBar.add(btInstallGame, new java.awt.GridBagConstraints());
 
         btInstallData.setText("Install Data");
         btInstallData.addActionListener(new java.awt.event.ActionListener() {
@@ -158,7 +161,7 @@ public class App extends javax.swing.JFrame {
                 btInstallDataActionPerformed(evt);
             }
         });
-        jPanel1.add(btInstallData, new java.awt.GridBagConstraints());
+        buttonBar.add(btInstallData, new java.awt.GridBagConstraints());
 
         btPlay.setText("Play!");
         btPlay.addActionListener(new java.awt.event.ActionListener() {
@@ -166,7 +169,7 @@ public class App extends javax.swing.JFrame {
                 btPlayActionPerformed(evt);
             }
         });
-        jPanel1.add(btPlay, new java.awt.GridBagConstraints());
+        buttonBar.add(btPlay, new java.awt.GridBagConstraints());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -174,21 +177,117 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.ipadx = 30;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        getContentPane().add(jPanel1, gridBagConstraints);
+        getContentPane().add(buttonBar, gridBagConstraints);
+
+        jProgressBar.setIndeterminate(true);
+        jProgressBar.setStringPainted(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(jProgressBar, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btInstallGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInstallGameActionPerformed
         log.debug("btInstallGameActionPerformed(...)");
+        btInstallGame.setEnabled(false);
+        btInstallData.setEnabled(false);
+        btPlay.setEnabled(false);
+        jProgressBar.setVisible(true);
+        
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int x = 0;
+                try {
+                    
+                    while (x<100) {
+                        x++;
+                        //pm.setProgress(x);
+                        try {
+                            Thread.sleep(400);
+                        } catch (InterruptedException ex) {
+                            log.error("sleep interrupted", ex);
+                        }
+                    }
+                    
+                } finally {
+                    btInstallGame.setEnabled(true);
+                    btInstallData.setEnabled(true);
+                    btPlay.setEnabled(true);
+                    jProgressBar.setVisible(false);
+                }
+            }
+        }).start();
     }//GEN-LAST:event_btInstallGameActionPerformed
 
     private void btInstallDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInstallDataActionPerformed
         log.debug("btInstallDataActionPerformed(...)");
+        btInstallGame.setEnabled(false);
+        btInstallData.setEnabled(false);
+        btPlay.setEnabled(false);
+        jProgressBar.setVisible(true);
+        
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int x = 0;
+                try {
+                    
+                    while (x<100) {
+                        x++;
+                        //pm.setProgress(x);
+                        try {
+                            Thread.sleep(400);
+                        } catch (InterruptedException ex) {
+                            log.error("sleep interrupted", ex);
+                        }
+                    }
+                    
+                } finally {
+                    btInstallGame.setEnabled(true);
+                    btInstallData.setEnabled(true);
+                    btPlay.setEnabled(true);
+                    jProgressBar.setVisible(false);
+                }
+            }
+        }).start();
     }//GEN-LAST:event_btInstallDataActionPerformed
 
     private void btPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPlayActionPerformed
         log.debug("btPlayActionPerformed(...)");
+        btInstallGame.setEnabled(false);
+        btInstallData.setEnabled(false);
+        btPlay.setEnabled(false);
+        jProgressBar.setVisible(true);
+        
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int x = 0;
+                try {
+                    
+                    while (x<100) {
+                        x++;
+                        //pm.setProgress(x);
+                        try {
+                            Thread.sleep(400);
+                        } catch (InterruptedException ex) {
+                            log.error("sleep interrupted", ex);
+                        }
+                    }
+                    
+                } finally {
+                    btInstallGame.setEnabled(true);
+                    btInstallData.setEnabled(true);
+                    btPlay.setEnabled(true);
+                    jProgressBar.setVisible(false);
+                }
+            }
+        }).start();
     }//GEN-LAST:event_btPlayActionPerformed
 
     /**
@@ -232,8 +331,9 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JButton btInstallData;
     private javax.swing.JButton btInstallGame;
     private javax.swing.JButton btPlay;
+    private javax.swing.JPanel buttonBar;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JProgressBar jProgressBar;
     private javax.swing.JLabel lbDataFiles;
     private javax.swing.JLabel lbGameFiles;
     private javax.swing.JLabel lbIconGithub;
