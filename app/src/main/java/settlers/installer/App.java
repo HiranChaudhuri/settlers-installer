@@ -2,12 +2,9 @@
  */
 package settlers.installer;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.logging.Level;
 import javax.swing.JOptionPane;
-import javax.swing.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import settlers.installer.model.Release;
@@ -19,8 +16,8 @@ import settlers.installer.model.Release;
 public class App extends javax.swing.JFrame {
     private static final Logger log = LogManager.getLogger(App.class);
 
-    private javax.swing.ImageIcon iiFound = new javax.swing.ImageIcon(getClass().getResource("/done_outline_FILL0_wght400_GRAD0_opsz48.png"));
-    private javax.swing.ImageIcon iiMissing = new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"));
+    private final javax.swing.ImageIcon iiFound = new javax.swing.ImageIcon(getClass().getResource("/done_outline_FILL0_wght400_GRAD0_opsz48.png"));
+    private final javax.swing.ImageIcon iiMissing = new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"));
     
     /**
      * Creates new form App
@@ -29,34 +26,7 @@ public class App extends javax.swing.JFrame {
         initComponents();
         jProgressBar.setVisible(false);
         
-//        Timer timer = new Timer(1500, new ActionListener() {
-//            
-//            private int x = 0;
-//            
-//            @Override
-//            public void actionPerformed(ActionEvent ae) {
-//                x = (x + 1) % 4;
-//                log.warn(String.format("x = %d", x));
-//
-//                if ((x & 1) == 0) {
-//                    lbResultGame.setIcon(iiFound);
-//                    btInstallGame.setVisible(false);
-//                } else {
-//                    lbResultGame.setIcon(iiMissing);
-//                    btInstallGame.setVisible(true);
-//                }
-//                if ((x & 2) == 0) {
-//                    lbResultData.setIcon(iiFound);
-//                    btInstallData.setVisible(false);
-//                } else {
-//                    lbResultData.setIcon(iiMissing);
-//                    btInstallData.setVisible(true);
-//                }
-//                
-//                btPlay.setVisible(x == 0);
-//            }
-//        });
-//        timer.start();
+        checkFiles();
     }
 
     /**
@@ -216,6 +186,8 @@ public class App extends javax.swing.JFrame {
                     btInstallData.setEnabled(true);
                     btPlay.setEnabled(true);
                     jProgressBar.setVisible(false);
+                    
+                    checkFiles();
                 }
             }
         }).start();
@@ -251,6 +223,8 @@ public class App extends javax.swing.JFrame {
                     btInstallData.setEnabled(true);
                     btPlay.setEnabled(true);
                     jProgressBar.setVisible(false);
+
+                    checkFiles();
                 }
             }
         }).start();
@@ -280,11 +254,34 @@ public class App extends javax.swing.JFrame {
                     btInstallData.setEnabled(true);
                     btPlay.setEnabled(true);
                     jProgressBar.setVisible(false);
+
+                    checkFiles();
                 }
             }
         }).start();
     }//GEN-LAST:event_btPlayActionPerformed
 
+    private void checkFiles() {
+        boolean gameFiles = haveGameFiles();
+        lbResultGame.setIcon(gameFiles? iiFound: iiMissing);
+        btInstallGame.setVisible(!gameFiles);
+    }
+    
+    /**
+     * Returns true if some game is installed that we can run.
+     * 
+     * @return true if a game is installed, false otherwise
+     */
+    private boolean haveGameFiles() {
+        try {
+            List<Release> installedReleases = Util.getInstalledReleases();
+            return (installedReleases != null && !installedReleases.isEmpty());
+        } catch (FileNotFoundException e) {
+            // if no file is found, we do not have a game
+            return false;
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
