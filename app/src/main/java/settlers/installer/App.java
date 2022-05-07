@@ -282,9 +282,32 @@ public class App extends javax.swing.JFrame {
     private boolean haveGameFiles() {
         try {
             List<Release> installedReleases = Util.getInstalledReleases();
-            return (installedReleases != null && !installedReleases.isEmpty());
+            if (installedReleases != null && !installedReleases.isEmpty()) {
+                // check if updates are available
+
+                try {
+                    List<Release> availableReleases = Util.getGithubReleases();
+                    if (installedReleases.get(0).getPublished_at().before(availableReleases.get(0).getPublished_at())) {
+                        // update is available
+                        log.debug("Update is available");
+                        return true;
+                    } else {
+                        // we already have the latest version
+                        log.debug("we already have the latest version");
+                        return true;
+                    }
+                } catch (Exception e) {
+                    // could not figure out if update is available. Let's assume we have the latest
+                    log.debug("We assume to have the latest version", e);
+                    return true;
+                }
+            } else {
+                log.debug("No good version installed locally");
+                return false;
+            }
         } catch (FileNotFoundException e) {
             // if no file is found, we do not have a game
+            log.debug("Could not check for local version");
             return false;
         }
     }
