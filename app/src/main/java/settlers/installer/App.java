@@ -2,6 +2,7 @@
  */
 package settlers.installer;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -265,6 +266,12 @@ public class App extends javax.swing.JFrame {
         boolean gameFiles = haveGameFiles();
         lbResultGame.setIcon(gameFiles? iiFound: iiMissing);
         btInstallGame.setVisible(!gameFiles);
+        
+        boolean dataFiles = haveDataFiles();
+        lbResultData.setIcon(dataFiles? iiFound: iiMissing);
+        btInstallData.setVisible(!dataFiles);
+        
+        btPlay.setVisible(dataFiles && gameFiles);
     }
     
     /**
@@ -280,6 +287,25 @@ public class App extends javax.swing.JFrame {
             // if no file is found, we do not have a game
             return false;
         }
+    }
+
+    /**
+     * Validated a S3 data folder.
+     * 
+     * @return true if data files seem ok, false otherwise
+     */
+    private boolean haveDataFiles() {
+        File dir = Util.getDataFolder();
+        
+        if (!dir.isDirectory()) {
+            log.warn("File {} is not a directory.", dir);
+            return false;
+        }
+        if (dir.listFiles().length < 2) {
+            log.warn("File {} contains too few files", dir);
+            return false;
+        }
+        return true;
     }
     
     /**
