@@ -5,6 +5,7 @@ package settlers.installer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -154,7 +155,6 @@ public class App extends javax.swing.JFrame {
         getContentPane().add(buttonBar, gridBagConstraints);
 
         jProgressBar.setIndeterminate(true);
-        jProgressBar.setStringPainted(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
@@ -199,36 +199,51 @@ public class App extends javax.swing.JFrame {
         btInstallGame.setEnabled(false);
         btInstallData.setEnabled(false);
         btPlay.setEnabled(false);
-        jProgressBar.setVisible(true);
         
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int x = 0;
-                try {
-                    
-                    while (x<100) {
-                        x++;
-                        //pm.setProgress(x);
-                        try {
-                            Thread.sleep(400);
-                        } catch (InterruptedException ex) {
-                            log.error("sleep interrupted", ex);
-                        }
-                    }
-                    
-                } catch(Exception e) {
-                    JOptionPane.showMessageDialog(App.this, "Something went wrong.");
-                } finally {
-                    btInstallGame.setEnabled(true);
-                    btInstallData.setEnabled(true);
-                    btPlay.setEnabled(true);
-                    jProgressBar.setVisible(false);
+        // check parameters
+        InstallSourcePicker isp = new InstallSourcePicker();
+        if (JOptionPane.showOptionDialog(this, isp, "Install Data files from...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null) == JOptionPane.OK_OPTION) {
+            // do the needful
 
-                    checkFiles();
+            jProgressBar.setVisible(true);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int x = 0;
+                    try {
+
+                        while (x<100) {
+                            x++;
+                            //pm.setProgress(x);
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException ex) {
+                                log.error("sleep interrupted", ex);
+                            }
+                        }
+
+                    } catch(Exception e) {
+                        JOptionPane.showMessageDialog(App.this, "Something went wrong.");
+                    } finally {
+                        btInstallGame.setEnabled(true);
+                        btInstallData.setEnabled(true);
+                        btPlay.setEnabled(true);
+                        jProgressBar.setVisible(false);
+
+                        checkFiles();
+                    }
                 }
-            }
-        }).start();
+            }).start();
+        } else {
+            btInstallGame.setEnabled(true);
+            btInstallData.setEnabled(true);
+            btPlay.setEnabled(true);
+            jProgressBar.setVisible(false);
+            checkFiles();
+        }
+        
+
     }//GEN-LAST:event_btInstallDataActionPerformed
 
     private void btPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPlayActionPerformed
