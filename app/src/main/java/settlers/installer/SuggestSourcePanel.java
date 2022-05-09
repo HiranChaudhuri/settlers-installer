@@ -62,6 +62,15 @@ public class SuggestSourcePanel extends javax.swing.JPanel {
         if (dir == null) {
             return;
         }
+        try {
+            if (shouldSkip(dir.getCanonicalPath())) {
+                log.warn("Directory in skip list: {}", dir);
+                return;
+            }
+        } catch(IOException e) {
+            log.warn("Could not get canonical path for {}", dir);
+            return;
+        }
         if (dir.toPath().getNameCount()>20) {
             //log.warn("Skipping too long path: {}", dir.getAbsoluteFile());
             return;
@@ -86,17 +95,12 @@ public class SuggestSourcePanel extends javax.swing.JPanel {
         if (entries != null) {
             for (File entry: entries) {
                 jLabel1.setText(entry.getAbsolutePath());
-                try {
-                    if (!".".equals(entry.getName()) && !"..".equals(entry.getName()) && !shouldSkip(entry.getCanonicalPath())) {
-                        scanDir(entry);
+                if (!".".equals(entry.getName()) && !"..".equals(entry.getName())) {
+                    scanDir(entry);
 
-                        if (cancelled) {
-                            return;
-                        }
+                    if (cancelled) {
+                        return;
                     }
-                } catch (IOException e ) {
-                    log.debug("could not investigate {}", entry, e);
-                    // ignore exception and continue
                 }
             }
         }

@@ -240,6 +240,7 @@ public class App extends javax.swing.JFrame {
                         } else throw new Exception(String.format("Unknown source %s", srcDir));
 
                     } catch(Exception e) {
+                        log.error("Could not install data from {}", srcDir, e);
                         JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                     } finally {
                         btInstallGame.setEnabled(true);
@@ -271,6 +272,7 @@ public class App extends javax.swing.JFrame {
         btUpdate.setEnabled(false);
         btPlay.setEnabled(false);
         jProgressBar.setVisible(true);
+        setVisible(false);
         
         new Thread(new Runnable() {
             @Override
@@ -290,6 +292,7 @@ public class App extends javax.swing.JFrame {
                     btUpdate.setEnabled(true);
                     btPlay.setEnabled(true);
                     jProgressBar.setVisible(false);
+                    setVisible(true);
 
                     checkFiles();
                 }

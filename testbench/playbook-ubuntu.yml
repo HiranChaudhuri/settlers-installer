@@ -146,7 +146,7 @@
     copy:
       remote_src: yes
       src: /vagrant/S3/
-      dest: /home/demo/.jsettlers/managed/data
+      dest: /home/demo/S3
       owner: demo
       group: demo
 

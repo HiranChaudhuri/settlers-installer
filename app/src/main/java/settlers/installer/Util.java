@@ -539,7 +539,6 @@ public class Util {
         requiredFiles.add("install");
         requiredFiles.add("manual");
         requiredFiles.add("map");
-        requiredFiles.add("save");
         requiredFiles.add("snd");
         requiredFiles.add("tips");
         requiredFiles.add("s3.exe");
