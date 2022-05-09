@@ -11,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -27,10 +26,6 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileSystemView;
 import net.sf.fikin.ant.EmbeddedAntProject;
 import org.apache.logging.log4j.LogManager;
@@ -504,6 +499,59 @@ public class Util {
             Util.removeRelease(r);
             installedReleases = Util.getInstalledReleases();
         }
+    }
+    
+    /** Return true if the folder is a Settlers install CD.
+     * 
+     * @param dir the directory to investigate
+     * @return true if an installation CD is found
+     */
+    public static boolean isInstallCD(File dir) {
+        if (!dir.isDirectory())
+            return false;
+        
+        ArrayList<String> requiredFiles = new ArrayList<>();
+        requiredFiles.add("autorun.inf");
+        requiredFiles.add("s3");
+        requiredFiles.add("s3.dat");
+        
+        File[] entries = dir.listFiles();
+        if (entries != null) {
+            for (File entry: entries) {
+                requiredFiles.remove(entry.getName().toLowerCase());
+            }
+        }
+        
+        return requiredFiles.isEmpty();
+    }
+
+    /** Return true if the folder is a Settlers 3 data folder.
+     * 
+     * @param dir the directory to investigate
+     * @return true if a game data folder is found
+     */
+    public static boolean isGameFolder(File dir) {
+        if (!dir.isDirectory())
+            return false;
+        
+        ArrayList<String> requiredFiles = new ArrayList<>();
+        requiredFiles.add("gfx");
+        requiredFiles.add("install");
+        requiredFiles.add("manual");
+        requiredFiles.add("map");
+        requiredFiles.add("save");
+        requiredFiles.add("snd");
+        requiredFiles.add("tips");
+        requiredFiles.add("s3.exe");
+        
+        File[] entries = dir.listFiles();
+        if (entries != null) {
+            for (File entry: entries) {
+                requiredFiles.remove(entry.getName().toLowerCase());
+            }
+        }
+        
+        return requiredFiles.isEmpty();
     }
     
 }

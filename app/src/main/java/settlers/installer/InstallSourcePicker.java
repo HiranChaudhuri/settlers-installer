@@ -4,12 +4,16 @@ package settlers.installer;
 
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author hiran
  */
 public class InstallSourcePicker extends javax.swing.JPanel {
+    private static final Logger log = LogManager.getLogger(InstallSourcePicker.class);
 
     /**
      * Creates new form InstallSourcePicker
@@ -39,7 +43,7 @@ public class InstallSourcePicker extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         btBrowse = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btSuggest = new javax.swing.JButton();
 
         jLabel1.setText("Choose where to install S3 Game files from.");
 
@@ -52,7 +56,12 @@ public class InstallSourcePicker extends javax.swing.JPanel {
             }
         });
 
-        jButton2.setText("Suggest");
+        btSuggest.setText("Suggest");
+        btSuggest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btSuggestActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -72,7 +81,7 @@ public class InstallSourcePicker extends javax.swing.JPanel {
                         .addComponent(btBrowse))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton2)))
+                        .addComponent(btSuggest)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -86,7 +95,7 @@ public class InstallSourcePicker extends javax.swing.JPanel {
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btBrowse))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
+                .addComponent(btSuggest)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -103,10 +112,23 @@ public class InstallSourcePicker extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btBrowseActionPerformed
 
+    private void btSuggestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSuggestActionPerformed
+        SuggestSourcePanel ssp = new SuggestSourcePanel();
+        ssp.start();
+        try {
+            if (JOptionPane.showOptionDialog(this, ssp, "Select suggestion", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null) == JOptionPane.OK_OPTION) {
+                log.debug("Ok selected...");
+                jTextField1.setText(ssp.getSelectedPath());
+            }
+        } finally {
+            ssp.stop();
+        }
+    }//GEN-LAST:event_btSuggestActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btBrowse;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btSuggest;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField jTextField1;
