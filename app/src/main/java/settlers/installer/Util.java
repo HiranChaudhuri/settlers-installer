@@ -554,4 +554,10 @@ public class Util {
         return requiredFiles.isEmpty();
     }
     
+    public static void installFromCD(File cdrom) throws IOException {
+        Properties props = new Properties();
+        props.put("cdrom", cdrom.getAbsolutePath());
+        props.put("data", getDataFolder().getAbsolutePath());
+        runAnt(new File("src/main/resources/S3_Installer.xml"), props);
+    }
 }

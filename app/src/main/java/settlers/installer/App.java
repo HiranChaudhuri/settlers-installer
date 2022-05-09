@@ -204,24 +204,21 @@ public class App extends javax.swing.JFrame {
         InstallSourcePicker isp = new InstallSourcePicker();
         if (JOptionPane.showOptionDialog(this, isp, "Install Data files from...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null) == JOptionPane.OK_OPTION) {
             // do the needful
+            String source = isp.getPath();
+            log.debug("Will grab files from {}", source);
+            File srcDir = new File(source);
 
             jProgressBar.setVisible(true);
-
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    int x = 0;
                     try {
-
-                        while (x<100) {
-                            x++;
-                            //pm.setProgress(x);
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException ex) {
-                                log.error("sleep interrupted", ex);
-                            }
-                        }
+                        if (Util.isGameFolder(srcDir)) {
+                            log.debug("Want to copy files...");
+                        } else if (Util.isInstallCD(srcDir)) {
+                            log.debug("Want to install from CD");
+                            Util.installFromCD(srcDir);
+                        } else throw new Exception(String.format("Unknown source %s", srcDir));
 
                     } catch(Exception e) {
                         JOptionPane.showMessageDialog(App.this, "Something went wrong.");
