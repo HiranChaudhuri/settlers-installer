@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import settlers.installer.model.Release;
@@ -215,6 +216,8 @@ public class App extends javax.swing.JFrame {
                     try {
                         if (Util.isGameFolder(srcDir)) {
                             log.debug("Want to copy files...");
+                            FileUtils.copyDirectory(srcDir, Util.getDataFolder());
+                            
                         } else if (Util.isInstallCD(srcDir)) {
                             log.debug("Want to install from CD");
                             Util.installFromCD(srcDir);
