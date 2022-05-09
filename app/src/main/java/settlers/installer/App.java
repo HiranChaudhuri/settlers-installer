@@ -141,6 +141,11 @@ public class App extends javax.swing.JFrame {
         buttonBar.add(btInstallData, new java.awt.GridBagConstraints());
 
         btUpdate.setText("Update Game");
+        btUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btUpdateActionPerformed(evt);
+            }
+        });
         buttonBar.add(btUpdate, new java.awt.GridBagConstraints());
 
         btPlay.setText("Play!");
@@ -170,8 +175,7 @@ public class App extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btInstallGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInstallGameActionPerformed
-        log.debug("btInstallGameActionPerformed(...)");
+    private void doInstallGame() {
         btInstallGame.setEnabled(false);
         btInstallData.setEnabled(false);
         btUpdate.setEnabled(false);
@@ -199,6 +203,11 @@ public class App extends javax.swing.JFrame {
                 }
             }
         }).start();
+    }
+    
+    private void btInstallGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInstallGameActionPerformed
+        log.debug("btInstallGameActionPerformed(...)");
+        doInstallGame();
     }//GEN-LAST:event_btInstallGameActionPerformed
 
     private void btInstallDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInstallDataActionPerformed
@@ -287,6 +296,11 @@ public class App extends javax.swing.JFrame {
             }
         }).start();
     }//GEN-LAST:event_btPlayActionPerformed
+
+    private void btUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btUpdateActionPerformed
+        log.debug("btUpdateActionPerformed(...)");
+        doInstallGame();
+    }//GEN-LAST:event_btUpdateActionPerformed
 
     private void checkFiles() {
         GameState gstate = haveGameFiles();
