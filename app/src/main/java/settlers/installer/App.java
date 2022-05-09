@@ -5,7 +5,6 @@ package settlers.installer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +20,7 @@ public class App extends javax.swing.JFrame {
 
     private final javax.swing.ImageIcon iiFound = new javax.swing.ImageIcon(getClass().getResource("/done_outline_FILL0_wght400_GRAD0_opsz48.png"));
     private final javax.swing.ImageIcon iiMissing = new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"));
+    private final javax.swing.ImageIcon iiUpdate = new javax.swing.ImageIcon(getClass().getResource("/update_FILL0_wght400_GRAD0_opsz48.png"));
     
     /**
      * Creates new form App
@@ -52,6 +52,7 @@ public class App extends javax.swing.JFrame {
         buttonBar = new javax.swing.JPanel();
         btInstallGame = new javax.swing.JButton();
         btInstallData = new javax.swing.JButton();
+        btUpdate = new javax.swing.JButton();
         btPlay = new javax.swing.JButton();
         jProgressBar = new javax.swing.JProgressBar();
 
@@ -139,6 +140,9 @@ public class App extends javax.swing.JFrame {
         });
         buttonBar.add(btInstallData, new java.awt.GridBagConstraints());
 
+        btUpdate.setText("Update Game");
+        buttonBar.add(btUpdate, new java.awt.GridBagConstraints());
+
         btPlay.setText("Play!");
         btPlay.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -170,6 +174,7 @@ public class App extends javax.swing.JFrame {
         log.debug("btInstallGameActionPerformed(...)");
         btInstallGame.setEnabled(false);
         btInstallData.setEnabled(false);
+        btUpdate.setEnabled(false);
         btPlay.setEnabled(false);
         jProgressBar.setVisible(true);
         
@@ -186,6 +191,7 @@ public class App extends javax.swing.JFrame {
                 } finally {
                     btInstallGame.setEnabled(true);
                     btInstallData.setEnabled(true);
+                    btUpdate.setEnabled(true);
                     btPlay.setEnabled(true);
                     jProgressBar.setVisible(false);
                     
@@ -199,6 +205,7 @@ public class App extends javax.swing.JFrame {
         log.debug("btInstallDataActionPerformed(...)");
         btInstallGame.setEnabled(false);
         btInstallData.setEnabled(false);
+        btUpdate.setEnabled(false);
         btPlay.setEnabled(false);
         
         // check parameters
@@ -228,6 +235,7 @@ public class App extends javax.swing.JFrame {
                     } finally {
                         btInstallGame.setEnabled(true);
                         btInstallData.setEnabled(true);
+                        btUpdate.setEnabled(true);
                         btPlay.setEnabled(true);
                         jProgressBar.setVisible(false);
 
@@ -238,6 +246,7 @@ public class App extends javax.swing.JFrame {
         } else {
             btInstallGame.setEnabled(true);
             btInstallData.setEnabled(true);
+            btUpdate.setEnabled(true);
             btPlay.setEnabled(true);
             jProgressBar.setVisible(false);
             checkFiles();
@@ -250,6 +259,7 @@ public class App extends javax.swing.JFrame {
         log.debug("btPlayActionPerformed(...)");
         btInstallGame.setEnabled(false);
         btInstallData.setEnabled(false);
+        btUpdate.setEnabled(false);
         btPlay.setEnabled(false);
         jProgressBar.setVisible(true);
         
@@ -268,6 +278,7 @@ public class App extends javax.swing.JFrame {
                 } finally {
                     btInstallGame.setEnabled(true);
                     btInstallData.setEnabled(true);
+                    btUpdate.setEnabled(true);
                     btPlay.setEnabled(true);
                     jProgressBar.setVisible(false);
 
@@ -278,15 +289,34 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_btPlayActionPerformed
 
     private void checkFiles() {
-        boolean gameFiles = haveGameFiles();
-        lbResultGame.setIcon(gameFiles? iiFound: iiMissing);
-        btInstallGame.setVisible(!gameFiles);
+        GameState gstate = haveGameFiles();
+        switch(gstate) {
+            case latest:
+                lbResultGame.setIcon(iiFound);
+                btInstallGame.setVisible(false);
+                btUpdate.setVisible(false);
+                break;
+            case old:
+                lbResultGame.setIcon(iiUpdate);
+                btInstallGame.setVisible(false);
+                btUpdate.setVisible(true);
+                break;
+            case missing:
+                lbResultGame.setIcon(iiMissing);
+                btInstallGame.setVisible(true);
+                btUpdate.setVisible(false);
+                break;
+        }
         
         boolean dataFiles = haveDataFiles();
         lbResultData.setIcon(dataFiles? iiFound: iiMissing);
         btInstallData.setVisible(!dataFiles);
         
-        btPlay.setVisible(dataFiles && gameFiles);
+        btPlay.setVisible(dataFiles && (gstate != GameState.missing) );
+    }
+    
+    public enum GameState {
+        missing, old, latest
     }
     
     /**
@@ -294,7 +324,7 @@ public class App extends javax.swing.JFrame {
      * 
      * @return true if a game is installed, false otherwise
      */
-    private boolean haveGameFiles() {
+    private GameState haveGameFiles() {
         try {
             List<Release> installedReleases = Util.getInstalledReleases();
             if (installedReleases != null && !installedReleases.isEmpty()) {
@@ -305,25 +335,25 @@ public class App extends javax.swing.JFrame {
                     if (installedReleases.get(0).getPublished_at().before(availableReleases.get(0).getPublished_at())) {
                         // update is available
                         log.debug("Update is available");
-                        return true;
+                        return GameState.old;
                     } else {
                         // we already have the latest version
                         log.debug("we already have the latest version");
-                        return true;
+                        return GameState.latest;
                     }
                 } catch (Exception e) {
                     // could not figure out if update is available. Let's assume we have the latest
                     log.debug("We assume to have the latest version", e);
-                    return true;
+                    return GameState.latest;
                 }
             } else {
                 log.debug("No good version installed locally");
-                return false;
+                return GameState.missing;
             }
         } catch (FileNotFoundException e) {
             // if no file is found, we do not have a game
             log.debug("Could not check for local version");
-            return false;
+            return GameState.missing;
         }
     }
 
@@ -387,6 +417,7 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JButton btInstallData;
     private javax.swing.JButton btInstallGame;
     private javax.swing.JButton btPlay;
+    private javax.swing.JButton btUpdate;
     private javax.swing.JPanel buttonBar;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JProgressBar jProgressBar;
