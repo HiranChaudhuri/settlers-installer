@@ -49,12 +49,12 @@ public class App extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         lbResultGame = new javax.swing.JLabel();
         lbResultData = new javax.swing.JLabel();
-        buttonBar = new javax.swing.JPanel();
         btInstallGame = new javax.swing.JButton();
         btInstallData = new javax.swing.JButton();
         btUpdate = new javax.swing.JButton();
-        btPlay = new javax.swing.JButton();
+        buttonBar = new javax.swing.JPanel();
         jProgressBar = new javax.swing.JProgressBar();
+        btPlay = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Settlers-Installer");
@@ -110,67 +110,92 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.weightx = 1.0;
         getContentPane().add(jLabel5, gridBagConstraints);
 
-        lbResultGame.setIcon(new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        lbResultGame.setIcon(new javax.swing.ImageIcon(getClass().getResource("/done_outline_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         getContentPane().add(lbResultGame, gridBagConstraints);
 
-        lbResultData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        lbResultData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/done_outline_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 2;
         getContentPane().add(lbResultData, gridBagConstraints);
 
-        buttonBar.setLayout(new java.awt.GridBagLayout());
-
+        btInstallGame.setBackground(java.awt.Color.orange);
+        btInstallGame.setIcon(new javax.swing.ImageIcon(getClass().getResource("/construction_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         btInstallGame.setText("Install Game");
+        btInstallGame.setOpaque(true);
         btInstallGame.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btInstallGameActionPerformed(evt);
             }
         });
-        buttonBar.add(btInstallGame, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        getContentPane().add(btInstallGame, gridBagConstraints);
 
+        btInstallData.setBackground(java.awt.Color.orange);
+        btInstallData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/construction_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         btInstallData.setText("Install Data");
+        btInstallData.setBorderPainted(false);
         btInstallData.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btInstallDataActionPerformed(evt);
             }
         });
-        buttonBar.add(btInstallData, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 2;
+        getContentPane().add(btInstallData, gridBagConstraints);
 
+        btUpdate.setBackground(java.awt.Color.orange);
+        btUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/construction_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         btUpdate.setText("Update Game");
+        btUpdate.setOpaque(true);
         btUpdate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btUpdateActionPerformed(evt);
             }
         });
-        buttonBar.add(btUpdate, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        getContentPane().add(btUpdate, gridBagConstraints);
 
-        btPlay.setText("Play!");
+        buttonBar.setLayout(new java.awt.GridBagLayout());
+
+        jProgressBar.setIndeterminate(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        buttonBar.add(jProgressBar, gridBagConstraints);
+
+        btPlay.setBackground(new java.awt.Color(127, 255, 131));
+        btPlay.setIcon(new javax.swing.ImageIcon(getClass().getResource("/play_arrow_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        btPlay.setToolTipText("Play game!");
+        btPlay.setOpaque(true);
         btPlay.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btPlayActionPerformed(evt);
             }
         });
-        buttonBar.add(btPlay, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        buttonBar.add(btPlay, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 30;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         getContentPane().add(buttonBar, gridBagConstraints);
-
-        jProgressBar.setIndeterminate(true);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        getContentPane().add(jProgressBar, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -310,16 +335,19 @@ public class App extends javax.swing.JFrame {
         switch(gstate) {
             case latest:
                 lbResultGame.setIcon(iiFound);
+                lbResultGame.setVisible(true);
                 btInstallGame.setVisible(false);
                 btUpdate.setVisible(false);
                 break;
             case old:
                 lbResultGame.setIcon(iiUpdate);
+                lbResultGame.setVisible(false);
                 btInstallGame.setVisible(false);
                 btUpdate.setVisible(true);
                 break;
             case missing:
                 lbResultGame.setIcon(iiMissing);
+                lbResultGame.setVisible(false);
                 btInstallGame.setVisible(true);
                 btUpdate.setVisible(false);
                 break;
@@ -327,6 +355,7 @@ public class App extends javax.swing.JFrame {
         
         boolean dataFiles = haveDataFiles();
         lbResultData.setIcon(dataFiles? iiFound: iiMissing);
+        lbResultData.setVisible(dataFiles);
         btInstallData.setVisible(!dataFiles);
         
         btPlay.setVisible(dataFiles && (gstate != GameState.missing) );

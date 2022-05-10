@@ -45,7 +45,7 @@ public class InstallSourcePicker extends javax.swing.JPanel {
         btBrowse = new javax.swing.JButton();
         btSuggest = new javax.swing.JButton();
 
-        jLabel1.setText("Choose where to install S3 Game files from.");
+        jLabel1.setText("Choose your S3 installation or your installation CD.");
 
         jLabel2.setText("Source Path:");
 
@@ -70,18 +70,19 @@ public class InstallSourcePicker extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(0, 137, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btBrowse))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btSuggest)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btSuggest, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btBrowse, javax.swing.GroupLayout.Alignment.TRAILING)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)))
+                        .addGap(30, 30, 30)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
