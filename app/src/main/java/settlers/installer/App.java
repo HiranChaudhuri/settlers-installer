@@ -428,6 +428,7 @@ public class App extends javax.swing.JFrame {
      */
     public static void main(String[] args) {
         log.debug("main({})", Arrays.asList(args));
+        Util.dumpEnvironment();
         Util.dumpProperties(System.getProperties());
         
         /* Set the Nimbus look and feel */

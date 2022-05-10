@@ -325,15 +325,21 @@ public class Util {
      * @throws IOException something went wrong
      * @throws InterruptedException something went wrong
      */
-    public static void execJarFile(File jarfile) throws IOException, InterruptedException {
+    public static int execJarFile(File jarfile) throws IOException, InterruptedException {
         File javaHome = new File(System.getProperty("java.home"));
         File java = new File(javaHome, "bin/java"); // may need a tweak on Windows
+        if (OsDetector.IS_WINDOWS) {
+            java = new File(javaHome, "bin/java.exe");
+        }
         
         if (!java.canExecute()) {
             // maybe we are pointing to the JLink provided binaries. Let's fall
             // back to the system-provided java installation
             log.info("it seems {} is not executable, falling back", java.getAbsolutePath());
             java = new File("/usr/bin/java");
+            if (OsDetector.IS_WINDOWS) {
+                java = new File("java.exe");
+            }
         }
 
         List<String> command = new ArrayList<>();
@@ -360,6 +366,7 @@ public class Util {
         p.waitFor();
         int rc = p.exitValue();
         log.info("returned with {}", rc);
+        return rc;
     }
     
     public static void addGoodiesToData(File goodiesFile) throws IOException {
@@ -559,9 +566,18 @@ public class Util {
     }
     
     public static void dumpProperties(Properties props) {
-        TreeSet<Object> keys = new TreeSet(props.keySet());
+        log.info("Properties:");
+        TreeSet<Object> keys = new TreeSet<>(props.keySet());
         for (Object key: keys) {
             log.info("  {} -> {}", key, props.get(key));
+        }
+    }
+
+    static void dumpEnvironment() {
+        log.info("Environment:");
+        TreeSet<String> keys = new TreeSet<>(System.getenv().keySet());
+        for (String key: keys) {
+            log.info("  {} -> {}", key, System.getenv(key));
         }
     }
 }
