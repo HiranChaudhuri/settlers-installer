@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.filechooser.FileSystemView;
@@ -555,5 +556,12 @@ public class Util {
         props.put("cdrom", cdrom.getAbsolutePath());
         props.put("data", getDataFolder().getAbsolutePath());
         runAnt(new File("src/main/resources/S3_Installer.xml"), props);
+    }
+    
+    public static void dumpProperties(Properties props) {
+        TreeSet<Object> keys = new TreeSet(props.keySet());
+        for (Object key: keys) {
+            log.info("  {} -> {}", key, props.get(key));
+        }
     }
 }

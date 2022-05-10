@@ -4,6 +4,7 @@ package settlers.installer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
@@ -425,7 +426,10 @@ public class App extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
+        log.debug("main({})", Arrays.asList(args));
+        Util.dumpProperties(System.getProperties());
+        
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
