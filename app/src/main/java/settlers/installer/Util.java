@@ -536,12 +536,9 @@ public class Util {
         
         ArrayList<String> requiredFiles = new ArrayList<>();
         requiredFiles.add("gfx");
-        requiredFiles.add("install");
         requiredFiles.add("manual");
         requiredFiles.add("map");
         requiredFiles.add("snd");
-        requiredFiles.add("tips");
-        requiredFiles.add("s3.exe");
         
         File[] entries = dir.listFiles();
         if (entries != null) {
