@@ -428,6 +428,7 @@ public class App extends javax.swing.JFrame {
      */
     public static void main(String[] args) {
         log.debug("main({})", Arrays.asList(args));
+        log.debug("Full command line: {}", ProcessHandle.current().info().commandLine().orElse("n/a"));
         Util.dumpEnvironment();
         Util.dumpProperties(System.getProperties());
         
