@@ -156,7 +156,7 @@ jobs:
     - name: Build package
       run: |
         # PowerShell
-        jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage --win-shorcut
+        jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage --win-shortcut
         Get-ChildItem -Recurse app/build/distributions
 
     - uses: actions/upload-artifact@v2
