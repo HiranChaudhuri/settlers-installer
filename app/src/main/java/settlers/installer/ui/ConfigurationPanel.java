@@ -5,6 +5,8 @@
 package settlers.installer.ui;
 
 import java.util.Properties;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import settlers.installer.model.Configuration;
 
 /**
@@ -20,6 +22,16 @@ public class ConfigurationPanel extends javax.swing.JPanel {
      */
     public ConfigurationPanel() {
         initComponents();
+        
+        ChangeListener cl = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent ce) {
+                checkGithubRequired();
+            }
+        };
+        
+        cbArtifacts.addChangeListener(cl);
+        cbSupportBugReporting.addChangeListener(cl);
     }
 
     /**
@@ -40,8 +52,8 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        tfToken = new javax.swing.JTextField();
         tfUsername = new javax.swing.JTextField();
+        pfToken = new javax.swing.JPasswordField();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Games considered for installation"));
 
@@ -102,9 +114,9 @@ public class ConfigurationPanel extends javax.swing.JPanel {
 
         jLabel2.setText("Access Token");
 
-        tfToken.setText("jTextField1");
-
         tfUsername.setText("jTextField2");
+
+        pfToken.setText("jPasswordField1");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -117,7 +129,7 @@ public class ConfigurationPanel extends javax.swing.JPanel {
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tfToken, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                    .addComponent(pfToken, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
                     .addComponent(tfUsername))
                 .addContainerGap())
         );
@@ -131,8 +143,8 @@ public class ConfigurationPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(tfToken, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(pfToken, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -160,6 +172,16 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void checkGithubRequired() {
+        if (cbArtifacts.isSelected() || cbSupportBugReporting.isSelected()) {
+            tfUsername.setEnabled(true);
+            pfToken.setEnabled(true);
+        } else {
+            tfUsername.setEnabled(false);
+            pfToken.setEnabled(false);
+        }
+    }
+    
     public void setData(Configuration data) {
         this.data = data;
 
@@ -170,7 +192,9 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         cbSupportBugReporting.setSelected(data.isSupportBugReporting());
         
         tfUsername.setText(data.getGithubUsername());
-        tfToken.setText(data.getGithubToken());
+        pfToken.setText(data.getGithubToken());
+
+        checkGithubRequired();
     }
     
     public Configuration getData() {
@@ -181,7 +205,7 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         data.setSupportBugReporting(cbSupportBugReporting.isSelected());
         
         data.setGithubUsername(tfUsername.getText());
-        data.setGithubToken(tfToken.getText());
+        data.setGithubToken(new String(pfToken.getPassword()));
         return data;
     }
 
@@ -195,7 +219,7 @@ public class ConfigurationPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField tfToken;
+    private javax.swing.JPasswordField pfToken;
     private javax.swing.JTextField tfUsername;
     // End of variables declaration//GEN-END:variables
 }
