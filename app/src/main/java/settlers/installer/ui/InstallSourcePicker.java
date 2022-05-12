@@ -1,6 +1,6 @@
 /*
  */
-package settlers.installer;
+package settlers.installer.ui;
 
 import java.io.File;
 import javax.swing.JFileChooser;

@@ -466,6 +466,10 @@ public class Util {
         return result;
     }
     
+    public static File getConfigurationFile() {
+        return new File(Util.getManagedJSettlersFolder(), ".settler-installer.properties");
+    }
+    
     /**
      * Returns the mount point or the filesystem root of the CDROM drive.
      * If several CDROM drives are installed, only the first will be returned.

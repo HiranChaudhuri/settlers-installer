@@ -1,6 +1,6 @@
 /*
  */
-package settlers.installer;
+package settlers.installer.ui;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import settlers.installer.Util;
 
 /**
  *

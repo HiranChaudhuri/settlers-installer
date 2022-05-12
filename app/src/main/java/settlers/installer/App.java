@@ -2,6 +2,8 @@
  */
 package settlers.installer;
 
+import settlers.installer.ui.ConfigurationPanel;
+import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -10,6 +12,7 @@ import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import settlers.installer.model.Configuration;
 import settlers.installer.model.Release;
 
 /**
@@ -23,6 +26,8 @@ public class App extends javax.swing.JFrame {
     private final javax.swing.ImageIcon iiMissing = new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"));
     private final javax.swing.ImageIcon iiUpdate = new javax.swing.ImageIcon(getClass().getResource("/update_FILL0_wght400_GRAD0_opsz48.png"));
     
+    private Configuration configuration;
+    
     /**
      * Creates new form App
      */
@@ -30,6 +35,7 @@ public class App extends javax.swing.JFrame {
         initComponents();
         jProgressBar.setVisible(false);
         
+        configuration = Configuration.load(Util.getConfigurationFile());
         checkFiles();
     }
 
@@ -56,6 +62,7 @@ public class App extends javax.swing.JFrame {
         buttonBar = new javax.swing.JPanel();
         jProgressBar = new javax.swing.JProgressBar();
         btPlay = new javax.swing.JButton();
+        btOptions = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Settlers-Installer");
@@ -188,6 +195,17 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         buttonBar.add(btPlay, gridBagConstraints);
+
+        btOptions.setIcon(new javax.swing.ImageIcon(getClass().getResource("/menu_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        btOptions.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btOptionsActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        buttonBar.add(btOptions, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -331,6 +349,15 @@ public class App extends javax.swing.JFrame {
         doInstallGame();
     }//GEN-LAST:event_btUpdateActionPerformed
 
+    private void btOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btOptionsActionPerformed
+        ConfigurationPanel cp = new ConfigurationPanel();
+        cp.setData(configuration);
+        if (JOptionPane.showOptionDialog(this, cp, "Preferences", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)==JOptionPane.OK_OPTION) {
+            configuration = cp.getData();
+            configuration.save(Util.getConfigurationFile());
+        }
+    }//GEN-LAST:event_btOptionsActionPerformed
+
     private void checkFiles() {
         GameState gstate = haveGameFiles();
         switch(gstate) {
@@ -468,6 +495,7 @@ public class App extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btInstallData;
     private javax.swing.JButton btInstallGame;
+    private javax.swing.JButton btOptions;
     private javax.swing.JButton btPlay;
     private javax.swing.JButton btUpdate;
     private javax.swing.JPanel buttonBar;
