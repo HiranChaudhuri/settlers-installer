@@ -22,6 +22,10 @@ dependencies {
     implementation 'org.apache.ant:ant:1.10.12'
     // https://mvnrepository.com/artifact/commons-io/commons-io
     implementation 'commons-io:commons-io:2.11.0'
+    // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    implementation 'commons-codec:commons-codec:1.15'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-crypto
+    implementation 'org.apache.commons:commons-crypto:1.1.0'
 }
 
 version = scmVersion.version

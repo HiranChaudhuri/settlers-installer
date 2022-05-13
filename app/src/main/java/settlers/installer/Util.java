@@ -584,4 +584,38 @@ public class Util {
             log.info("  {} -> {}", key, System.getenv(key));
         }
     }
+
+    /**
+     * Returns the operating system's hostname.
+     * 
+     * @return the hostname
+     */
+    public static String getHostname() {
+
+        String os = System.getProperty("os.name").toLowerCase();
+
+        try {
+            if (os.contains("win")) {
+                return execReadToString("hostname");
+            } else if (os.contains("nix") || os.contains("nux") || os.contains("mac os x")) {
+                return execReadToString("hostname");
+            }
+        } catch (Exception e) {
+            log.info("Could not get hostname", e);
+        }
+        return "n/a";
+    }
+
+    /**
+     * Executes a command and returns it's stdout.
+     * 
+     * @param execCommand the command to execute
+     * @return the stdout output of the executed command
+     * @throws IOException something went wrong
+     */
+    public static String execReadToString(String execCommand) throws IOException {
+        try (Scanner s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream()).useDelimiter("\\A")) {
+            return s.hasNext() ? s.next() : "";
+        }
+    }
 }
