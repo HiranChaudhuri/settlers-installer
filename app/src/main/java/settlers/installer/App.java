@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import settlers.installer.model.Configuration;
 import settlers.installer.model.Release;
+import settlers.installer.model.WorkflowRun;
 
 /**
  *
@@ -27,6 +28,8 @@ public class App extends javax.swing.JFrame {
     private final javax.swing.ImageIcon iiUpdate = new javax.swing.ImageIcon(getClass().getResource("/update_FILL0_wght400_GRAD0_opsz48.png"));
     
     private Configuration configuration;
+    
+    // TODO: Play button should come like https://www.codejava.net/java-se/swing/how-to-create-drop-down-button-in-swing
     
     /**
      * Creates new form App
@@ -410,6 +413,16 @@ public class App extends javax.swing.JFrame {
                         // update is available
                         log.debug("Update is available");
                         return GameState.old;
+                    } else if (configuration.isCheckArtifacts()) {
+                        try {
+                            List<WorkflowRun> wfrs = Util.getGithubWorkflowRuns();
+                            for (WorkflowRun wfr: wfrs) {
+                                log.debug("found workflow run {}", wfr);
+                            }
+                        } catch (Exception e) {
+                            log.error("Could not list workflows", e);
+                        }
+                        return GameState.latest;
                     } else {
                         // we already have the latest version
                         log.debug("we already have the latest version");

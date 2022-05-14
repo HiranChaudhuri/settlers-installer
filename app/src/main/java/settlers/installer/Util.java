@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -34,6 +35,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.Project;
 import settlers.installer.model.Asset;
 import settlers.installer.model.Release;
+import settlers.installer.model.WorkflowRun;
+import settlers.installer.model.WorkflowRunResponsePage;
 
 /**
  * Windows:
@@ -52,6 +55,7 @@ public class Util {
     private static final Logger log = LogManager.getLogger(Util.class);
     
     public static final String RELEASE_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/releases";
+    public static final String WORKFLOW_RUNS_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/actions/runs";
     
     /** 
      * Creates a Genson parser that treats timestamps as java.util.Date.
@@ -71,7 +75,7 @@ public class Util {
      * @param releases the list to be sorted
      * @return the sorted list
      */
-    public static List<Release> sortByDate(List<Release> releases) {
+    public static List<Release> sortReleaseByDate(List<Release> releases) {
         List<Release> result = new ArrayList<>(releases);
         Collections.sort(result, new Comparator<Release>() {
             @Override
@@ -80,6 +84,26 @@ public class Util {
                     return 1;
                 }
                 return t.getPublished_at().compareTo(t1.getPublished_at());
+            }
+        });
+        return result;
+    }
+
+    /**
+     * Sorts the list by publishing date.
+     * 
+     * @param workflowRuns the list to be sorted
+     * @return the sorted list
+     */
+    public static List<WorkflowRun> sortWorkflowByDate(List<WorkflowRun> workflowRuns) {
+        List<WorkflowRun> result = new ArrayList<>(workflowRuns);
+        Collections.sort(result, new Comparator<WorkflowRun>() {
+            @Override
+            public int compare(WorkflowRun t1, WorkflowRun t) {
+                if (t.getCreated_at()==null) {
+                    return 1;
+                }
+                return t.getCreated_at().compareTo(t1.getCreated_at());
             }
         });
         return result;
@@ -98,7 +122,16 @@ public class Util {
         
         List<Release> releases = getGenson().deserialize(in, new GenericType<List<Release>>(){});
         
-        return sortByDate(releases);
+        return sortReleaseByDate(releases);
+    }
+    
+    public static List<WorkflowRun> getGithubWorkflowRuns() throws IOException {
+        URL u = new URL(WORKFLOW_RUNS_URL);
+        InputStream in = u.openStream();
+        
+        WorkflowRunResponsePage wrrp = getGenson().deserialize(in, WorkflowRunResponsePage.class);
+        List<WorkflowRun> wfr = (List)(wrrp.getWorkflow_runs());
+        return sortWorkflowByDate(wfr);
     }
     
     /** Returns the releases locally installed.
@@ -120,7 +153,7 @@ public class Util {
             result.add(r);
         }
         
-        return sortByDate(result);
+        return sortReleaseByDate(result);
     }
 
     /**
