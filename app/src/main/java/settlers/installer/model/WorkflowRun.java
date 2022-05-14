@@ -2,7 +2,14 @@
  */
 package settlers.installer.model;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Date;
+import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import settlers.installer.Util;
 
 /**
  * 
@@ -11,6 +18,8 @@ import java.util.Date;
  * @author hiran
  */
 public class WorkflowRun {
+    private static final Logger log = LogManager.getLogger(WorkflowRun.class);
+    
     private String id;
     private String name;
     private String node_id;
@@ -37,7 +46,7 @@ public class WorkflowRun {
     private String cancel_url;
     private String previous_attempt_url;
     private String workflow_url;
-
+    
     public String getId() {
         return id;
     }
@@ -244,6 +253,20 @@ public class WorkflowRun {
 
     public void setWorkflow_url(String workflow_url) {
         this.workflow_url = workflow_url;
+    }
+    
+    public List<Artifact> getArtifacts() {
+        try {
+        URL u = new URL(artifacts_url);
+            InputStream in = u.openStream();
+
+            ArtifactResponsePage arp = Util.getGenson().deserialize(in, ArtifactResponsePage.class);
+            List<Artifact> as = (List)(arp.getArtifacts());
+            return Util.sortArtifactsByDate(as);
+        } catch (IOException e) {
+            log.warn("Could not load artifact list {}", artifacts_url, e);
+            return null;
+        }
     }
     
     public String toString() {

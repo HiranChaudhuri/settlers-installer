@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import settlers.installer.model.Artifact;
 import settlers.installer.model.Configuration;
 import settlers.installer.model.Release;
 import settlers.installer.model.WorkflowRun;
@@ -417,7 +418,11 @@ public class App extends javax.swing.JFrame {
                         try {
                             List<WorkflowRun> wfrs = Util.getGithubWorkflowRuns();
                             for (WorkflowRun wfr: wfrs) {
-                                log.debug("found workflow run {}", wfr);
+                                List<Artifact> as = wfr.getArtifacts();
+                                if (as != null && !as.isEmpty()) {
+                                    log.debug("found workflow run {}", wfr);
+                                    log.debug("    with artifacts {}", as);
+                                }
                             }
                         } catch (Exception e) {
                             log.error("Could not list workflows", e);

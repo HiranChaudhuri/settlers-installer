@@ -33,6 +33,8 @@ import net.sf.fikin.ant.EmbeddedAntProject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.Project;
+import settlers.installer.model.Artifact;
+import settlers.installer.model.ArtifactResponsePage;
 import settlers.installer.model.Asset;
 import settlers.installer.model.Release;
 import settlers.installer.model.WorkflowRun;
@@ -62,7 +64,7 @@ public class Util {
      *
      * @return the parser
      */
-    private static Genson getGenson() {
+    public static Genson getGenson() {
         return new GensonBuilder()
                 .useDateAsTimestamp(true)
                 .useDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"))
@@ -84,6 +86,26 @@ public class Util {
                     return 1;
                 }
                 return t.getPublished_at().compareTo(t1.getPublished_at());
+            }
+        });
+        return result;
+    }
+
+    /**
+     * Sorts the list by publishing date.
+     * 
+     * @param artifacts the list to be sorted
+     * @return the sorted list
+     */
+    public static List<Artifact> sortArtifactsByDate(List<Artifact> artifacts) {
+        List<Artifact> result = new ArrayList<>(artifacts);
+        Collections.sort(result, new Comparator<Artifact>() {
+            @Override
+            public int compare(Artifact t1, Artifact t) {
+                if (t.getUpdated_at()==null) {
+                    return 1;
+                }
+                return t.getUpdated_at().compareTo(t1.getUpdated_at());
             }
         });
         return result;
@@ -130,8 +152,8 @@ public class Util {
         InputStream in = u.openStream();
         
         WorkflowRunResponsePage wrrp = getGenson().deserialize(in, WorkflowRunResponsePage.class);
-        List<WorkflowRun> wfr = (List)(wrrp.getWorkflow_runs());
-        return sortWorkflowByDate(wfr);
+        List<WorkflowRun> wrs = (List)(wrrp.getWorkflow_runs());
+        return sortWorkflowByDate(wrs);
     }
     
     /** Returns the releases locally installed.
