@@ -418,10 +418,12 @@ public class App extends javax.swing.JFrame {
                         try {
                             List<WorkflowRun> wfrs = Util.getGithubWorkflowRuns();
                             for (WorkflowRun wfr: wfrs) {
-                                List<Artifact> as = wfr.getArtifacts();
-                                if (as != null && !as.isEmpty()) {
-                                    log.debug("found workflow run {}", wfr);
-                                    log.debug("    with artifacts {}", as);
+                                if (availableReleases.get(0).getPublished_at().before(wfr.getUpdated_at())) {
+                                    List<Artifact> as = wfr.getArtifacts();
+                                    if (as != null && !as.isEmpty()) {
+                                        log.debug("found workflow run {}", wfr);
+                                        log.debug("    with artifacts {}", as);
+                                    }
                                 }
                             }
                         } catch (Exception e) {
