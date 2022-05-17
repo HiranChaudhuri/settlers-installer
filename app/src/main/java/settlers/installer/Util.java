@@ -131,31 +131,6 @@ public class Util {
         return result;
     }
 
-    /** Returns the releases available on Github.
-     * The list is sorted by publishing date.
-     * 
-     * @return the list of releases
-     * @throws MalformedURLException something went wrong
-     * @throws IOException something went wrong
-     */
-    public static List<Release> getGithubReleases() throws MalformedURLException, IOException {
-        URL u = new URL(RELEASE_URL);
-        InputStream in = u.openStream();
-        
-        List<Release> releases = getGenson().deserialize(in, new GenericType<List<Release>>(){});
-        
-        return sortReleaseByDate(releases);
-    }
-    
-    public static List<WorkflowRun> getGithubWorkflowRuns() throws IOException {
-        URL u = new URL(WORKFLOW_RUNS_URL);
-        InputStream in = u.openStream();
-        
-        WorkflowRunResponsePage wrrp = getGenson().deserialize(in, WorkflowRunResponsePage.class);
-        List<WorkflowRun> wrs = (List)(wrrp.getWorkflow_runs());
-        return sortWorkflowByDate(wrs);
-    }
-    
     /** Returns the releases locally installed.
      * The list is sorted by publishing date.
      * 
@@ -176,29 +151,6 @@ public class Util {
         }
         
         return sortReleaseByDate(result);
-    }
-
-    /**
-     * Downloads an asset into a temporary file and returns the file.
-     * 
-     * @param asset the asset to download
-     * @return the local file
-     * @throws IOException something went wrong
-     */
-    public static File downloadAsset(Asset asset) throws IOException {
-        File tempFolder = getManagedTempFolder();
-        tempFolder.mkdirs();
-        File download = File.createTempFile(asset.getName()+"_"+asset.getId(), ".zip", tempFolder);
-        
-        URL url = new URL(asset.getBrowser_download_url());
-        log.debug("downloading from {}", url);
-        try (InputStream in = url.openStream()) {
-            Files.copy(in, download.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (Exception e) {
-            throw new IOException(String.format("Could not download %s to %s", url, download));
-        }
-        
-        return download;
     }
 
     /**
@@ -273,7 +225,7 @@ public class Util {
         for (Asset a: release.getAssets()) {
             if ("JSettlers.zip".equals(a.getName())) {
                 log.debug("check asset {}", a);
-                File f = downloadAsset(a);
+                File f = GithubClient.downloadAsset(a);
                 File target = new File(getGamesFolder(), release.getId());
                 
                 int retries = 6;
@@ -433,22 +385,6 @@ public class Util {
     }
     
     public static void runAnt(File buildFile, Properties props) throws MalformedURLException, IOException {
-//        Project p = new Project();
-//
-//        ProjectHelper helper = ProjectHelper2.getProjectHelper();
-//        p.addReference("ant.projectHelper", helper);
-//        helper.parse(p, buildFile);
-//        
-//        //helper.parse(p, buildFile.toURI().toURL());
-//
-//        for (Object key: props.keySet()) {
-//            p.setUserProperty(String.valueOf(key), props.getProperty(String.valueOf(key)));
-//        }
-//        p.init();
-//
-//        log.debug(p.getName());
-//        log.debug(p.getDefaultTarget());
-//        p.executeTarget(p.getDefaultTarget());    
 
         URL url = Util.class.getClassLoader().getResource( "S3_Installer.xml" );
         InputStream in = url.openStream();
@@ -547,8 +483,8 @@ public class Util {
      * Also ensures we have no more than the last 5 releases and cleans up
      * older ones.
      */
-    public static void installLatest() throws IOException {
-        List<Release> githubReleases = Util.getGithubReleases();
+    public static void installLatest(GithubClient github) throws IOException {
+        List<Release> githubReleases = github.getGithubReleases();
         List<Release> installedReleases = Util.getInstalledReleases();
 
         // install if a newer one is available

@@ -2,6 +2,7 @@
  */
 package settlers.installer;
 
+import java.awt.Desktop;
 import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
@@ -29,6 +30,7 @@ public class App extends javax.swing.JFrame {
     private final javax.swing.ImageIcon iiUpdate = new javax.swing.ImageIcon(getClass().getResource("/update_FILL0_wght400_GRAD0_opsz48.png"));
     
     private Configuration configuration;
+    private GithubClient github;
     
     // TODO: Play button should come like https://www.codejava.net/java-se/swing/how-to-create-drop-down-button-in-swing
     
@@ -40,6 +42,7 @@ public class App extends javax.swing.JFrame {
         jProgressBar.setVisible(false);
         
         configuration = Configuration.load(Util.getConfigurationFile());
+        github = new GithubClient(configuration.getGithubUsername(), configuration.getGithubToken());
         checkFiles();
     }
 
@@ -236,7 +239,7 @@ public class App extends javax.swing.JFrame {
                 int x = 0;
                 try {
 
-                    Util.installLatest();
+                    Util.installLatest(github);
                     
                 } catch(Exception e) {
                     JOptionPane.showMessageDialog(App.this, "Something went wrong.");
@@ -391,6 +394,15 @@ public class App extends javax.swing.JFrame {
         btInstallData.setVisible(!dataFiles);
         
         btPlay.setVisible(dataFiles && (gstate != GameState.missing) );
+        
+        // Desktop.getDesktop().browseFileDirectory(Util.getVarFolder());
+        // throws UnsupportedOperationException: The BROWSE_FILE_DIR action is not supported on the current platform!
+        
+//        try {
+//            Desktop.getDesktop().browse(Util.getVarFolder().toURI());
+//        } catch (Exception e) {
+//            log.error("Could not browse", e);
+//        }
     }
     
     public enum GameState {
@@ -409,14 +421,14 @@ public class App extends javax.swing.JFrame {
                 // check if updates are available
 
                 try {
-                    List<Release> availableReleases = Util.getGithubReleases();
+                  List<Release> availableReleases = github.getGithubReleases();
                     if (installedReleases.get(0).getPublished_at().before(availableReleases.get(0).getPublished_at())) {
                         // update is available
                         log.debug("Update is available");
                         return GameState.old;
                     } else if (configuration.isCheckArtifacts()) {
                         try {
-                            List<WorkflowRun> wfrs = Util.getGithubWorkflowRuns();
+                            List<WorkflowRun> wfrs = github.getGithubWorkflowRuns();
                             for (WorkflowRun wfr: wfrs) {
                                 if (availableReleases.get(0).getPublished_at().before(wfr.getUpdated_at())) {
                                     List<Artifact> as = wfr.getArtifacts();
