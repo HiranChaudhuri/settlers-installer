@@ -33,12 +33,12 @@ import net.sf.fikin.ant.EmbeddedAntProject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.Project;
-import settlers.installer.model.Artifact;
-import settlers.installer.model.ArtifactResponsePage;
-import settlers.installer.model.Asset;
-import settlers.installer.model.Release;
-import settlers.installer.model.WorkflowRun;
-import settlers.installer.model.WorkflowRunResponsePage;
+import org.kohsuke.github.GHArtifact;
+import org.kohsuke.github.GHAsset;
+import org.kohsuke.github.GHRelease;
+import org.kohsuke.github.GHWorkflowRun;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.PagedIterator;
 
 /**
  * Windows:
@@ -77,11 +77,11 @@ public class Util {
      * @param releases the list to be sorted
      * @return the sorted list
      */
-    public static List<Release> sortReleaseByDate(List<Release> releases) {
-        List<Release> result = new ArrayList<>(releases);
-        Collections.sort(result, new Comparator<Release>() {
+    public static List<GHRelease> sortReleaseByDate(List<GHRelease> releases) {
+        List<GHRelease> result = new ArrayList<>(releases);
+        Collections.sort(result, new Comparator<GHRelease>() {
             @Override
-            public int compare(Release t1, Release t) {
+            public int compare(GHRelease t1, GHRelease t) {
                 if (t.getPublished_at()==null) {
                     return 1;
                 }
@@ -97,15 +97,20 @@ public class Util {
      * @param artifacts the list to be sorted
      * @return the sorted list
      */
-    public static List<Artifact> sortArtifactsByDate(List<Artifact> artifacts) {
-        List<Artifact> result = new ArrayList<>(artifacts);
-        Collections.sort(result, new Comparator<Artifact>() {
+    public static List<GHArtifact> sortArtifactsByDate(List<GHArtifact> artifacts) {
+        List<GHArtifact> result = new ArrayList<>(artifacts);
+        Collections.sort(result, new Comparator<GHArtifact>() {
             @Override
-            public int compare(Artifact t1, Artifact t) {
-                if (t.getUpdated_at()==null) {
-                    return 1;
+            public int compare(GHArtifact t1, GHArtifact t) {
+                try {
+                    if (t.getUpdatedAt()==null) {
+                        return 1;
+                    }
+                    return t.getUpdatedAt().compareTo(t1.getUpdatedAt());
+                } catch (IOException e) {
+                    log.warn("Coult not compare artifact dates", e);
+                    return 0;
                 }
-                return t.getUpdated_at().compareTo(t1.getUpdated_at());
             }
         });
         return result;
@@ -117,15 +122,20 @@ public class Util {
      * @param workflowRuns the list to be sorted
      * @return the sorted list
      */
-    public static List<WorkflowRun> sortWorkflowByDate(List<WorkflowRun> workflowRuns) {
-        List<WorkflowRun> result = new ArrayList<>(workflowRuns);
-        Collections.sort(result, new Comparator<WorkflowRun>() {
+    public static List<GHWorkflowRun> sortWorkflowByDate(List<GHWorkflowRun> workflowRuns) {
+        List<GHWorkflowRun> result = new ArrayList<>(workflowRuns);
+        Collections.sort(result, new Comparator<GHWorkflowRun>() {
             @Override
-            public int compare(WorkflowRun t1, WorkflowRun t) {
-                if (t.getCreated_at()==null) {
-                    return 1;
+            public int compare(GHWorkflowRun t1, GHWorkflowRun t) {
+                try {
+                    if (t.getCreatedAt()==null) {
+                        return 1;
+                    }
+                    return t.getCreatedAt().compareTo(t1.getCreatedAt());
+                } catch (IOException e) {
+                    log.warn("Could not compare workflows", e);
+                    return 0;
                 }
-                return t.getCreated_at().compareTo(t1.getCreated_at());
             }
         });
         return result;
@@ -137,8 +147,8 @@ public class Util {
      * @return the list of releases
      * @throws FileNotFoundException something went wrong
      */
-    public static List<Release> getInstalledReleases() throws FileNotFoundException {
-        List<Release> result = new ArrayList<>();
+    public static List<GHRelease> getInstalledReleases() throws FileNotFoundException {
+        List<GHRelease> result = new ArrayList<>();
         Genson genson = getGenson();
         
         File gamesFolder = getGamesFolder();
@@ -146,7 +156,7 @@ public class Util {
         
         for(File game: gamesFolder.listFiles()) {
             File metadata = new File(game, "metadata.json");
-            Release r = genson.deserialize(new FileInputStream(metadata), Release.class);
+            GHRelease r = genson.deserialize(new FileInputStream(metadata), GHRelease.class);
             result.add(r);
         }
         
@@ -221,12 +231,13 @@ public class Util {
      * @param release The release to install
      * @throws IOException something went wrong
      */
-    public static void installRelease(Release release) throws IOException {
-        for (Asset a: release.getAssets()) {
+    public static void installRelease(GHRelease release) throws IOException {
+        for (PagedIterator<GHAsset> iter = release.listAssets().iterator(); iter.hasNext(); ) {
+            GHAsset a = iter.next();
             if ("JSettlers.zip".equals(a.getName())) {
                 log.debug("check asset {}", a);
                 File f = GithubClient.downloadAsset(a);
-                File target = new File(getGamesFolder(), release.getId());
+                File target = new File(getGamesFolder(), String.valueOf(release.getId()));
                 
                 int retries = 6;
                 boolean done = false;
@@ -284,9 +295,9 @@ public class Util {
      * @param release
      * @throws IOException 
      */
-    public static void removeRelease(Release release) throws IOException {
+    public static void removeRelease(GHRelease release) throws IOException {
         log.debug("removeRelease({})", release);
-        File target = new File(getGamesFolder(), release.getId());
+        File target = new File(getGamesFolder(), String.valueOf(release.getId()));
         deleteDir(target);
     }
     
@@ -317,9 +328,9 @@ public class Util {
         return new File(getManagedJSettlersFolder(), "var");
     }
     
-    public static void runRelease(Release release) throws IOException, InterruptedException {
+    public static void runRelease(GHRelease release) throws IOException, InterruptedException {
         log.debug("runRelease({})", release);
-        File target = new File(getGamesFolder(), release.getId());
+        File target = new File(getGamesFolder(), String.valueOf(release.getId()));
         File jarfile = new File(target, "JSettlers/JSettlers.jar");
         
         execJarFile(jarfile);
@@ -483,25 +494,28 @@ public class Util {
      * Also ensures we have no more than the last 5 releases and cleans up
      * older ones.
      */
-    public static void installLatest(GithubClient github) throws IOException {
-        List<Release> githubReleases = github.getGithubReleases();
-        List<Release> installedReleases = Util.getInstalledReleases();
-
-        // install if a newer one is available
-        if (installedReleases.isEmpty() || installedReleases.get(0).getPublished_at().before(githubReleases.get(0).getPublished_at())) {
-            Release latest = githubReleases.get(0);
-            log.debug("Installing latest release {}", latest);
-
-            installRelease(latest);
-
-        }
-
-        // remove if we have more than five
-        while (installedReleases.size()>5) {
-            Release r = installedReleases.get(installedReleases.size()-1);
-            Util.removeRelease(r);
-            installedReleases = Util.getInstalledReleases();
-        }
+    public static void installLatest(GitHub github) throws IOException {
+        throw new UnsupportedOperationException("not yet implemented");
+        
+//        github.getRepository("")
+//        List<Release> githubReleases = github.getGithubReleases();
+//        List<Release> installedReleases = Util.getInstalledReleases();
+//
+//        // install if a newer one is available
+//        if (installedReleases.isEmpty() || installedReleases.get(0).getPublished_at().before(githubReleases.get(0).getPublished_at())) {
+//            Release latest = githubReleases.get(0);
+//            log.debug("Installing latest release {}", latest);
+//
+//            installRelease(latest);
+//
+//        }
+//
+//        // remove if we have more than five
+//        while (installedReleases.size()>5) {
+//            Release r = installedReleases.get(installedReleases.size()-1);
+//            Util.removeRelease(r);
+//            installedReleases = Util.getInstalledReleases();
+//        }
     }
     
     /** Return true if the folder is a Settlers install CD.

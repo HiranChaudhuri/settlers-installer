@@ -30,7 +30,7 @@
       <Properties>
         <Property name="horizontalAlignment" type="int" value="0"/>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/GitHub-Mark-120px-plus.png"/>
+          <Image iconType="3" name="/images/GitHub-Mark-120px-plus.png"/>
         </Property>
       </Properties>
       <Constraints>
@@ -56,7 +56,7 @@
       <Properties>
         <Property name="horizontalAlignment" type="int" value="0"/>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/siedler3-helme-circle-120.png"/>
+          <Image iconType="3" name="/images/siedler3-helme-circle-120.png"/>
         </Property>
       </Properties>
       <Constraints>
@@ -91,11 +91,6 @@
       </Constraints>
     </Component>
     <Component class="javax.swing.JLabel" name="lbResultGame">
-      <Properties>
-        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/done_outline_FILL0_wght400_GRAD0_opsz48.png"/>
-        </Property>
-      </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
           <GridBagConstraints gridX="3" gridY="1" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
@@ -103,11 +98,6 @@
       </Constraints>
     </Component>
     <Component class="javax.swing.JLabel" name="lbResultData">
-      <Properties>
-        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/done_outline_FILL0_wght400_GRAD0_opsz48.png"/>
-        </Property>
-      </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
           <GridBagConstraints gridX="3" gridY="2" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
@@ -120,7 +110,7 @@
           <Color blue="0" green="c8" id="orange" palette="1" red="ff" type="palette"/>
         </Property>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/construction_FILL0_wght400_GRAD0_opsz48.png"/>
+          <Image iconType="3" name="/images/download_for_offline_FILL0_wght400_GRAD0_opsz48.png"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Install Game"/>
         <Property name="opaque" type="boolean" value="true"/>
@@ -140,7 +130,7 @@
           <Color blue="0" green="c8" id="orange" palette="1" red="ff" type="palette"/>
         </Property>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/construction_FILL0_wght400_GRAD0_opsz48.png"/>
+          <Image iconType="3" name="/images/download_for_offline_FILL0_wght400_GRAD0_opsz48.png"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Install Data"/>
         <Property name="borderPainted" type="boolean" value="false"/>
@@ -160,7 +150,7 @@
           <Color blue="0" green="c8" id="orange" palette="1" red="ff" type="palette"/>
         </Property>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/construction_FILL0_wght400_GRAD0_opsz48.png"/>
+          <Image iconType="3" name="/images/update_FILL0_wght400_GRAD0_opsz48.png"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Update Game"/>
         <Property name="opaque" type="boolean" value="true"/>
@@ -199,7 +189,7 @@
               <Color blue="83" green="ff" red="7f" type="rgb"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/play_arrow_FILL0_wght400_GRAD0_opsz48.png"/>
+              <Image iconType="3" name="/images/play_arrow_FILL0_wght400_GRAD0_opsz48.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Play game!"/>
             <Property name="opaque" type="boolean" value="true"/>
@@ -216,7 +206,7 @@
         <Component class="javax.swing.JButton" name="btOptions">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/menu_FILL0_wght400_GRAD0_opsz48.png"/>
+              <Image iconType="3" name="/images/menu_FILL0_wght400_GRAD0_opsz48.png"/>
             </Property>
           </Properties>
           <Events>

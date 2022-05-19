@@ -26,6 +26,8 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.15'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-crypto
     implementation 'org.apache.commons:commons-crypto:1.1.0'
+    // https://mvnrepository.com/artifact/org.kohsuke/github-api
+    implementation 'org.kohsuke:github-api:1.306'
 }
 
 version = scmVersion.version

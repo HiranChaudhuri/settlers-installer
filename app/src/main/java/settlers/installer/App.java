@@ -7,16 +7,24 @@ import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import settlers.installer.model.Artifact;
+import org.kohsuke.github.GHArtifact;
+import org.kohsuke.github.GHEventPayload;
+import org.kohsuke.github.GHRelease;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHWorkflow;
+import org.kohsuke.github.GHWorkflowRun;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.PagedIterable;
+import org.kohsuke.github.PagedIterator;
 import settlers.installer.model.Configuration;
-import settlers.installer.model.Release;
-import settlers.installer.model.WorkflowRun;
 
 /**
  *
@@ -25,12 +33,12 @@ import settlers.installer.model.WorkflowRun;
 public class App extends javax.swing.JFrame {
     private static final Logger log = LogManager.getLogger(App.class);
 
-    private final javax.swing.ImageIcon iiFound = new javax.swing.ImageIcon(getClass().getResource("/done_outline_FILL0_wght400_GRAD0_opsz48.png"));
-    private final javax.swing.ImageIcon iiMissing = new javax.swing.ImageIcon(getClass().getResource("/dangerous_FILL0_wght400_GRAD0_opsz48.png"));
-    private final javax.swing.ImageIcon iiUpdate = new javax.swing.ImageIcon(getClass().getResource("/update_FILL0_wght400_GRAD0_opsz48.png"));
+    private final javax.swing.ImageIcon iiFound = new javax.swing.ImageIcon(getClass().getResource("/images/done_outline_FILL0_wght400_GRAD0_opsz48.png"));
+    private final javax.swing.ImageIcon iiMissing = new javax.swing.ImageIcon(getClass().getResource("/images/dangerous_FILL0_wght400_GRAD0_opsz48.png"));
+    private final javax.swing.ImageIcon iiUpdate = new javax.swing.ImageIcon(getClass().getResource("/images/update_FILL0_wght400_GRAD0_opsz48.png"));
     
     private Configuration configuration;
-    private GithubClient github;
+    private GitHub github;
     
     // TODO: Play button should come like https://www.codejava.net/java-se/swing/how-to-create-drop-down-button-in-swing
     
@@ -42,7 +50,11 @@ public class App extends javax.swing.JFrame {
         jProgressBar.setVisible(false);
         
         configuration = Configuration.load(Util.getConfigurationFile());
-        github = new GithubClient(configuration.getGithubUsername(), configuration.getGithubToken());
+        try {
+            github = new GitHubBuilder().withOAuthToken(configuration.getGithubToken(), configuration.getGithubUsername()).build();
+        } catch (IOException e) {
+            log.error("Could not initialize github client", e);
+        }
         checkFiles();
     }
 
@@ -78,7 +90,7 @@ public class App extends javax.swing.JFrame {
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         lbIconGithub.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbIconGithub.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GitHub-Mark-120px-plus.png"))); // NOI18N
+        lbIconGithub.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/GitHub-Mark-120px-plus.png"))); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -96,7 +108,7 @@ public class App extends javax.swing.JFrame {
         getContentPane().add(lbGameFiles, gridBagConstraints);
 
         lbIconSettlers.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbIconSettlers.setIcon(new javax.swing.ImageIcon(getClass().getResource("/siedler3-helme-circle-120.png"))); // NOI18N
+        lbIconSettlers.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/siedler3-helme-circle-120.png"))); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
@@ -124,21 +136,17 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.ipady = 30;
         gridBagConstraints.weightx = 1.0;
         getContentPane().add(jLabel5, gridBagConstraints);
-
-        lbResultGame.setIcon(new javax.swing.ImageIcon(getClass().getResource("/done_outline_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         getContentPane().add(lbResultGame, gridBagConstraints);
-
-        lbResultData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/done_outline_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 2;
         getContentPane().add(lbResultData, gridBagConstraints);
 
         btInstallGame.setBackground(java.awt.Color.orange);
-        btInstallGame.setIcon(new javax.swing.ImageIcon(getClass().getResource("/construction_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        btInstallGame.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/download_for_offline_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         btInstallGame.setText("Install Game");
         btInstallGame.setOpaque(true);
         btInstallGame.addActionListener(new java.awt.event.ActionListener() {
@@ -152,7 +160,7 @@ public class App extends javax.swing.JFrame {
         getContentPane().add(btInstallGame, gridBagConstraints);
 
         btInstallData.setBackground(java.awt.Color.orange);
-        btInstallData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/construction_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        btInstallData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/download_for_offline_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         btInstallData.setText("Install Data");
         btInstallData.setBorderPainted(false);
         btInstallData.addActionListener(new java.awt.event.ActionListener() {
@@ -166,7 +174,7 @@ public class App extends javax.swing.JFrame {
         getContentPane().add(btInstallData, gridBagConstraints);
 
         btUpdate.setBackground(java.awt.Color.orange);
-        btUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/construction_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        btUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/update_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         btUpdate.setText("Update Game");
         btUpdate.setOpaque(true);
         btUpdate.addActionListener(new java.awt.event.ActionListener() {
@@ -190,7 +198,7 @@ public class App extends javax.swing.JFrame {
         buttonBar.add(jProgressBar, gridBagConstraints);
 
         btPlay.setBackground(new java.awt.Color(127, 255, 131));
-        btPlay.setIcon(new javax.swing.ImageIcon(getClass().getResource("/play_arrow_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        btPlay.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/play_arrow_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         btPlay.setToolTipText("Play game!");
         btPlay.setOpaque(true);
         btPlay.addActionListener(new java.awt.event.ActionListener() {
@@ -203,7 +211,7 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.gridy = 1;
         buttonBar.add(btPlay, gridBagConstraints);
 
-        btOptions.setIcon(new javax.swing.ImageIcon(getClass().getResource("/menu_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        btOptions.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menu_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
         btOptions.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btOptionsActionPerformed(evt);
@@ -331,7 +339,7 @@ public class App extends javax.swing.JFrame {
                 int x = 0;
                 try {
 
-                    List<Release> installedReleases = Util.getInstalledReleases();
+                    List<GHRelease> installedReleases = Util.getInstalledReleases();
                     if (installedReleases != null && !installedReleases.isEmpty()) {
                         Util.runRelease(installedReleases.get(0));
                     }
@@ -366,26 +374,35 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_btOptionsActionPerformed
 
     private void checkFiles() {
-        GameState gstate = haveGameFiles();
-        switch(gstate) {
-            case latest:
-                lbResultGame.setIcon(iiFound);
-                lbResultGame.setVisible(true);
-                btInstallGame.setVisible(false);
-                btUpdate.setVisible(false);
-                break;
-            case old:
-                lbResultGame.setIcon(iiUpdate);
-                lbResultGame.setVisible(false);
-                btInstallGame.setVisible(false);
-                btUpdate.setVisible(true);
-                break;
-            case missing:
-                lbResultGame.setIcon(iiMissing);
-                lbResultGame.setVisible(false);
-                btInstallGame.setVisible(true);
-                btUpdate.setVisible(false);
-                break;
+        GameState gstate = null;
+        try {
+            gstate = haveGameFiles();
+            switch(gstate) {
+                case latest:
+                    lbResultGame.setIcon(iiFound);
+                    lbResultGame.setVisible(true);
+                    btInstallGame.setVisible(false);
+                    btUpdate.setVisible(false);
+                    break;
+                case old:
+                    lbResultGame.setIcon(iiUpdate);
+                    lbResultGame.setVisible(false);
+                    btInstallGame.setVisible(false);
+                    btUpdate.setVisible(true);
+                    break;
+                case missing:
+                    lbResultGame.setIcon(iiMissing);
+                    lbResultGame.setVisible(false);
+                    btInstallGame.setVisible(true);
+                    btUpdate.setVisible(false);
+                    break;
+            }
+        } catch (Exception e) {
+            log.warn("could not check game status", e);
+            lbResultGame.setIcon(iiMissing);
+            lbResultGame.setVisible(false);
+            btInstallGame.setVisible(false);
+            btUpdate.setVisible(false);
         }
         
         boolean dataFiles = haveDataFiles();
@@ -393,7 +410,7 @@ public class App extends javax.swing.JFrame {
         lbResultData.setVisible(dataFiles);
         btInstallData.setVisible(!dataFiles);
         
-        btPlay.setVisible(dataFiles && (gstate != GameState.missing) );
+        btPlay.setVisible(dataFiles && (gstate != null) && (gstate != GameState.missing) );
         
         // Desktop.getDesktop().browseFileDirectory(Util.getVarFolder());
         // throws UnsupportedOperationException: The BROWSE_FILE_DIR action is not supported on the current platform!
@@ -416,51 +433,98 @@ public class App extends javax.swing.JFrame {
      */
     private GameState haveGameFiles() {
         try {
-            List<Release> installedReleases = Util.getInstalledReleases();
-            if (installedReleases != null && !installedReleases.isEmpty()) {
-                // check if updates are available
-
-                try {
-                  List<Release> availableReleases = github.getGithubReleases();
-                    if (installedReleases.get(0).getPublished_at().before(availableReleases.get(0).getPublished_at())) {
-                        // update is available
-                        log.debug("Update is available");
-                        return GameState.old;
-                    } else if (configuration.isCheckArtifacts()) {
-                        try {
-                            List<WorkflowRun> wfrs = github.getGithubWorkflowRuns();
-                            for (WorkflowRun wfr: wfrs) {
-                                if (availableReleases.get(0).getPublished_at().before(wfr.getUpdated_at())) {
-                                    List<Artifact> as = wfr.getArtifacts();
-                                    if (as != null && !as.isEmpty()) {
-                                        log.debug("found workflow run {}", wfr);
-                                        log.debug("    with artifacts {}", as);
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            log.error("Could not list workflows", e);
-                        }
-                        return GameState.latest;
-                    } else {
-                        // we already have the latest version
-                        log.debug("we already have the latest version");
-                        return GameState.latest;
-                    }
-                } catch (Exception e) {
-                    // could not figure out if update is available. Let's assume we have the latest
-                    log.debug("We assume to have the latest version", e);
-                    return GameState.latest;
-                }
-            } else {
-                log.debug("No good version installed locally");
-                return GameState.missing;
+            log.debug("github anonymous: {}", github.isAnonymous());
+            log.debug("github offline:   {}", github.isOffline());
+            GHRepository repository = github.getRepository("paulwedeck/settlers-remake");
+            
+            PagedIterable<GHRelease> releases = repository.listReleases();
+            int count = 0;
+            for(PagedIterator<GHRelease> iter = releases.iterator(); iter.hasNext(); ) {
+                GHRelease i = iter.next();
+                count++;
             }
-        } catch (FileNotFoundException e) {
-            // if no file is found, we do not have a game
-            log.debug("Could not check for local version");
-            return GameState.missing;
+            log.debug("counted {} releases", count);
+            
+            PagedIterable<GHArtifact> artifacts = repository.listArtifacts();
+            count = 0;
+            for (PagedIterator<GHArtifact> iter = artifacts.iterator(); iter.hasNext(); ) {
+                GHArtifact i = iter.next();
+                count++;
+                log.debug("Artifact {}", i);
+            }
+            log.debug("counted {} artifacts", count);
+            
+            PagedIterable<GHWorkflow> workflows = repository.listWorkflows();
+            count = 0;
+            for (PagedIterator<GHWorkflow> iter = workflows.iterator(); iter.hasNext(); ) {
+                GHWorkflow i = iter.next();
+                count++;
+                log.debug("Workflow {}", i);
+                
+                int count2 = 0;
+                PagedIterable<GHWorkflowRun> workflowRuns = i.listRuns();
+                for (PagedIterator<GHWorkflowRun> iter2 = workflowRuns.iterator(); iter2.hasNext(); ) {
+                    GHWorkflowRun j = iter2.next();
+                    log.debug("  run: {}", j);
+                    count2++;
+                }
+                log.debug("counted {} runs", count2);
+            }
+            log.debug("counted {} workflows", count);
+            
+        } catch (IOException e) {
+            log.error("Could not list releases", e);
         }
+        
+        
+        throw new UnsupportedOperationException("not yet implemented");
+        
+//        try {
+//            List<Release> installedReleases = Util.getInstalledReleases();
+//            if (installedReleases != null && !installedReleases.isEmpty()) {
+//                // check if updates are available
+//
+//                try {
+//                  List<Release> availableReleases = github.getGithubReleases();
+//                    if (installedReleases.get(0).getPublished_at().before(availableReleases.get(0).getPublished_at())) {
+//                        // update is available
+//                        log.debug("Update is available");
+//                        return GameState.old;
+//                    } else if (configuration.isCheckArtifacts()) {
+//                        try {
+//                            List<WorkflowRun> wfrs = github.getGithubWorkflowRuns();
+//                            for (WorkflowRun wfr: wfrs) {
+//                                if (availableReleases.get(0).getPublished_at().before(wfr.getUpdated_at())) {
+//                                    List<Artifact> as = wfr.getArtifacts();
+//                                    if (as != null && !as.isEmpty()) {
+//                                        log.debug("found workflow run {}", wfr);
+//                                        log.debug("    with artifacts {}", as);
+//                                    }
+//                                }
+//                            }
+//                        } catch (Exception e) {
+//                            log.error("Could not list workflows", e);
+//                        }
+//                        return GameState.latest;
+//                    } else {
+//                        // we already have the latest version
+//                        log.debug("we already have the latest version");
+//                        return GameState.latest;
+//                    }
+//                } catch (Exception e) {
+//                    // could not figure out if update is available. Let's assume we have the latest
+//                    log.debug("We assume to have the latest version", e);
+//                    return GameState.latest;
+//                }
+//            } else {
+//                log.debug("No good version installed locally");
+//                return GameState.missing;
+//            }
+//        } catch (FileNotFoundException e) {
+//            // if no file is found, we do not have a game
+//            log.debug("Could not check for local version");
+//            return GameState.missing;
+//        }
     }
 
     /**

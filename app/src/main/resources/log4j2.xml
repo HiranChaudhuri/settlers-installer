@@ -18,6 +18,7 @@
     </Appenders>
     <Loggers>
         <!-- error, warn, info, debug, trace -->
+        <!--
     <Logger level="info" name="org.oolite.hiran.nexus.ChatPanel"/>
     <Logger level="info" name="org.oolite.hiran.nexus.Configuration"/>
     <Logger level="info" name="org.oolite.hiran.nexus.Main"/>
@@ -40,6 +41,7 @@
     <Logger level="info" name="org.oolite.hiran.nexus.xmpp.OoliteWarehouseResponseProvider"/>
     <Logger level="info" name="org.oolite.hiran.nexus.xmpp.XmppConnector2"/>
     <Logger level="info" name="org.apache.mina.filter.codec.ProtocolCodecFilter"/>
+            -->
     <Root level="TRACE">
       <AppenderRef ref="Console"/>
       <AppenderRef ref="File"/>
