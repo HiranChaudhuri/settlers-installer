@@ -2,20 +2,19 @@
  */
 package settlers.installer;
 
-import java.awt.Desktop;
 import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kohsuke.github.GHArtifact;
-import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHWorkflow;
@@ -426,16 +425,8 @@ public class App extends javax.swing.JFrame {
         missing, old, latest
     }
     
-    /**
-     * Returns true if some game is installed that we can run.
-     * 
-     * @return true if a game is installed, false otherwise
-     */
-    private GameState haveGameFiles() {
+    private void printCounts(GHRepository repository) {
         try {
-            log.debug("github anonymous: {}", github.isAnonymous());
-            log.debug("github offline:   {}", github.isOffline());
-            GHRepository repository = github.getRepository("paulwedeck/settlers-remake");
             
             PagedIterable<GHRelease> releases = repository.listReleases();
             int count = 0;
@@ -450,7 +441,7 @@ public class App extends javax.swing.JFrame {
             for (PagedIterator<GHArtifact> iter = artifacts.iterator(); iter.hasNext(); ) {
                 GHArtifact i = iter.next();
                 count++;
-                log.debug("Artifact {}", i);
+                //log.debug("Artifact {}", i);
             }
             log.debug("counted {} artifacts", count);
             
@@ -459,13 +450,13 @@ public class App extends javax.swing.JFrame {
             for (PagedIterator<GHWorkflow> iter = workflows.iterator(); iter.hasNext(); ) {
                 GHWorkflow i = iter.next();
                 count++;
-                log.debug("Workflow {}", i);
+                //log.debug("Workflow {}", i);
                 
                 int count2 = 0;
                 PagedIterable<GHWorkflowRun> workflowRuns = i.listRuns();
                 for (PagedIterator<GHWorkflowRun> iter2 = workflowRuns.iterator(); iter2.hasNext(); ) {
                     GHWorkflowRun j = iter2.next();
-                    log.debug("  run: {}", j);
+                    //log.debug("  run: {}", j);
                     count2++;
                 }
                 log.debug("counted {} runs", count2);
@@ -475,56 +466,71 @@ public class App extends javax.swing.JFrame {
         } catch (IOException e) {
             log.error("Could not list releases", e);
         }
+    }
+    
+    /**
+     * Returns true if some game is installed that we can run.
+     * 
+     * @return true if a game is installed, false otherwise
+     */
+    private GameState haveGameFiles() {
+        GHRepository repository = null;
+        try {
+            repository = github.getRepository("paulwedeck/settlers-remake");
+        } catch (IOException e) {
+            log.error("Could not check online games", e);
+        }
+        PagedIterable<GHRelease> releases = null;
+        log.debug("github anonymous: {}", github.isAnonymous());
+        log.debug("github offline:   {}", github.isOffline());
         
+        try {
+            List<GHRelease> installedReleases = Util.getInstalledReleases();
+            if (installedReleases != null && !installedReleases.isEmpty()) {
+                // check if updates are available
+
+                try {
+                    if (installedReleases.get(0).getPublished_at().before(releases.toList().get(0).getPublished_at())) {
+                        // update is available
+                        log.debug("Update is available");
+                        return GameState.old;
+                    } else if (configuration.isCheckArtifacts()) {
+                        try {
+                            PagedIterable<GHWorkflowRun> wfrs = repository.getWorkflow("CI").listRuns();
+                            for (Iterator<GHWorkflowRun> iter = wfrs.iterator(); iter.hasNext(); ) {
+                                GHWorkflowRun wfr = iter.next();
+                                if (installedReleases.get(0).getPublished_at().before(wfr.getUpdatedAt())) {
+                                    PagedIterable<GHArtifact> as = wfr.listArtifacts();
+                                    if (as != null) {
+                                        log.debug("found workflow run {}", wfr);
+                                        log.debug("    with artifacts {}", as);
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            log.error("Could not list workflows", e);
+                        }
+                        return GameState.latest;
+                    } else {
+                        // we already have the latest version
+                        log.debug("we already have the latest version");
+                        return GameState.latest;
+                    }
+                } catch (Exception e) {
+                    // could not figure out if update is available. Let's assume we have the latest
+                    log.debug("We assume to have the latest version", e);
+                    return GameState.latest;
+                }
+            } else {
+                log.debug("No good version installed locally");
+                return GameState.missing;
+            }
+        } catch (FileNotFoundException e) {
+            // if no file is found, we do not have a game
+            log.debug("Could not check for local version");
+            return GameState.missing;
+        }
         
-        throw new UnsupportedOperationException("not yet implemented");
-        
-//        try {
-//            List<Release> installedReleases = Util.getInstalledReleases();
-//            if (installedReleases != null && !installedReleases.isEmpty()) {
-//                // check if updates are available
-//
-//                try {
-//                  List<Release> availableReleases = github.getGithubReleases();
-//                    if (installedReleases.get(0).getPublished_at().before(availableReleases.get(0).getPublished_at())) {
-//                        // update is available
-//                        log.debug("Update is available");
-//                        return GameState.old;
-//                    } else if (configuration.isCheckArtifacts()) {
-//                        try {
-//                            List<WorkflowRun> wfrs = github.getGithubWorkflowRuns();
-//                            for (WorkflowRun wfr: wfrs) {
-//                                if (availableReleases.get(0).getPublished_at().before(wfr.getUpdated_at())) {
-//                                    List<Artifact> as = wfr.getArtifacts();
-//                                    if (as != null && !as.isEmpty()) {
-//                                        log.debug("found workflow run {}", wfr);
-//                                        log.debug("    with artifacts {}", as);
-//                                    }
-//                                }
-//                            }
-//                        } catch (Exception e) {
-//                            log.error("Could not list workflows", e);
-//                        }
-//                        return GameState.latest;
-//                    } else {
-//                        // we already have the latest version
-//                        log.debug("we already have the latest version");
-//                        return GameState.latest;
-//                    }
-//                } catch (Exception e) {
-//                    // could not figure out if update is available. Let's assume we have the latest
-//                    log.debug("We assume to have the latest version", e);
-//                    return GameState.latest;
-//                }
-//            } else {
-//                log.debug("No good version installed locally");
-//                return GameState.missing;
-//            }
-//        } catch (FileNotFoundException e) {
-//            // if no file is found, we do not have a game
-//            log.debug("Could not check for local version");
-//            return GameState.missing;
-//        }
     }
 
     /**

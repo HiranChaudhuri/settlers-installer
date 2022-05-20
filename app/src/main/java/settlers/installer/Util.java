@@ -152,12 +152,16 @@ public class Util {
         Genson genson = getGenson();
         
         File gamesFolder = getGamesFolder();
-        gamesFolder.mkdirs();
-        
-        for(File game: gamesFolder.listFiles()) {
-            File metadata = new File(game, "metadata.json");
-            GHRelease r = genson.deserialize(new FileInputStream(metadata), GHRelease.class);
-            result.add(r);
+        if (gamesFolder.isDirectory()) {
+            for(File game: gamesFolder.listFiles()) {
+                File metadata = new File(game, "metadata.json");
+                try {
+                    GHRelease r = genson.deserialize(new FileInputStream(metadata), GHRelease.class);
+                    result.add(r);
+                } catch (Exception e) {
+                    log.info("Could not parse {}", metadata.getAbsolutePath());
+                }
+            }
         }
         
         return sortReleaseByDate(result);
