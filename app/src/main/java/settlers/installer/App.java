@@ -250,6 +250,7 @@ public class App extends javax.swing.JFrame {
                     
                 } catch(Exception e) {
                     JOptionPane.showMessageDialog(App.this, "Something went wrong.");
+                    log.debug("Could not install game", e);
                 } finally {
                     btInstallGame.setEnabled(true);
                     btInstallData.setEnabled(true);
