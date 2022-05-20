@@ -28,6 +28,7 @@ import org.kohsuke.github.PagedIterable;
 import org.kohsuke.github.PagedIterator;
 import settlers.installer.model.Configuration;
 import settlers.installer.model.GameVersion;
+import settlers.installer.ui.GameList;
 
 /**
  *
@@ -394,9 +395,11 @@ public class App extends javax.swing.JFrame {
             List<GHObject> objects = Util.getAvailableGames(github, false);
             log.debug("we have {} objects:", objects.size());
             
-            for (GHObject object: objects) {
-                log.debug("  {} {}", sdf.format(Util.getDateFor(object)), object.getClass().getName());
-            }
+            GameList gl = new GameList();
+            gl.setData(objects);
+            JOptionPane.showMessageDialog(this, gl);
+            //JOptionPane.showOptionDialog(this, gl, "Game Versions", JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+            
         } catch (Exception e) {
             log.error("something went wrong", e);
             JOptionPane.showMessageDialog(this, "Something went wrong.");
