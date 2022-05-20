@@ -173,6 +173,8 @@ public class GameList extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
 
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(500, 402));
+
         jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jTable1.setShowGrid(false);
         jScrollPane1.setViewportView(jTable1);
@@ -181,7 +183,7 @@ public class GameList extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -190,11 +192,15 @@ public class GameList extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     public void setData(List<GHObject> objects) {
-        //DefaultListModel<GHObject> model = new DefaultListModel<>();
-        //model.addAll(objects);
-        //jList1.setModel(model);
+        GHObjectTableModel tm = new GHObjectTableModel(objects);
+        jTable1.setModel(tm);
         
-        jTable1.setModel(new GHObjectTableModel(objects));
+        for (int i=0;i<tm.getRowCount();i++) {
+            if (tm.getValueAt(i, 3)==null) {
+                jTable1.getSelectionModel().setSelectionInterval(i, i);
+                return;
+            }
+        }
     }
 
 

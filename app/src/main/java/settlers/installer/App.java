@@ -2,15 +2,14 @@
  */
 package settlers.installer;
 
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
@@ -43,6 +42,7 @@ public class App extends javax.swing.JFrame {
     
     private Configuration configuration;
     private GitHub github;
+    private GameList gameList;
     
     // TODO: Play button should come like https://www.codejava.net/java-se/swing/how-to-create-drop-down-button-in-swing
     
@@ -59,6 +59,9 @@ public class App extends javax.swing.JFrame {
         } catch (IOException e) {
             log.error("Could not initialize github client", e);
         }
+        
+        gameList = new GameList();
+        add(gameList, new GridBagConstraints(3, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
         checkFiles();
     }
 
@@ -77,21 +80,16 @@ public class App extends javax.swing.JFrame {
         lbIconSettlers = new javax.swing.JLabel();
         lbDataFiles = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        lbResultGame = new javax.swing.JLabel();
         lbResultData = new javax.swing.JLabel();
-        btInstallGame = new javax.swing.JButton();
         btInstallData = new javax.swing.JButton();
-        btUpdate = new javax.swing.JButton();
         buttonBar = new javax.swing.JPanel();
         jProgressBar = new javax.swing.JProgressBar();
         btPlay = new javax.swing.JButton();
         btOptions = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Settlers-Installer");
         setName("Settlers-Installer"); // NOI18N
-        setResizable(false);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         lbIconGithub.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -143,26 +141,8 @@ public class App extends javax.swing.JFrame {
         getContentPane().add(jLabel5, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        getContentPane().add(lbResultGame, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 2;
         getContentPane().add(lbResultData, gridBagConstraints);
-
-        btInstallGame.setBackground(java.awt.Color.orange);
-        btInstallGame.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/download_for_offline_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
-        btInstallGame.setText("Install Game");
-        btInstallGame.setOpaque(true);
-        btInstallGame.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btInstallGameActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        getContentPane().add(btInstallGame, gridBagConstraints);
 
         btInstallData.setBackground(java.awt.Color.orange);
         btInstallData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/download_for_offline_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
@@ -177,20 +157,6 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 2;
         getContentPane().add(btInstallData, gridBagConstraints);
-
-        btUpdate.setBackground(java.awt.Color.orange);
-        btUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/update_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
-        btUpdate.setText("Update Game");
-        btUpdate.setOpaque(true);
-        btUpdate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btUpdateActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        getContentPane().add(btUpdate, gridBagConstraints);
 
         buttonBar.setLayout(new java.awt.GridBagLayout());
 
@@ -236,21 +202,11 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         getContentPane().add(buttonBar, gridBagConstraints);
 
-        jButton1.setText("jButton1");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-        getContentPane().add(jButton1, new java.awt.GridBagConstraints());
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void doInstallGame() {
-        btInstallGame.setEnabled(false);
         btInstallData.setEnabled(false);
-        btUpdate.setEnabled(false);
         btPlay.setEnabled(false);
         btOptions.setEnabled(false);
         jProgressBar.setVisible(true);
@@ -267,9 +223,7 @@ public class App extends javax.swing.JFrame {
                     log.debug("Could not install game", e);
                     JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                 } finally {
-                    btInstallGame.setEnabled(true);
                     btInstallData.setEnabled(true);
-                    btUpdate.setEnabled(true);
                     btPlay.setEnabled(true);
                     btOptions.setEnabled(true);
                     jProgressBar.setVisible(false);
@@ -280,16 +234,9 @@ public class App extends javax.swing.JFrame {
         }).start();
     }
     
-    private void btInstallGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInstallGameActionPerformed
-        log.debug("btInstallGameActionPerformed(...)");
-        doInstallGame();
-    }//GEN-LAST:event_btInstallGameActionPerformed
-
     private void btInstallDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInstallDataActionPerformed
         log.debug("btInstallDataActionPerformed(...)");
-        btInstallGame.setEnabled(false);
         btInstallData.setEnabled(false);
-        btUpdate.setEnabled(false);
         btPlay.setEnabled(false);
         
         // check parameters
@@ -318,9 +265,7 @@ public class App extends javax.swing.JFrame {
                         log.error("Could not install data from {}", srcDir, e);
                         JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                     } finally {
-                        btInstallGame.setEnabled(true);
                         btInstallData.setEnabled(true);
-                        btUpdate.setEnabled(true);
                         btPlay.setEnabled(true);
                         jProgressBar.setVisible(false);
 
@@ -329,9 +274,7 @@ public class App extends javax.swing.JFrame {
                 }
             }).start();
         } else {
-            btInstallGame.setEnabled(true);
             btInstallData.setEnabled(true);
-            btUpdate.setEnabled(true);
             btPlay.setEnabled(true);
             jProgressBar.setVisible(false);
             checkFiles();
@@ -342,9 +285,7 @@ public class App extends javax.swing.JFrame {
 
     private void btPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPlayActionPerformed
         log.debug("btPlayActionPerformed(...)");
-        btInstallGame.setEnabled(false);
         btInstallData.setEnabled(false);
-        btUpdate.setEnabled(false);
         btPlay.setEnabled(false);
         jProgressBar.setVisible(true);
         setVisible(false);
@@ -362,9 +303,7 @@ public class App extends javax.swing.JFrame {
                 } catch(Exception e) {
                     JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                 } finally {
-                    btInstallGame.setEnabled(true);
                     btInstallData.setEnabled(true);
-                    btUpdate.setEnabled(true);
                     btPlay.setEnabled(true);
                     jProgressBar.setVisible(false);
                     setVisible(true);
@@ -375,11 +314,6 @@ public class App extends javax.swing.JFrame {
         }).start();
     }//GEN-LAST:event_btPlayActionPerformed
 
-    private void btUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btUpdateActionPerformed
-        log.debug("btUpdateActionPerformed(...)");
-        doInstallGame();
-    }//GEN-LAST:event_btUpdateActionPerformed
-
     private void btOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btOptionsActionPerformed
         ConfigurationPanel cp = new ConfigurationPanel();
         cp.setData(configuration);
@@ -389,53 +323,12 @@ public class App extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btOptionsActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
-        try {
-            List<GHObject> objects = Util.getAvailableGames(github, false);
-            log.debug("we have {} objects:", objects.size());
-            
-            GameList gl = new GameList();
-            gl.setData(objects);
-            JOptionPane.showMessageDialog(this, gl);
-            //JOptionPane.showOptionDialog(this, gl, "Game Versions", JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
-            
-        } catch (Exception e) {
-            log.error("something went wrong", e);
-            JOptionPane.showMessageDialog(this, "Something went wrong.");
-        }
-    }//GEN-LAST:event_jButton1ActionPerformed
-
     private void checkFiles() {
         GameState gstate = null;
         try {
             gstate = haveGameFiles();
-            switch(gstate) {
-                case latest:
-                    lbResultGame.setIcon(iiFound);
-                    lbResultGame.setVisible(true);
-                    btInstallGame.setVisible(false);
-                    btUpdate.setVisible(false);
-                    break;
-                case old:
-                    lbResultGame.setIcon(iiUpdate);
-                    lbResultGame.setVisible(false);
-                    btInstallGame.setVisible(false);
-                    btUpdate.setVisible(true);
-                    break;
-                case missing:
-                    lbResultGame.setIcon(iiMissing);
-                    lbResultGame.setVisible(false);
-                    btInstallGame.setVisible(true);
-                    btUpdate.setVisible(false);
-                    break;
-            }
         } catch (Exception e) {
             log.warn("could not check game status", e);
-            lbResultGame.setIcon(iiMissing);
-            lbResultGame.setVisible(false);
-            btInstallGame.setVisible(false);
-            btUpdate.setVisible(false);
         }
         
         boolean dataFiles = haveDataFiles();
@@ -518,6 +411,7 @@ public class App extends javax.swing.JFrame {
         } catch (IOException e) {
             log.error("Could not check online games", e);
         }
+        gameList.setData(availableGames);
         
         List<GameVersion> installedGames = Util.getInstalledGames();
         if (installedGames != null && !installedGames.isEmpty()) {
@@ -617,12 +511,9 @@ public class App extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btInstallData;
-    private javax.swing.JButton btInstallGame;
     private javax.swing.JButton btOptions;
     private javax.swing.JButton btPlay;
-    private javax.swing.JButton btUpdate;
     private javax.swing.JPanel buttonBar;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JProgressBar jProgressBar;
     private javax.swing.JLabel lbDataFiles;
@@ -630,6 +521,5 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JLabel lbIconGithub;
     private javax.swing.JLabel lbIconSettlers;
     private javax.swing.JLabel lbResultData;
-    private javax.swing.JLabel lbResultGame;
     // End of variables declaration//GEN-END:variables
 }
