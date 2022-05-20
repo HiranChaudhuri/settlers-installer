@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -36,6 +37,7 @@ import org.apache.tools.ant.Project;
 import org.kohsuke.github.GHArtifact;
 import org.kohsuke.github.GHAsset;
 import org.kohsuke.github.GHRelease;
+import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHWorkflowRun;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.PagedIterator;
@@ -58,6 +60,7 @@ public class Util {
     
     public static final String RELEASE_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/releases";
     public static final String WORKFLOW_RUNS_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/actions/runs";
+    public static final String GITHUB_REPO_NAME = "paulwedeck/settlers-remake";
     
     /** 
      * Creates a Genson parser that treats timestamps as java.util.Date.
@@ -199,6 +202,8 @@ public class Util {
                 entry = zipIn.getNextEntry();
             }
         }
+        
+        log.debug("unzip done");
     }
     
     /**
@@ -236,11 +241,12 @@ public class Util {
      * @throws IOException something went wrong
      */
     public static void installRelease(GHRelease release) throws IOException {
+        log.debug("installRelease({})", release);
         for (PagedIterator<GHAsset> iter = release.listAssets().iterator(); iter.hasNext(); ) {
             GHAsset a = iter.next();
             if ("JSettlers.zip".equals(a.getName())) {
                 log.debug("check asset {}", a);
-                File f = GithubClient.downloadAsset(a);
+                File f = downloadAsset(a);
                 File target = new File(getGamesFolder(), String.valueOf(release.getId()));
                 
                 int retries = 6;
@@ -249,7 +255,6 @@ public class Util {
                     try {
                         unzip(f, target);
                         done = true;
-                        continue;
                     } catch (IOException e) {
                         log.info("Could not unzip release. Maybe a virus scanner? Waiting for retry...", e);
                         try {
@@ -264,14 +269,19 @@ public class Util {
                 if (!done) {
                     throw new IOException(String.format("Could not unzip %s to %s", f, target));
                 }
-                
-                Files.setLastModifiedTime(target.toPath(), FileTime.from(release.getPublished_at().toInstant()));
-                
+
+                log.debug("writing metadata...");
                 File metadata = new File(target, "metadata.json");
                 try (FileOutputStream fos = new FileOutputStream(metadata)) {
                     new Genson().serialize(release, fos);
                 }
-                Files.setLastModifiedTime(metadata.toPath(), FileTime.from(release.getPublished_at().toInstant()));
+                
+                FileTime ft = FileTime.from(release.getPublished_at().toInstant());
+                log.debug("setting file time to {}", ft);
+                Files.setLastModifiedTime(target.toPath(), ft);
+                
+                log.debug("release installed");
+                return;
             }
         }
     }
@@ -499,20 +509,20 @@ public class Util {
      * older ones.
      */
     public static void installLatest(GitHub github) throws IOException {
+        GHRepository repository = github.getRepository(GITHUB_REPO_NAME);
+        List<GHRelease> githubReleases = repository.listReleases().toList();
+        List<GHRelease> installedReleases = Util.getInstalledReleases();
+
+        // install if a newer one is available
+        if (installedReleases.isEmpty() || installedReleases.get(0).getPublished_at().before(githubReleases.get(0).getPublished_at())) {
+            GHRelease latest = githubReleases.get(0);
+            log.debug("Installing latest release {}", latest);
+
+            installRelease(latest);
+        }
+
         throw new UnsupportedOperationException("not yet implemented");
         
-//        github.getRepository("")
-//        List<Release> githubReleases = github.getGithubReleases();
-//        List<Release> installedReleases = Util.getInstalledReleases();
-//
-//        // install if a newer one is available
-//        if (installedReleases.isEmpty() || installedReleases.get(0).getPublished_at().before(githubReleases.get(0).getPublished_at())) {
-//            Release latest = githubReleases.get(0);
-//            log.debug("Installing latest release {}", latest);
-//
-//            installRelease(latest);
-//
-//        }
 //
 //        // remove if we have more than five
 //        while (installedReleases.size()>5) {
@@ -626,5 +636,31 @@ public class Util {
         try (Scanner s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream()).useDelimiter("\\A")) {
             return s.hasNext() ? s.next() : "";
         }
+    }
+
+    /**
+     * Downloads an asset into a temporary file and returns the file.
+     * 
+     * @param asset the asset to download
+     * @return the local file
+     * @throws IOException something went wrong
+     */
+    public static File downloadAsset(GHAsset asset) throws IOException {
+        log.debug("downloadAsset({})", asset);
+        
+        File tempFolder = getManagedTempFolder();
+        tempFolder.mkdirs();
+        File download = File.createTempFile(asset.getName()+"_"+asset.getId(), ".zip", tempFolder);
+        
+        URL url = new URL(asset.getBrowserDownloadUrl());
+        log.debug("downloading from {}", url);
+        try (InputStream in = url.openStream()) {
+            Files.copy(in, download.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new IOException(String.format("Could not download %s to %s", url, download));
+        }
+        
+        log.debug("stored in {}", download);
+        return download;
     }
 }

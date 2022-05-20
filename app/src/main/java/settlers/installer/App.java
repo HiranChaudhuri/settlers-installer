@@ -238,6 +238,7 @@ public class App extends javax.swing.JFrame {
         btInstallData.setEnabled(false);
         btUpdate.setEnabled(false);
         btPlay.setEnabled(false);
+        btOptions.setEnabled(false);
         jProgressBar.setVisible(true);
         
         new Thread(new Runnable() {
@@ -249,13 +250,14 @@ public class App extends javax.swing.JFrame {
                     Util.installLatest(github);
                     
                 } catch(Exception e) {
-                    JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                     log.debug("Could not install game", e);
+                    JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                 } finally {
                     btInstallGame.setEnabled(true);
                     btInstallData.setEnabled(true);
                     btUpdate.setEnabled(true);
                     btPlay.setEnabled(true);
+                    btOptions.setEnabled(true);
                     jProgressBar.setVisible(false);
                     
                     checkFiles();
@@ -477,7 +479,7 @@ public class App extends javax.swing.JFrame {
     private GameState haveGameFiles() {
         GHRepository repository = null;
         try {
-            repository = github.getRepository("paulwedeck/settlers-remake");
+            repository = github.getRepository(Util.GITHUB_REPO_NAME);
         } catch (IOException e) {
             log.error("Could not check online games", e);
         }
