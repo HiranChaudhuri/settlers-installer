@@ -139,6 +139,21 @@ public class Util {
         });
         return result;
     }
+    
+    public static Date getDateFor(GHObject object) {
+        Date result = null;
+        if (object instanceof GHRelease) {
+            result = ((GHRelease)object).getPublished_at();
+        } else {
+            try {
+                result = object.getUpdatedAt();
+            } catch (IOException e) {
+                log.error("cannot grab updated date for {}", object);
+            }
+        }
+        return result;
+    }
+    
     /**
      * Sorts a heterogenous list by publishing date.
      * 
@@ -149,16 +164,11 @@ public class Util {
         List<GHObject> result = new ArrayList<>(objects);
         Collections.sort(result, new Comparator<GHObject>() {
             @Override
-            public int compare(GHObject t1, GHObject t) {
-                try {
-                    if (t.getUpdatedAt()==null) {
-                        return 1;
-                    }
-                    return t.getUpdatedAt().compareTo(t1.getUpdatedAt());
-                } catch (IOException e) {
-                    log.warn("Coult not compare artifact dates", e);
-                    return 0;
-                }
+            public int compare(GHObject one, GHObject other) {
+                Date dateOne = getDateFor(one);
+                Date dateOther = getDateFor(other);
+                
+                return dateOther.compareTo(dateOne);
             }
         });
         return result;
@@ -722,11 +732,15 @@ public class Util {
         result.addAll(repository.listReleases().toList());
         
         if (!releasesOnly) {
-            result.addAll(repository.listArtifacts().toList());
+            //result.addAll(repository.listArtifacts().toList());
             
             List<GHWorkflow> workflows = repository.listWorkflows().toList();
             for (GHWorkflow workflow: workflows) {
-                result.addAll(workflow.listRuns().toList());
+                for (GHWorkflowRun run: workflow.listRuns().toList()) {
+                    if (!run.listArtifacts().toList().isEmpty()) {
+                        result.add(run);
+                    }
+                }
             }
         }
         return sortGHObjectByDate(result);

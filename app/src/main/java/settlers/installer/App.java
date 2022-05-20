@@ -7,6 +7,7 @@ import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -84,6 +85,7 @@ public class App extends javax.swing.JFrame {
         jProgressBar = new javax.swing.JProgressBar();
         btPlay = new javax.swing.JButton();
         btOptions = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Settlers-Installer");
@@ -233,6 +235,14 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         getContentPane().add(buttonBar, gridBagConstraints);
 
+        jButton1.setText("jButton1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton1, new java.awt.GridBagConstraints());
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -377,6 +387,21 @@ public class App extends javax.swing.JFrame {
             configuration.save(Util.getConfigurationFile());
         }
     }//GEN-LAST:event_btOptionsActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+        try {
+            List<GHObject> objects = Util.getAvailableGames(github, false);
+            log.debug("we have {} objects:", objects.size());
+            
+            for (GHObject object: objects) {
+                log.debug("  {} {}", sdf.format(Util.getDateFor(object)), object.getClass().getName());
+            }
+        } catch (Exception e) {
+            log.error("something went wrong", e);
+            JOptionPane.showMessageDialog(this, "Something went wrong.");
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void checkFiles() {
         GameState gstate = null;
@@ -594,6 +619,7 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JButton btPlay;
     private javax.swing.JButton btUpdate;
     private javax.swing.JPanel buttonBar;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JProgressBar jProgressBar;
     private javax.swing.JLabel lbDataFiles;
