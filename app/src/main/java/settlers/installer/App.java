@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -15,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kohsuke.github.GHArtifact;
+import org.kohsuke.github.GHObject;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHWorkflow;
@@ -24,6 +26,7 @@ import org.kohsuke.github.GitHubBuilder;
 import org.kohsuke.github.PagedIterable;
 import org.kohsuke.github.PagedIterator;
 import settlers.installer.model.Configuration;
+import settlers.installer.model.GameVersion;
 
 /**
  *
@@ -341,9 +344,9 @@ public class App extends javax.swing.JFrame {
                 int x = 0;
                 try {
 
-                    List<GHRelease> installedReleases = Util.getInstalledReleases();
+                    List<GameVersion> installedReleases = Util.getInstalledGames();
                     if (installedReleases != null && !installedReleases.isEmpty()) {
-                        Util.runRelease(installedReleases.get(0));
+                        Util.runGame(installedReleases.get(0));
                     }
                 } catch(Exception e) {
                     JOptionPane.showMessageDialog(App.this, "Something went wrong.");
@@ -477,60 +480,47 @@ public class App extends javax.swing.JFrame {
      * @return true if a game is installed, false otherwise
      */
     private GameState haveGameFiles() {
+        log.debug("github anonymous: {}", github.isAnonymous());
+        log.debug("github offline:   {}", github.isOffline());
+
         GHRepository repository = null;
+        List<GHObject> availableGames = null;
         try {
-            repository = github.getRepository(Util.GITHUB_REPO_NAME);
+            availableGames = Util.getAvailableGames(github, !configuration.isCheckArtifacts());
         } catch (IOException e) {
             log.error("Could not check online games", e);
         }
-        PagedIterable<GHRelease> releases = null;
-        log.debug("github anonymous: {}", github.isAnonymous());
-        log.debug("github offline:   {}", github.isOffline());
         
-        try {
-            List<GHRelease> installedReleases = Util.getInstalledReleases();
-            if (installedReleases != null && !installedReleases.isEmpty()) {
-                // check if updates are available
+        List<GameVersion> installedGames = Util.getInstalledGames();
+        if (installedGames != null && !installedGames.isEmpty()) {
+            // check if updates are available
 
-                try {
-                    if (installedReleases.get(0).getPublished_at().before(releases.toList().get(0).getPublished_at())) {
-                        // update is available
-                        log.debug("Update is available");
-                        return GameState.old;
-                    } else if (configuration.isCheckArtifacts()) {
-                        try {
-                            PagedIterable<GHWorkflowRun> wfrs = repository.getWorkflow("CI").listRuns();
-                            for (Iterator<GHWorkflowRun> iter = wfrs.iterator(); iter.hasNext(); ) {
-                                GHWorkflowRun wfr = iter.next();
-                                if (installedReleases.get(0).getPublished_at().before(wfr.getUpdatedAt())) {
-                                    PagedIterable<GHArtifact> as = wfr.listArtifacts();
-                                    if (as != null) {
-                                        log.debug("found workflow run {}", wfr);
-                                        log.debug("    with artifacts {}", as);
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            log.error("Could not list workflows", e);
-                        }
-                        return GameState.latest;
-                    } else {
-                        // we already have the latest version
-                        log.debug("we already have the latest version");
-                        return GameState.latest;
-                    }
-                } catch (Exception e) {
-                    // could not figure out if update is available. Let's assume we have the latest
-                    log.debug("We assume to have the latest version", e);
+            try {
+                Date installed = installedGames.get(0).getInstalledAt();
+                if (installed == null) {
+                    return GameState.old;
+                }
+                
+                Date available = availableGames.get(0).getUpdatedAt();
+                if (available == null) {
+                    available = availableGames.get(0).getCreatedAt();
+                }
+                if (installed.before(available)) {
+                    // update is available
+                    log.debug("Update is available");
+                    return GameState.old;
+                } else {
+                    // we already have the latest version
+                    log.debug("we already have the latest version");
                     return GameState.latest;
                 }
-            } else {
-                log.debug("No good version installed locally");
-                return GameState.missing;
+            } catch (Exception e) {
+                // could not figure out if update is available. Let's assume we have the latest
+                log.debug("We assume to have the latest version", e);
+                return GameState.latest;
             }
-        } catch (FileNotFoundException e) {
-            // if no file is found, we do not have a game
-            log.debug("Could not check for local version");
+        } else {
+            log.debug("No good version installed locally");
             return GameState.missing;
         }
         

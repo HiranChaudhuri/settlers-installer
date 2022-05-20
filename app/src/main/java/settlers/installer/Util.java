@@ -2,7 +2,6 @@
  */
 package settlers.installer;
 
-import com.owlike.genson.GenericType;
 import com.owlike.genson.Genson;
 import com.owlike.genson.GensonBuilder;
 import java.io.File;
@@ -22,7 +21,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -36,11 +34,14 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.Project;
 import org.kohsuke.github.GHArtifact;
 import org.kohsuke.github.GHAsset;
+import org.kohsuke.github.GHObject;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHWorkflow;
 import org.kohsuke.github.GHWorkflowRun;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.PagedIterator;
+import settlers.installer.model.GameVersion;
 
 /**
  * Windows:
@@ -97,6 +98,26 @@ public class Util {
     /**
      * Sorts the list by publishing date.
      * 
+     * @param games the list to be sorted
+     * @return the sorted list
+     */
+    public static List<GameVersion> sortGamesByDate(List<GameVersion> games) {
+        List<GameVersion> result = new ArrayList<>(games);
+        Collections.sort(result, new Comparator<GameVersion>() {
+            @Override
+            public int compare(GameVersion t1, GameVersion t) {
+                if (t.getPublishedAt()==null) {
+                    return 1;
+                }
+                return t.getPublishedAt().compareTo(t1.getPublishedAt());
+            }
+        });
+        return result;
+    }
+    
+    /**
+     * Sorts the list by publishing date.
+     * 
      * @param artifacts the list to be sorted
      * @return the sorted list
      */
@@ -105,6 +126,30 @@ public class Util {
         Collections.sort(result, new Comparator<GHArtifact>() {
             @Override
             public int compare(GHArtifact t1, GHArtifact t) {
+                try {
+                    if (t.getUpdatedAt()==null) {
+                        return 1;
+                    }
+                    return t.getUpdatedAt().compareTo(t1.getUpdatedAt());
+                } catch (IOException e) {
+                    log.warn("Coult not compare artifact dates", e);
+                    return 0;
+                }
+            }
+        });
+        return result;
+    }
+    /**
+     * Sorts a heterogenous list by publishing date.
+     * 
+     * @param objects the list to be sorted
+     * @return the sorted list
+     */
+    public static List<GHObject> sortGHObjectByDate(List<GHObject> objects) {
+        List<GHObject> result = new ArrayList<>(objects);
+        Collections.sort(result, new Comparator<GHObject>() {
+            @Override
+            public int compare(GHObject t1, GHObject t) {
                 try {
                     if (t.getUpdatedAt()==null) {
                         return 1;
@@ -150,8 +195,8 @@ public class Util {
      * @return the list of releases
      * @throws FileNotFoundException something went wrong
      */
-    public static List<GHRelease> getInstalledReleases() throws FileNotFoundException {
-        List<GHRelease> result = new ArrayList<>();
+    public static List<GameVersion> getInstalledGames() {
+        List<GameVersion> result = new ArrayList<>();
         Genson genson = getGenson();
         
         File gamesFolder = getGamesFolder();
@@ -159,15 +204,15 @@ public class Util {
             for(File game: gamesFolder.listFiles()) {
                 File metadata = new File(game, "metadata.json");
                 try {
-                    GHRelease r = genson.deserialize(new FileInputStream(metadata), GHRelease.class);
-                    result.add(r);
+                    GameVersion gv = genson.deserialize(new FileInputStream(metadata), GameVersion.class);
+                    result.add(gv);
                 } catch (Exception e) {
                     log.info("Could not parse {}", metadata.getAbsolutePath());
                 }
             }
         }
         
-        return sortReleaseByDate(result);
+        return sortGamesByDate(result);
     }
 
     /**
@@ -272,8 +317,15 @@ public class Util {
 
                 log.debug("writing metadata...");
                 File metadata = new File(target, "metadata.json");
+                GameVersion gv = new GameVersion();
+                gv.setDownloadUrl(a.getBrowserDownloadUrl());
+                gv.setInstallPath(target.getAbsolutePath());
+                gv.setInstalledAt(new Date());
+                gv.setName(release.getName());
+                gv.setPublishedAt(release.getPublished_at());
+                gv.setBasedOn(release.getClass().getName());
                 try (FileOutputStream fos = new FileOutputStream(metadata)) {
-                    new Genson().serialize(release, fos);
+                    new Genson().serialize(gv, fos);
                 }
                 
                 FileTime ft = FileTime.from(release.getPublished_at().toInstant());
@@ -342,9 +394,9 @@ public class Util {
         return new File(getManagedJSettlersFolder(), "var");
     }
     
-    public static void runRelease(GHRelease release) throws IOException, InterruptedException {
-        log.debug("runRelease({})", release);
-        File target = new File(getGamesFolder(), String.valueOf(release.getId()));
+    public static void runGame(GameVersion game) throws IOException, InterruptedException {
+        log.debug("runRelease({})", game);
+        File target = new File(game.getInstallPath());
         File jarfile = new File(target, "JSettlers/JSettlers.jar");
         
         execJarFile(jarfile);
@@ -511,10 +563,10 @@ public class Util {
     public static void installLatest(GitHub github) throws IOException {
         GHRepository repository = github.getRepository(GITHUB_REPO_NAME);
         List<GHRelease> githubReleases = repository.listReleases().toList();
-        List<GHRelease> installedReleases = Util.getInstalledReleases();
+        List<GameVersion> installedGames = Util.getInstalledGames();
 
         // install if a newer one is available
-        if (installedReleases.isEmpty() || installedReleases.get(0).getPublished_at().before(githubReleases.get(0).getPublished_at())) {
+        if (installedGames.isEmpty() || installedGames.get(0).getPublishedAt().before(githubReleases.get(0).getPublished_at())) {
             GHRelease latest = githubReleases.get(0);
             log.debug("Installing latest release {}", latest);
 
@@ -662,5 +714,21 @@ public class Util {
         
         log.debug("stored in {}", download);
         return download;
+    }
+    
+    public static List<GHObject> getAvailableGames(GitHub github, boolean releasesOnly) throws IOException {
+        List<GHObject> result = new ArrayList<>();
+        GHRepository repository = github.getRepository(GITHUB_REPO_NAME);
+        result.addAll(repository.listReleases().toList());
+        
+        if (!releasesOnly) {
+            result.addAll(repository.listArtifacts().toList());
+            
+            List<GHWorkflow> workflows = repository.listWorkflows().toList();
+            for (GHWorkflow workflow: workflows) {
+                result.addAll(workflow.listRuns().toList());
+            }
+        }
+        return sortGHObjectByDate(result);
     }
 }
