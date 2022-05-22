@@ -27,6 +27,7 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileSystemView;
 import net.sf.fikin.ant.EmbeddedAntProject;
 import org.apache.logging.log4j.LogManager;
@@ -287,7 +288,37 @@ public class Util {
             }
         }
     }
+    
+    private static void installGeneric(URL url, File target) throws IOException {
+        log.debug("installGeneric({}, {})", url, target);
+        File tempFolder = getManagedTempFolder();
+        tempFolder.mkdirs();
 
+        File f = File.createTempFile("download", ".zip", tempFolder);
+        download(url, f);
+
+        int retries = 6;
+        boolean done = false;
+        while (retries>0 && !done) {
+            try {
+                unzip(f, target);
+                done = true;
+            } catch (IOException e) {
+                log.info("Could not unzip release. Maybe a virus scanner? Waiting for retry...", e);
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ex) {
+                    log.debug("Interrupted sleep");
+                }
+            }
+
+            retries--;
+        }
+        if (!done) {
+            throw new IOException(String.format("Could not unzip %s to %s", f, target));
+        }
+    }
+    
     /**
      * Installs a release locally. The release asset will be downloaded and
      * extracted. Finally the metadata is stored as well.
@@ -301,30 +332,9 @@ public class Util {
             GHAsset a = iter.next();
             if ("JSettlers.zip".equals(a.getName())) {
                 log.debug("check asset {}", a);
-                File f = downloadAsset(a);
                 File target = new File(getGamesFolder(), String.valueOf(release.getId()));
+                installGeneric(new URL(a.getBrowserDownloadUrl()), target);
                 
-                int retries = 6;
-                boolean done = false;
-                while (retries>0 && !done) {
-                    try {
-                        unzip(f, target);
-                        done = true;
-                    } catch (IOException e) {
-                        log.info("Could not unzip release. Maybe a virus scanner? Waiting for retry...", e);
-                        try {
-                            Thread.sleep(10000);
-                        } catch (InterruptedException ex) {
-                            log.debug("Interrupted sleep");
-                        }
-                    }
-                    
-                    retries--;
-                }
-                if (!done) {
-                    throw new IOException(String.format("Could not unzip %s to %s", f, target));
-                }
-
                 log.debug("writing metadata...");
                 File metadata = new File(target, "metadata.json");
                 GameVersion gv = new GameVersion();
@@ -337,15 +347,86 @@ public class Util {
                 try (FileOutputStream fos = new FileOutputStream(metadata)) {
                     new Genson().serialize(gv, fos);
                 }
-                
+
                 FileTime ft = FileTime.from(release.getPublished_at().toInstant());
                 log.debug("setting file time to {}", ft);
                 Files.setLastModifiedTime(target.toPath(), ft);
-                
+
                 log.debug("release installed");
                 return;
             }
         }
+    }
+    
+    public static void installWorkflowRun(GHWorkflowRun run) throws IOException {
+        log.debug("installWorkflowRun({})", run);
+        List<GHArtifact> artifacts = run.listArtifacts().toList();
+        for (GHArtifact artifact: artifacts) {
+            log.debug("found {}", artifact);
+            if ("Release".equals(artifact.getName())) {
+                File target = new File(Util.getGamesFolder(), String.valueOf(run.getId()));
+                artifact.download(a -> {
+                });
+                installGeneric(artifact.getArchiveDownloadUrl(), target);
+
+                log.debug("writing metadata...");
+                File metadata = new File(target, "metadata.json");
+                GameVersion gv = new GameVersion();
+                gv.setDownloadUrl(String.valueOf(artifact.getArchiveDownloadUrl()));
+                gv.setInstallPath(target.getAbsolutePath());
+                gv.setInstalledAt(new Date());
+                gv.setName(run.getName()+" "+run.getHeadBranch()+" "+run.getRunNumber());
+                gv.setPublishedAt(artifact.getUpdatedAt());
+                gv.setBasedOn(run.getClass().getName());
+                try (FileOutputStream fos = new FileOutputStream(metadata)) {
+                    new Genson().serialize(gv, fos);
+                }
+
+                FileTime ft = FileTime.from(artifact.getUpdatedAt().toInstant());
+                log.debug("setting file time to {}", ft);
+                Files.setLastModifiedTime(target.toPath(), ft);
+
+                log.debug("release installed");
+                return;
+            }
+        }
+    }
+    
+    /**
+     * Installs a release locally. The release asset will be downloaded and
+     * extracted. Finally the metadata is stored as well.
+     * 
+     * @param object The release to install
+     * @throws IOException something went wrong
+     */
+    public static void installGame(GHObject object) throws IOException {
+        log.debug("installGame({})", object);
+
+        if (object instanceof GHRelease) {
+            installRelease((GHRelease)object);
+        } else if (object instanceof GHWorkflowRun) {
+            installWorkflowRun((GHWorkflowRun)object);
+        } else {
+            throw new UnsupportedOperationException("Unknown game type");
+        }
+//        log.debug("writing metadata...");
+//        File metadata = new File(target, "metadata.json");
+//        GameVersion gv = new GameVersion();
+//        gv.setDownloadUrl(a.getBrowserDownloadUrl());
+//        gv.setInstallPath(target.getAbsolutePath());
+//        gv.setInstalledAt(new Date());
+//        gv.setName(object.getName());
+//        gv.setPublishedAt(object.getPublished_at());
+//        gv.setBasedOn(object.getClass().getName());
+//        try (FileOutputStream fos = new FileOutputStream(metadata)) {
+//            new Genson().serialize(gv, fos);
+//        }
+//
+//        FileTime ft = FileTime.from(object.getPublished_at().toInstant());
+//        log.debug("setting file time to {}", ft);
+//        Files.setLastModifiedTime(target.toPath(), ft);
+
+        log.debug("game installed");
     }
     
     /**
@@ -404,8 +485,16 @@ public class Util {
         return new File(getManagedJSettlersFolder(), "var");
     }
     
+    public static void runGame(GHObject game) throws IOException, InterruptedException {
+        log.debug("runGame({})", game);
+        File target = new File(getGamesFolder(), String.valueOf(game.getId()));
+        File jarfile = new File(target, "JSettlers/JSettlers.jar");
+
+        execJarFile(jarfile);
+    }
+    
     public static void runGame(GameVersion game) throws IOException, InterruptedException {
-        log.debug("runRelease({})", game);
+        log.debug("runGame({})", game);
         File target = new File(game.getInstallPath());
         File jarfile = new File(target, "JSettlers/JSettlers.jar");
         
@@ -699,6 +788,17 @@ public class Util {
             return s.hasNext() ? s.next() : "";
         }
     }
+    
+    private static void download(URL url, File download) throws IOException {
+        log.debug("download({}, {})", url, download);
+        try (InputStream in = url.openStream()) {
+            Files.copy(in, download.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new IOException(String.format("Could not download %s to %s", url, download), e);
+        }
+        
+        log.debug("stored in {}", download);
+    }
 
     /**
      * Downloads an asset into a temporary file and returns the file.
@@ -709,20 +809,11 @@ public class Util {
      */
     public static File downloadAsset(GHAsset asset) throws IOException {
         log.debug("downloadAsset({})", asset);
-        
+        URL url = new URL(asset.getBrowserDownloadUrl());
         File tempFolder = getManagedTempFolder();
         tempFolder.mkdirs();
+        
         File download = File.createTempFile(asset.getName()+"_"+asset.getId(), ".zip", tempFolder);
-        
-        URL url = new URL(asset.getBrowserDownloadUrl());
-        log.debug("downloading from {}", url);
-        try (InputStream in = url.openStream()) {
-            Files.copy(in, download.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (Exception e) {
-            throw new IOException(String.format("Could not download %s to %s", url, download));
-        }
-        
-        log.debug("stored in {}", download);
         return download;
     }
     
@@ -744,5 +835,10 @@ public class Util {
             }
         }
         return sortGHObjectByDate(result);
+    }
+    
+    public static boolean isInstalled(GHObject object) {
+        File target = new File(Util.getGamesFolder(), String.valueOf(object.getId()));
+        return target.isDirectory();
     }
 }

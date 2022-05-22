@@ -18,30 +18,7 @@
     </Appenders>
     <Loggers>
         <!-- error, warn, info, debug, trace -->
-        <!--
-    <Logger level="info" name="org.oolite.hiran.nexus.ChatPanel"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.Configuration"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.Main"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.MainFrame2"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.oolite.DebugConsoleHandler"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.oolite.OoliteCommand"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.oolite.OoliteConnector"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.oolite.PlistProtocolEncoder"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.oolite.PlistProtocolDecoder"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.oolite.TCPServer"/>
-    <Logger level="warn" name="org.oolite.hiran.nexus.oolite.TCPServer-filter"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.oolite.Util"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.StatusPanel"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.ui.Balloon"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.ui.ManifestTableModel"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.ui.OoliteConfigurationPanel"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.ui.StashDialog"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.ui.StockEntryTableModel"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.ui.StockEntryRenderer"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.xmpp.OoliteWarehouseResponseProvider"/>
-    <Logger level="info" name="org.oolite.hiran.nexus.xmpp.XmppConnector2"/>
-    <Logger level="info" name="org.apache.mina.filter.codec.ProtocolCodecFilter"/>
-            -->
+    <Logger level="debug" name="settlers.installer.ui.GameList"/>
     <Root level="TRACE">
       <AppenderRef ref="Console"/>
       <AppenderRef ref="File"/>

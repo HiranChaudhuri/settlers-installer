@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.swing.ImageIcon;
-import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,13 +53,13 @@ public class GameList extends javax.swing.JPanel {
 
         @Override
         public String getColumnName(int column) {
-            log.debug("getColumnName({})", column);
+            log.trace("getColumnName({})", column);
             return columns[column];
         }
 
         @Override
         public Class<?> getColumnClass(int column) {
-            log.debug("getColumnClass({})", column);
+            log.trace("getColumnClass({})", column);
             return columnClass[column];
         }
 
@@ -72,7 +71,7 @@ public class GameList extends javax.swing.JPanel {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            log.debug("getValueAt({}, {})", rowIndex, columnIndex);
+            log.trace("getValueAt({}, {})", rowIndex, columnIndex);
             GHObject row = data.get(rowIndex);
             switch (columnIndex) {
                 case 0: // icon
@@ -101,9 +100,7 @@ public class GameList extends javax.swing.JPanel {
                         return null;
                     }
                 case 3:
-                    File target = null;
-                    target = new File(Util.getGamesFolder(), String.valueOf(row.getId()));
-                    if (target.isDirectory()) {
+                    if (Util.isInstalled(row)) {
                         return null;
                     } else {
                         return iiCloud;
@@ -119,46 +116,18 @@ public class GameList extends javax.swing.JPanel {
             throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         }
 
+        public GHObject getRow(int row)  {
+            return data.get(row);
+        }
     }
+    
+    private GHObjectTableModel model;
     
     /**
      * Creates new form GameList
      */
     public GameList() {
         initComponents();
-//        jList1.setCellRenderer(new ListCellRenderer<GHObject>() {
-//            @Override
-//            public Component getListCellRendererComponent(JList<? extends GHObject> jlist, GHObject e, int i, boolean isSelected, boolean hasFocus) {
-//                JPanel result = new JPanel();
-//                result.setLayout(new GridBagLayout());
-//                if (e instanceof GHRelease) {
-//                    GHRelease release = (GHRelease)e;
-//                    result.add(new JLabel(iiRelease),         new GridBagConstraints(0,0,1,1,0.0,0.0,GridBagConstraints.EAST,GridBagConstraints.NONE, new Insets(0,0,0,0), 0, 0));
-//                    result.add(new JLabel(release.getName()), new GridBagConstraints(1,0,1,1,1.0,0.0,GridBagConstraints.EAST,GridBagConstraints.HORIZONTAL, new Insets(0,0,0,0), 0, 0));
-//                } else if (e instanceof GHWorkflowRun) {
-//                    GHWorkflowRun run = (GHWorkflowRun)e;
-//                    result.add(new JLabel(iiRun),                                                        new GridBagConstraints(0,0,1,1,0.0,0.0,GridBagConstraints.EAST,GridBagConstraints.NONE, new Insets(0,0,0,0), 0, 0));
-//                    result.add(new JLabel(run.getName()+"/"+run.getHeadBranch()+"/"+run.getRunNumber()), new GridBagConstraints(1,0,1,1,1.0,0.0,GridBagConstraints.EAST,GridBagConstraints.HORIZONTAL, new Insets(0,0,0,0), 0, 0));
-//                } else {
-//                    result.add(new JLabel(String.valueOf(e)));
-//                }
-//                
-//                if (isSelected) {
-//                    result.setBackground(Color.PINK);
-//                } else {
-//                    result.setBackground(Color.gray);
-//                }
-//                return result;
-//            }
-//        });
-        
-//        jList1.addListSelectionListener(new ListSelectionListener() {
-//            @Override
-//            public void valueChanged(ListSelectionEvent lse) {
-//                log.debug("now selected: {}", jList1.getSelectedValue());
-//            }
-//        });
-
     }
 
     /**
@@ -173,6 +142,9 @@ public class GameList extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
 
+        setPreferredSize(new java.awt.Dimension(500, 16));
+
+        jScrollPane1.setMinimumSize(new java.awt.Dimension(500, 150));
         jScrollPane1.setPreferredSize(new java.awt.Dimension(500, 402));
 
         jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -192,17 +164,25 @@ public class GameList extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     public void setData(List<GHObject> objects) {
-        GHObjectTableModel tm = new GHObjectTableModel(objects);
-        jTable1.setModel(tm);
+        model = new GHObjectTableModel(objects);
+        jTable1.setModel(model);
         
-        for (int i=0;i<tm.getRowCount();i++) {
-            if (tm.getValueAt(i, 3)==null) {
+        for (int i=0;i<model.getRowCount();i++) {
+            if (model.getValueAt(i, 3)==null) {
                 jTable1.getSelectionModel().setSelectionInterval(i, i);
                 return;
             }
         }
     }
 
+    public GHObject getSelection() {
+        int row = jTable1.getSelectedRow();
+        if (row>=0) {
+            return model.getRow(row);
+        } else {
+            return null;
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;

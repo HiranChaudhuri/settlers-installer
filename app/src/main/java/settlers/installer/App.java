@@ -63,6 +63,7 @@ public class App extends javax.swing.JFrame {
         gameList = new GameList();
         add(gameList, new GridBagConstraints(3, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
         checkFiles();
+        pack();
     }
 
     /**
@@ -285,10 +286,15 @@ public class App extends javax.swing.JFrame {
 
     private void btPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPlayActionPerformed
         log.debug("btPlayActionPerformed(...)");
+        if (gameList.getSelection()==null) {
+            JOptionPane.showMessageDialog(this, "Please select a game version first.");
+            return;
+        }
+        
         btInstallData.setEnabled(false);
         btPlay.setEnabled(false);
         jProgressBar.setVisible(true);
-        setVisible(false);
+        // setVisible(false); let's stay visible until an eventually needed installation is done
         
         new Thread(new Runnable() {
             @Override
@@ -296,11 +302,22 @@ public class App extends javax.swing.JFrame {
                 int x = 0;
                 try {
 
-                    List<GameVersion> installedReleases = Util.getInstalledGames();
-                    if (installedReleases != null && !installedReleases.isEmpty()) {
-                        Util.runGame(installedReleases.get(0));
+//                    List<GameVersion> installedReleases = Util.getInstalledGames();
+//                    if (installedReleases != null && !installedReleases.isEmpty()) {
+//                        Util.runGame(installedReleases.get(0));
+//                    }
+                    
+                    GHObject game = gameList.getSelection();
+                    if (!Util.isInstalled(game)) {
+                        Util.installGame(game);
                     }
+                    
+                    setVisible(false);
+                    
+                    Util.runGame(game);
+                    
                 } catch(Exception e) {
+                    log.error("could not run game", e);
                     JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                 } finally {
                     btInstallData.setEnabled(true);
@@ -324,19 +341,14 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_btOptionsActionPerformed
 
     private void checkFiles() {
-        GameState gstate = null;
-        try {
-            gstate = haveGameFiles();
-        } catch (Exception e) {
-            log.warn("could not check game status", e);
-        }
+        haveGameFiles();
         
         boolean dataFiles = haveDataFiles();
         lbResultData.setIcon(dataFiles? iiFound: iiMissing);
         lbResultData.setVisible(dataFiles);
         btInstallData.setVisible(!dataFiles);
         
-        btPlay.setVisible(dataFiles && (gstate != null) && (gstate != GameState.missing) );
+        btPlay.setVisible(dataFiles);
         
         // Desktop.getDesktop().browseFileDirectory(Util.getVarFolder());
         // throws UnsupportedOperationException: The BROWSE_FILE_DIR action is not supported on the current platform!
