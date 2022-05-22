@@ -127,20 +127,23 @@ public class Configuration {
         Configuration c = new Configuration();
 
         Properties props = new Properties();
-        if (source.canRead()) {
-            try (InputStream in = new FileInputStream(source)) {
-                props.load(in);
-                c.checkReleases = "true".equals(props.getProperty("check.releases"));
-                c.checkPrereleases = "true".equals(props.getProperty("check.prereleases"));
-                c.checkArtifacts = "true".equals(props.getProperty("check.artifacts"));
+        try (InputStream in = new FileInputStream(source)) {
+            props.load(in);
+            c.checkReleases = "true".equals(props.getProperty("check.releases"));
+            c.checkPrereleases = "true".equals(props.getProperty("check.prereleases"));
+            c.checkArtifacts = "true".equals(props.getProperty("check.artifacts"));
 
-                c.supportBugReporting = "true".equals(props.getProperty("support.bugreporting"));
+            c.supportBugReporting = "true".equals(props.getProperty("support.bugreporting"));
 
-                c.githubUsername = props.getProperty("github.user");
-                c.githubToken = props.getProperty("github.token");
-            } catch (IOException e) {
-                log.warn("Could not read configuration file {}", source, e);
-            }
+            c.githubUsername = props.getProperty("github.user");
+            c.githubToken = props.getProperty("github.token");
+            
+            // test decrypt
+            c.getGithubToken();
+        } catch (IOException e) {
+            log.warn("Could not read configuration file {}", source, e);
+            c.setGithubToken(null);
+            c.setGithubUsername(null);
         }
         
         return c;

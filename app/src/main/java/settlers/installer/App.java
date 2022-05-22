@@ -2,16 +2,11 @@
  */
 package settlers.installer;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.Robot;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
@@ -68,7 +63,15 @@ public class App extends javax.swing.JFrame {
         
         configuration = Configuration.load(Util.getConfigurationFile());
         try {
-            github = new GitHubBuilder().withOAuthToken(configuration.getGithubToken(), configuration.getGithubUsername()).build();
+            GitHubBuilder gb = new GitHubBuilder();
+            if (configuration.getGithubUsername() != null) {
+                log.debug("GitHub with Authentication");
+                gb.withOAuthToken(configuration.getGithubToken(), configuration.getGithubUsername());
+            } else {
+                log.debug("GitHub anonymously");
+            }
+            github = new GitHubBuilder().build();
+            log.info("GitHub Credentials valid: {}", github.isCredentialValid());
         } catch (IOException e) {
             log.error("Could not initialize github client", e);
         }
@@ -220,6 +223,7 @@ public class App extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void doInstallGame() {
+        log.debug("doInstallGame()");
         btInstallData.setEnabled(false);
         btPlay.setEnabled(false);
         btOptions.setEnabled(false);
@@ -298,6 +302,7 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_btInstallDataActionPerformed
 
     private void showBugButton() {
+        log.debug("showBugButton()");
         if (bugButton == null) {
             bugButton = new JWindow();
             javax.swing.ImageIcon iiBRR = new javax.swing.ImageIcon(getClass().getResource("/images/bug_report_RED.png"));            
@@ -383,6 +388,7 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_btPlayActionPerformed
 
     private void btOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btOptionsActionPerformed
+        log.debug("btOptionsActionPerformed(...)");
         ConfigurationPanel cp = new ConfigurationPanel();
         cp.setData(configuration);
         if (JOptionPane.showOptionDialog(this, cp, "Preferences", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)==JOptionPane.OK_OPTION) {
@@ -392,6 +398,7 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_btOptionsActionPerformed
 
     private void checkFiles() {
+        log.debug("checkFiles()");
         haveGameFiles();
         
         boolean dataFiles = haveDataFiles();
@@ -416,6 +423,7 @@ public class App extends javax.swing.JFrame {
     }
     
     private void printCounts(GHRepository repository) {
+        log.debug("printCounts(...)");
         try {
             
             PagedIterable<GHRelease> releases = repository.listReleases();
@@ -464,6 +472,7 @@ public class App extends javax.swing.JFrame {
      * @return true if a game is installed, false otherwise
      */
     private GameState haveGameFiles() {
+        log.debug("haveGameFiles()");
         log.debug("github anonymous: {}", github.isAnonymous());
         log.debug("github offline:   {}", github.isOffline());
 
@@ -517,6 +526,8 @@ public class App extends javax.swing.JFrame {
      * @return true if data files seem ok, false otherwise
      */
     private boolean haveDataFiles() {
+        log.debug("haveDataFiles()");
+        
         File dir = Util.getDataFolder();
         
         if (!dir.isDirectory()) {

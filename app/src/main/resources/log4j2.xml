@@ -18,6 +18,7 @@
     </Appenders>
     <Loggers>
         <!-- error, warn, info, debug, trace -->
+    <Logger level="info"  name="settlers.installer.env"/>
     <Logger level="debug" name="settlers.installer.ui.GameList"/>
     <Root level="TRACE">
       <AppenderRef ref="Console"/>

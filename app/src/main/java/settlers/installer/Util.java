@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
@@ -32,7 +31,6 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileSystemView;
 import net.sf.fikin.ant.EmbeddedAntProject;
 import org.apache.logging.log4j.LogManager;
@@ -64,6 +62,7 @@ import settlers.installer.model.GameVersion;
  */
 public class Util {
     private static final Logger log = LogManager.getLogger(Util.class);
+    private static final Logger logEnv = LogManager.getLogger("settlers.installer.env");
     
     public static final String RELEASE_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/releases";
     public static final String WORKFLOW_RUNS_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/actions/runs";
@@ -760,18 +759,18 @@ public class Util {
     }
     
     public static void dumpProperties(Properties props) {
-        log.info("Properties:");
+        logEnv.debug("Properties:");
         TreeSet<Object> keys = new TreeSet<>(props.keySet());
         for (Object key: keys) {
-            log.info("  {} -> {}", key, props.get(key));
+            logEnv.debug("  {} -> {}", key, props.get(key));
         }
     }
 
     static void dumpEnvironment() {
-        log.info("Environment:");
+        logEnv.debug("Environment:");
         TreeSet<String> keys = new TreeSet<>(System.getenv().keySet());
         for (String key: keys) {
-            log.info("  {} -> {}", key, System.getenv(key));
+            logEnv.debug("  {} -> {}", key, System.getenv(key));
         }
     }
 
@@ -838,13 +837,17 @@ public class Util {
     }
     
     public static List<GHObject> getAvailableGames(GitHub github, boolean releasesOnly) throws IOException {
+        log.debug("getAvailableGames({}, {})", github, releasesOnly);
+        
         List<GHObject> result = new ArrayList<>();
         GHRepository repository = github.getRepository(GITHUB_REPO_NAME);
+        log.debug("Listing releases...");
         result.addAll(repository.listReleases().toList());
+        log.debug("Found {} releases", result.size());
         
         if (!releasesOnly) {
             //result.addAll(repository.listArtifacts().toList());
-            
+            log.debug("Listing workflow runs...");
             List<GHWorkflow> workflows = repository.listWorkflows().toList();
             for (GHWorkflow workflow: workflows) {
                 for (GHWorkflowRun run: workflow.listRuns().toList()) {
@@ -854,6 +857,7 @@ public class Util {
                 }
             }
         }
+        log.debug("Found {} games", result.size());
         return sortGHObjectByDate(result);
     }
     
