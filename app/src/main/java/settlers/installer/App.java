@@ -13,6 +13,7 @@ import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -494,6 +495,14 @@ public class App extends javax.swing.JFrame {
         }
     }
     
+    private void buildLocalList(List<GHObject> availableGames) {
+        log.debug("we are desperate. Show installed games...");
+        for (GameVersion gv: Util.getInstalledGames()) {
+            GHRelease ghr = new GHRelease();
+            availableGames.add(ghr);
+        }
+    }
+    
     /**
      * Returns true if some game is installed that we can run.
      * 
@@ -501,62 +510,65 @@ public class App extends javax.swing.JFrame {
      */
     private GameState haveGameFiles() {
         log.debug("haveGameFiles()");
-        log.debug("github anonymous: {}", github.isAnonymous());
-        log.debug("github offline:   {}", github.isOffline());
-
-        GHRepository repository = null;
-        List<GHObject> availableGames = null;
-        try {
-            availableGames = Util.getAvailableGames(github, !configuration.isCheckArtifacts());
-        } catch (IOException e) {
-            log.error("Could not check online games", e);
-        }
-        gameList.setData(availableGames);
         
-        List<GameVersion> installedGames = Util.getInstalledGames();
-        if (availableGames.isEmpty()) {
-            log.debug("we are desperate. Show installed games...");
-            for (GameVersion gv: installedGames) {
-                GHRelease ghr = new GHRelease();
-                availableGames.add(ghr);
+        List<GHObject> availableGames = null;
+        if (github != null) {
+            log.debug("github anonymous: {}", github.isAnonymous());
+            log.debug("github offline:   {}", github.isOffline());
+
+            GHRepository repository = null;
+            try {
+                availableGames = Util.getAvailableGames(github, !configuration.isCheckArtifacts());
+            } catch (IOException e) {
+                log.error("Could not check online games", e);
             }
             gameList.setData(availableGames);
-            return GameState.latest;
-        } else {
-        
-            if (installedGames != null && !installedGames.isEmpty()) {
-                // check if updates are available
 
-                try {
-                    Date installed = installedGames.get(0).getInstalledAt();
-                    if (installed == null) {
-                        return GameState.old;
-                    }
+            List<GameVersion> installedGames = Util.getInstalledGames();
+            if (availableGames.isEmpty()) {
+                buildLocalList(availableGames);
+                gameList.setData(availableGames);
+                return GameState.latest;
+            } else {
 
-                    Date available = availableGames.get(0).getUpdatedAt();
-                    if (available == null) {
-                        available = availableGames.get(0).getCreatedAt();
-                    }
-                    if (installed.before(available)) {
-                        // update is available
-                        log.debug("Update is available");
-                        return GameState.old;
-                    } else {
-                        // we already have the latest version
-                        log.debug("we already have the latest version");
+                if (installedGames != null && !installedGames.isEmpty()) {
+                    // check if updates are available
+
+                    try {
+                        Date installed = installedGames.get(0).getInstalledAt();
+                        if (installed == null) {
+                            return GameState.old;
+                        }
+
+                        Date available = availableGames.get(0).getUpdatedAt();
+                        if (available == null) {
+                            available = availableGames.get(0).getCreatedAt();
+                        }
+                        if (installed.before(available)) {
+                            // update is available
+                            log.debug("Update is available");
+                            return GameState.old;
+                        } else {
+                            // we already have the latest version
+                            log.debug("we already have the latest version");
+                            return GameState.latest;
+                        }
+                    } catch (Exception e) {
+                        // could not figure out if update is available. Let's assume we have the latest
+                        log.debug("We assume to have the latest version", e);
                         return GameState.latest;
                     }
-                } catch (Exception e) {
-                    // could not figure out if update is available. Let's assume we have the latest
-                    log.debug("We assume to have the latest version", e);
-                    return GameState.latest;
+                } else {
+                    log.debug("No good version installed locally");
+                    return GameState.missing;
                 }
-            } else {
-                log.debug("No good version installed locally");
-                return GameState.missing;
             }
+        } else {
+            availableGames = new ArrayList<>();
+            buildLocalList(availableGames);
+            gameList.setData(availableGames);
+            return GameState.latest;
         }
-        
     }
 
     /**

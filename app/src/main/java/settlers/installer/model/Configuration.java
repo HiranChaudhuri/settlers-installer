@@ -181,10 +181,10 @@ public class Configuration {
         final byte[] output = new byte[256];
         
         final int updateBytes = encipher.update(input, 0, input.length, output, 0);
-        log.debug("{}", updateBytes);
+        log.debug("updateBytes {}", updateBytes);
         //We must call doFinal at the end of encryption/decryption.
         final int finalBytes = encipher.doFinal(input, 0, 0, output, updateBytes);
-        log.debug("{}", finalBytes);
+        log.debug("finalBytes {}", finalBytes);
         //Closes the cipher.
         encipher.close();
  
@@ -211,7 +211,7 @@ public class Configuration {
         properties.setProperty(CryptoCipherFactory.CLASSES_KEY, CryptoCipherFactory.CipherProvider.JCE.getClassName());
         
         final CryptoCipher decipher = Utils.getCipherInstance(transform, properties);
-        log.debug("Cipher:  " + decipher.getClass().getCanonicalName());
+        log.trace("Cipher:  " + decipher.getClass().getCanonicalName());
  
         decipher.init(Cipher.DECRYPT_MODE, key, iv);
 

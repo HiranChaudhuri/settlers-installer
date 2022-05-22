@@ -2,13 +2,16 @@
  */
 package settlers.installer.model;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Date;
+import org.kohsuke.github.GHObject;
 
 /**
  *
  * @author hiran
  */
-public class GameVersion {
+public class GameVersion /* extends GHObject */ {
     private String name;
     private Date publishedAt;
     private Date installedAt;
@@ -63,6 +66,5 @@ public class GameVersion {
     public void setDownloadUrl(String downloadUrl) {
         this.downloadUrl = downloadUrl;
     }
-    
-    
+
 }
