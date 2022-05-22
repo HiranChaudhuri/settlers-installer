@@ -4,6 +4,10 @@ package settlers.installer;
 
 import com.owlike.genson.Genson;
 import com.owlike.genson.GensonBuilder;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -546,6 +550,7 @@ public class Util {
         pb.directory(workingDir);
         
         Process p = pb.start();
+        log.info("started JSettlers in pid {}", p.pid());
         p.waitFor();
         int rc = p.exitValue();
         log.info("returned with {}", rc);
@@ -840,5 +845,19 @@ public class Util {
     public static boolean isInstalled(GHObject object) {
         File target = new File(Util.getGamesFolder(), String.valueOf(object.getId()));
         return target.isDirectory();
+    }
+    
+    /**
+     * inspired by https://stackoverflow.com/questions/1936547/java-fullscreen-over-multiple-monitors
+     */
+    public static Rectangle2D getDesktopSize() {
+        Rectangle2D result = new Rectangle2D.Double();
+        GraphicsEnvironment localGE = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        for (GraphicsDevice gd : localGE.getScreenDevices()) {
+          for (GraphicsConfiguration graphicsConfiguration : gd.getConfigurations()) {
+            result.union(result, graphicsConfiguration.getBounds(), result);
+          }
+        }
+        return result;
     }
 }

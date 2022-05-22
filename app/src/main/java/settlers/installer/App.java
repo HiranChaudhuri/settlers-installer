@@ -11,6 +11,7 @@ import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
@@ -306,8 +307,7 @@ public class App extends javax.swing.JFrame {
                 public void actionPerformed(ActionEvent ae) {
                     try {
                         Robot robot = new Robot();
-                        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-                        BufferedImage i = robot.createScreenCapture(new Rectangle(0,0,d.width, d.height));
+                        BufferedImage i = robot.createScreenCapture(Util.getDesktopSize().getBounds());
                         //i.createGraphics();
                         // draw with graphics if needed
 
