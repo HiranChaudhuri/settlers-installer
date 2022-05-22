@@ -6,7 +6,7 @@
         </Console>
         <RollingFile name="File" 
                      bufferedIO="true" immediateFlush="true" append="true"
-                     filePattern="${sys:user.home}/.jsettlers/settlers-installer-%d{yyyy-MM-dd-HH-mm-ss}.log">
+                     filePattern="${sys:user.home}/.jsettlers/managed/log/settlers-installer-%d{yyyy-MM-dd-HH-mm-ss}.log">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
             <Policies>
                 <OnStartupTriggeringPolicy minSize="0"/>

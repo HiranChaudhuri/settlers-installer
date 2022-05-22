@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
@@ -364,15 +365,29 @@ public class Util {
     
     public static void installWorkflowRun(GHWorkflowRun run) throws IOException {
         log.debug("installWorkflowRun({})", run);
+        run.getRepository().readTar(is -> {
+            return null;
+        }, null);
+        
         List<GHArtifact> artifacts = run.listArtifacts().toList();
         for (GHArtifact artifact: artifacts) {
             log.debug("found {}", artifact);
             if ("Release".equals(artifact.getName())) {
+                File tempfile = File.createTempFile("artifact", ".zip", getManagedTempFolder());
+                File tempfilex = Files.createTempDirectory(getManagedTempFolder().toPath(), "artifactx").toFile();
                 File target = new File(Util.getGamesFolder(), String.valueOf(run.getId()));
-//                artifact.download(a -> {
-//                });
-                installGeneric(artifact.getArchiveDownloadUrl(), target);
+                log.debug("downloading artifact to {}", tempfile);
 
+                //installGeneric(artifact.getArchiveDownloadUrl(), target);
+                artifact.download(is -> {
+                    Files.copy(is, tempfile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    return null;
+                });
+
+                log.debug("extracting to {}", tempfilex);
+                unzip(tempfile, tempfilex);
+                unzip(new File(tempfilex, "JSettlers.zip"), target);
+                
                 log.debug("writing metadata...");
                 File metadata = new File(target, "metadata.json");
                 GameVersion gv = new GameVersion();
