@@ -365,8 +365,8 @@ public class Util {
             log.debug("found {}", artifact);
             if ("Release".equals(artifact.getName())) {
                 File target = new File(Util.getGamesFolder(), String.valueOf(run.getId()));
-                artifact.download(a -> {
-                });
+//                artifact.download(a -> {
+//                });
                 installGeneric(artifact.getArchiveDownloadUrl(), target);
 
                 log.debug("writing metadata...");

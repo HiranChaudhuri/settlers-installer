@@ -2,8 +2,16 @@
  */
 package settlers.installer;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
@@ -11,7 +19,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JWindow;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +54,7 @@ public class App extends javax.swing.JFrame {
     private Configuration configuration;
     private GitHub github;
     private GameList gameList;
+    private JWindow bugButton;
     
     // TODO: Play button should come like https://www.codejava.net/java-se/swing/how-to-create-drop-down-button-in-swing
     
@@ -284,6 +296,36 @@ public class App extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btInstallDataActionPerformed
 
+    private void showBugButton() {
+        if (bugButton == null) {
+            bugButton = new JWindow();
+            javax.swing.ImageIcon iiBRR = new javax.swing.ImageIcon(getClass().getResource("/images/bug_report_RED.png"));            
+            JButton button = new JButton(iiBRR);
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    try {
+                        Robot robot = new Robot();
+                        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+                        BufferedImage i = robot.createScreenCapture(new Rectangle(0,0,d.width, d.height));
+                        //i.createGraphics();
+                        // draw with graphics if needed
+
+                        ImageIO.write(i, "png", new File("/home/hiran/screenshot.png"));
+                    } catch (Exception e) {
+                        log.error("Could not create screenshot", e);
+                    }
+                }
+            });
+            bugButton.add(button);
+            bugButton.pack();
+            bugButton.setAlwaysOnTop(true);
+            
+            bugButton.setLocationByPlatform(true);
+        }
+        bugButton.setVisible(true);
+    }
+    
     private void btPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPlayActionPerformed
         log.debug("btPlayActionPerformed(...)");
         if (gameList.getSelection()==null) {
@@ -293,6 +335,7 @@ public class App extends javax.swing.JFrame {
         
         btInstallData.setEnabled(false);
         btPlay.setEnabled(false);
+        btOptions.setEnabled(false);
         jProgressBar.setVisible(true);
         // setVisible(false); let's stay visible until an eventually needed installation is done
         
@@ -311,7 +354,11 @@ public class App extends javax.swing.JFrame {
                     if (!Util.isInstalled(game)) {
                         Util.installGame(game);
                     }
-                    
+
+                    if (configuration.isSupportBugReporting()) {
+                        // show but button
+                        showBugButton();
+                    }
                     setVisible(false);
                     
                     Util.runGame(game);
@@ -320,8 +367,12 @@ public class App extends javax.swing.JFrame {
                     log.error("could not run game", e);
                     JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                 } finally {
+                    // hide bug button
+                    bugButton.setVisible(false);
+                    
                     btInstallData.setEnabled(true);
                     btPlay.setEnabled(true);
+                    btOptions.setEnabled(true);
                     jProgressBar.setVisible(false);
                     setVisible(true);
 
