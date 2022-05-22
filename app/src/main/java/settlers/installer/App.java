@@ -30,8 +30,10 @@ import org.kohsuke.github.GHWorkflow;
 import org.kohsuke.github.GHWorkflowRun;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.GitHubRateLimitHandler;
 import org.kohsuke.github.PagedIterable;
 import org.kohsuke.github.PagedIterator;
+import org.kohsuke.github.connector.GitHubConnectorResponse;
 import settlers.installer.model.Configuration;
 import settlers.installer.model.GameVersion;
 import settlers.installer.ui.GameList;
@@ -64,6 +66,13 @@ public class App extends javax.swing.JFrame {
         configuration = Configuration.load(Util.getConfigurationFile());
         try {
             GitHubBuilder gb = new GitHubBuilder();
+            gb.withRateLimitHandler(new GitHubRateLimitHandler() {
+                @Override
+                public void onError(GitHubConnectorResponse ghcr) throws IOException {
+                    log.error("GitHubRateLimitHandler onError(...)");
+                    JOptionPane.showMessageDialog(App.this, "Rate limit applies...");
+                }
+            });
             if (configuration.getGithubUsername() != null) {
                 log.debug("GitHub with Authentication");
                 gb.withOAuthToken(configuration.getGithubToken(), configuration.getGithubUsername());
@@ -72,6 +81,7 @@ public class App extends javax.swing.JFrame {
             }
             github = new GitHubBuilder().build();
             log.info("GitHub Credentials valid: {}", github.isCredentialValid());
+            log.info("GitHub Rate Limit: {}", github.getRateLimit());
         } catch (IOException e) {
             log.error("Could not initialize github client", e);
         }
@@ -373,7 +383,9 @@ public class App extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(App.this, "Something went wrong.");
                 } finally {
                     // hide bug button
-                    bugButton.setVisible(false);
+                    if (bugButton != null) {
+                        bugButton.setVisible(false);
+                    }
                     
                     btInstallData.setEnabled(true);
                     btPlay.setEnabled(true);

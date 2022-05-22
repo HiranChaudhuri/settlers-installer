@@ -39,6 +39,7 @@ import org.apache.tools.ant.Project;
 import org.kohsuke.github.GHArtifact;
 import org.kohsuke.github.GHAsset;
 import org.kohsuke.github.GHObject;
+import org.kohsuke.github.GHRateLimit;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHWorkflow;
