@@ -12,6 +12,7 @@ import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -22,13 +23,16 @@ import javax.swing.JWindow;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.kohsuke.github.AbuseLimitHandler;
 import org.kohsuke.github.GHArtifact;
 import org.kohsuke.github.GHObject;
+import org.kohsuke.github.GHRateLimit;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHWorkflow;
 import org.kohsuke.github.GHWorkflowRun;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubAbuseLimitHandler;
 import org.kohsuke.github.GitHubBuilder;
 import org.kohsuke.github.GitHubRateLimitHandler;
 import org.kohsuke.github.PagedIterable;
@@ -66,6 +70,13 @@ public class App extends javax.swing.JFrame {
         configuration = Configuration.load(Util.getConfigurationFile());
         try {
             GitHubBuilder gb = new GitHubBuilder();
+            gb.withAbuseLimitHandler(new GitHubAbuseLimitHandler() {
+                @Override
+                public void onError(GitHubConnectorResponse ghcr) throws IOException {
+                    log.error("GitHubAbuseLimitHandler onError(...)");
+                    JOptionPane.showMessageDialog(App.this, "Abuse limit applies...");
+                }
+            });
             gb.withRateLimitHandler(new GitHubRateLimitHandler() {
                 @Override
                 public void onError(GitHubConnectorResponse ghcr) throws IOException {
@@ -81,7 +92,12 @@ public class App extends javax.swing.JFrame {
             }
             github = new GitHubBuilder().build();
             log.info("GitHub Credentials valid: {}", github.isCredentialValid());
-            log.info("GitHub Rate Limit: {}", github.getRateLimit());
+            
+            GHRateLimit ghrl = github.getRateLimit();
+            log.info("GitHub Rate Limit Core:                 {}", ghrl.getCore());
+            log.info("GitHub Rate Limit GraphQL:              {}", ghrl.getGraphQL());
+            log.info("GitHub Rate Limit Integration Manifest: {}", ghrl.getIntegrationManifest());
+            log.info("GitHub Rate Limit Search:               {}", ghrl.getSearch());
         } catch (IOException e) {
             log.error("Could not initialize github client", e);
         }
@@ -498,36 +514,47 @@ public class App extends javax.swing.JFrame {
         gameList.setData(availableGames);
         
         List<GameVersion> installedGames = Util.getInstalledGames();
-        if (installedGames != null && !installedGames.isEmpty()) {
-            // check if updates are available
+        if (availableGames.isEmpty()) {
+            log.debug("we are desperate. Show installed games...");
+            for (GameVersion gv: installedGames) {
+                GHRelease ghr = new GHRelease();
+                availableGames.add(ghr);
+            }
+            gameList.setData(availableGames);
+            return GameState.latest;
+        } else {
+        
+            if (installedGames != null && !installedGames.isEmpty()) {
+                // check if updates are available
 
-            try {
-                Date installed = installedGames.get(0).getInstalledAt();
-                if (installed == null) {
-                    return GameState.old;
-                }
-                
-                Date available = availableGames.get(0).getUpdatedAt();
-                if (available == null) {
-                    available = availableGames.get(0).getCreatedAt();
-                }
-                if (installed.before(available)) {
-                    // update is available
-                    log.debug("Update is available");
-                    return GameState.old;
-                } else {
-                    // we already have the latest version
-                    log.debug("we already have the latest version");
+                try {
+                    Date installed = installedGames.get(0).getInstalledAt();
+                    if (installed == null) {
+                        return GameState.old;
+                    }
+
+                    Date available = availableGames.get(0).getUpdatedAt();
+                    if (available == null) {
+                        available = availableGames.get(0).getCreatedAt();
+                    }
+                    if (installed.before(available)) {
+                        // update is available
+                        log.debug("Update is available");
+                        return GameState.old;
+                    } else {
+                        // we already have the latest version
+                        log.debug("we already have the latest version");
+                        return GameState.latest;
+                    }
+                } catch (Exception e) {
+                    // could not figure out if update is available. Let's assume we have the latest
+                    log.debug("We assume to have the latest version", e);
                     return GameState.latest;
                 }
-            } catch (Exception e) {
-                // could not figure out if update is available. Let's assume we have the latest
-                log.debug("We assume to have the latest version", e);
-                return GameState.latest;
+            } else {
+                log.debug("No good version installed locally");
+                return GameState.missing;
             }
-        } else {
-            log.debug("No good version installed locally");
-            return GameState.missing;
         }
         
     }

@@ -20,6 +20,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -837,29 +839,50 @@ public class Util {
         return download;
     }
     
+    private static List<GHObject> availableGamesCache;
+    private static Instant availableGamesCacheExpiry;
+    private static Duration availableGamesCacheTTL = Duration.ofMinutes(60);
+    
     public static List<GHObject> getAvailableGames(GitHub github, boolean releasesOnly) throws IOException {
         log.debug("getAvailableGames({}, {})", github, releasesOnly);
         
-        List<GHObject> result = new ArrayList<>();
-        GHRepository repository = github.getRepository(GITHUB_REPO_NAME);
-        log.debug("Listing releases...");
-        result.addAll(repository.listReleases().toList());
-        log.debug("Found {} releases", result.size());
-        
-        if (!releasesOnly) {
-            //result.addAll(repository.listArtifacts().toList());
-            log.debug("Listing workflow runs...");
-            List<GHWorkflow> workflows = repository.listWorkflows().toList();
-            for (GHWorkflow workflow: workflows) {
-                for (GHWorkflowRun run: workflow.listRuns().toList()) {
-                    if (!run.listArtifacts().toList().isEmpty()) {
-                        result.add(run);
+        if (availableGamesCache==null || (availableGamesCacheExpiry!=null && Instant.now().isAfter(availableGamesCacheExpiry))) {
+            // either we have no cache or it is expired. Request new data
+
+            List<GHObject> result = new ArrayList<>();
+            GHRepository repository = null;
+            
+            if (github.getRateLimit().getRemaining()>2) {
+                repository = github.getRepository(GITHUB_REPO_NAME);
+                log.debug("Listing releases...");
+                result.addAll(repository.listReleases().toList());
+                log.debug("Found {} releases", result.size());
+            }
+
+            if (!releasesOnly && github.getRateLimit().getRemaining()>1) {
+                //result.addAll(repository.listArtifacts().toList());
+                log.debug("Listing workflow runs...");
+                List<GHWorkflow> workflows = repository.listWorkflows().toList();
+                if (github.getRateLimit().getRemaining()>1) {
+                    for (GHWorkflow workflow: workflows) {
+                        if (github.getRateLimit().getRemaining()>1) {
+                            for (GHWorkflowRun run: workflow.listRuns().toList()) {
+                                if (github.getRateLimit().getRemaining()>1) {
+                                    if (!run.listArtifacts().toList().isEmpty()) {
+                                        result.add(run);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
+            
+            log.debug("Found {} games", result.size());
+            availableGamesCache = sortGHObjectByDate(result);
+            availableGamesCacheExpiry = Instant.now().plus(availableGamesCacheTTL);
         }
-        log.debug("Found {} games", result.size());
-        return sortGHObjectByDate(result);
+        return availableGamesCache;
     }
     
     public static boolean isInstalled(GHObject object) {

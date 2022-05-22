@@ -90,7 +90,11 @@ public class GameList extends javax.swing.JPanel {
                 case 2: // date
                     try {
                         if (row instanceof GHRelease) {
-                            return ((GHRelease)row).getPublished_at();
+                            try {
+                                return ((GHRelease)row).getPublished_at();
+                            } catch (Exception e) {
+                                return null;
+                            }
                         } else if (row instanceof GHWorkflowRun) {
                             GHWorkflowRun run = (GHWorkflowRun)row;
                             return run.getUpdatedAt();

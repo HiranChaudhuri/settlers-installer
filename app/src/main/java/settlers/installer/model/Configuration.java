@@ -171,7 +171,7 @@ public class Configuration {
         properties.setProperty(CryptoCipherFactory.CLASSES_KEY, CryptoCipherFactory.CipherProvider.JCE.getClassName());
         
         final CryptoCipher encipher = Utils.getCipherInstance(transform, properties);
-        log.debug("Cipher:  " + encipher.getClass().getCanonicalName());
+        log.trace("Cipher:  " + encipher.getClass().getCanonicalName());
         
         //Initializes the cipher with ENCRYPT_MODE, key and iv.
         encipher.init(Cipher.ENCRYPT_MODE, key, iv);
