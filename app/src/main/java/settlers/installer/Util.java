@@ -901,4 +901,25 @@ public class Util {
         }
         return result;
     }
+    
+    public static File getLatestLogDir() {
+        log.debug("getLatestLogDir()");
+        
+        File logs = new File(getVarFolder(), "logs");
+        File[] logdirs = logs.listFiles();
+        File latest = null;
+        
+        for (File f: logdirs) {
+            if (latest == null) {
+                latest = f;
+            } else {
+                if (latest.lastModified() < f.lastModified()) {
+                    latest = f;
+                }
+            }
+        }
+        
+        log.debug("latest log in {}", latest);
+        return latest;
+    }
 }

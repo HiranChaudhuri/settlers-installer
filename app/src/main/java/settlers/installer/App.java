@@ -337,10 +337,13 @@ public class App extends javax.swing.JFrame {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     try {
+                        File logdir = Util.getLatestLogDir();
                         Robot robot = new Robot();
                         BufferedImage i = robot.createScreenCapture(Util.getDesktopSize().getBounds());
                         BugReport br = new BugReport();
                         br.setImage(i);
+                        br.setLogfile(new File(logdir, logdir.getName()+"_out.log").getAbsolutePath());
+                        br.setReplayFile(new File(logdir, logdir.getName()+"_replay.log").getAbsolutePath());
                         if (JOptionPane.showOptionDialog(bugButton, br, "Report issue...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)==JOptionPane.OK_OPTION) {
                             log.info("Need to create issue...");
 
