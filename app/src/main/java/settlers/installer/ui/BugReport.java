@@ -1,20 +1,41 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package settlers.installer.ui;
+
+import java.awt.Dimension;
+import java.awt.Image;
+import javax.swing.ImageIcon;
 
 /**
  *
  * @author hiran
  */
 public class BugReport extends javax.swing.JPanel {
+    
+    private Image image;
 
     /**
      * Creates new form BugReport
      */
     public BugReport() {
         initComponents();
+    }
+
+    public Image getImage() {
+        return image;
+    }
+    
+    private Dimension scaledSize(Dimension src, Dimension target) {
+        double ratio = Math.min(target.getWidth()/src.getWidth(), target.getHeight()/src.getHeight());
+        Dimension result = new Dimension();
+        result.setSize(src.getWidth()*ratio, src.getHeight()*ratio);
+        return result;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+        Dimension newSize = scaledSize(new Dimension(image.getWidth(null), image.getHeight(null)), new Dimension(600, 400));
+        lbImage.setIcon(new ImageIcon(image.getScaledInstance((int)newSize.getWidth(), (int)newSize.getHeight(), Image.SCALE_AREA_AVERAGING)));
     }
 
     /**
@@ -35,6 +56,7 @@ public class BugReport extends javax.swing.JPanel {
         jLabel4 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jCheckBox3 = new javax.swing.JCheckBox();
+        lbImage = new javax.swing.JLabel();
 
         jLabel2.setText("Description");
 
@@ -71,10 +93,15 @@ public class BugReport extends javax.swing.JPanel {
                         .addComponent(jLabel3)
                         .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jCheckBox2)
-                            .addComponent(jCheckBox1)
-                            .addComponent(jCheckBox3))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jCheckBox2)
+                                    .addComponent(jCheckBox1))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jCheckBox3)
+                                .addGap(18, 18, 18)
+                                .addComponent(lbImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -97,7 +124,9 @@ public class BugReport extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jCheckBox2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jCheckBox3)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jCheckBox3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lbImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -113,5 +142,6 @@ public class BugReport extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel lbImage;
     // End of variables declaration//GEN-END:variables
 }

@@ -39,6 +39,7 @@ import org.kohsuke.github.PagedIterator;
 import org.kohsuke.github.connector.GitHubConnectorResponse;
 import settlers.installer.model.Configuration;
 import settlers.installer.model.GameVersion;
+import settlers.installer.ui.BugReport;
 import settlers.installer.ui.GameList;
 
 /**
@@ -338,10 +339,16 @@ public class App extends javax.swing.JFrame {
                     try {
                         Robot robot = new Robot();
                         BufferedImage i = robot.createScreenCapture(Util.getDesktopSize().getBounds());
-                        //i.createGraphics();
-                        // draw with graphics if needed
+                        BugReport br = new BugReport();
+                        br.setImage(i);
+                        if (JOptionPane.showOptionDialog(bugButton, br, "Report issue...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)==JOptionPane.OK_OPTION) {
+                            log.info("Need to create issue...");
 
-                        ImageIO.write(i, "png", new File("/home/hiran/screenshot.png"));
+//                            //i.createGraphics();
+//                            // draw with graphics if needed
+//
+//                            ImageIO.write(i, "png", new File("/home/hiran/screenshot.png"));
+                        }                        
                     } catch (Exception e) {
                         log.error("Could not create screenshot", e);
                     }

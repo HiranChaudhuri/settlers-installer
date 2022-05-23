@@ -41,7 +41,6 @@ import org.apache.tools.ant.Project;
 import org.kohsuke.github.GHArtifact;
 import org.kohsuke.github.GHAsset;
 import org.kohsuke.github.GHObject;
-import org.kohsuke.github.GHRateLimit;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHWorkflow;
@@ -71,7 +70,7 @@ public class Util {
     public static final String WORKFLOW_RUNS_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/actions/runs";
     public static final String GITHUB_REPO_NAME = "paulwedeck/settlers-remake";
     
-    private static final int GITHUB_MIN_LIMIT4BROWSING = 4;
+    private static final int GITHUB_MIN_LIMIT4BROWSING = 10;
     
     /** 
      * Creates a Genson parser that treats timestamps as java.util.Date.
