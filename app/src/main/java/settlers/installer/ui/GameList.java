@@ -3,7 +3,6 @@
 package settlers.installer.ui;
 
 import java.awt.Image;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,6 +15,7 @@ import org.kohsuke.github.GHObject;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHWorkflowRun;
 import settlers.installer.Util;
+import settlers.installer.model.GameVersion;
 
 /**
  *
@@ -28,17 +28,17 @@ public class GameList extends javax.swing.JPanel {
     private final javax.swing.ImageIcon iiRun = new ImageIcon(new javax.swing.ImageIcon(getClass().getResource("/images/construction_FILL0_wght400_GRAD0_opsz48.png")).getImage().getScaledInstance(16, 16, Image.SCALE_FAST));
     private final javax.swing.ImageIcon iiCloud = new ImageIcon(new javax.swing.ImageIcon(getClass().getResource("/images/cloudy_FILL0_wght400_GRAD0_opsz48.png")).getImage().getScaledInstance(16, 16, Image.SCALE_FAST));
 
-    private class GHObjectTableModel extends AbstractTableModel {
+    private class ObjectTableModel extends AbstractTableModel {
         
         private String[] columns = new String[]{"type", "name", "built", "status"};
         private Class[] columnClass = new Class[]{ImageIcon.class, String.class, Date.class, ImageIcon.class};
-        private List<GHObject> data;
+        private List<Object> data;
 
-        public GHObjectTableModel() {
+        public ObjectTableModel() {
         }
         
-        public GHObjectTableModel(List<GHObject> data) {
-            this.data = new ArrayList<GHObject>(data);
+        public ObjectTableModel(List<Object> data) {
+            this.data = new ArrayList<Object>(data);
         }
 
         @Override
@@ -72,20 +72,32 @@ public class GameList extends javax.swing.JPanel {
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             log.trace("getValueAt({}, {})", rowIndex, columnIndex);
-            GHObject row = data.get(rowIndex);
+            Object row = data.get(rowIndex);
             switch (columnIndex) {
                 case 0: // icon
                     if (row instanceof GHRelease) {
                         return iiRelease;
                     } else if (row instanceof GHWorkflowRun) {
                         return iiRun;
+                    } else if (row instanceof GameVersion) {
+                        switch (((GameVersion)row).getBasedOn()) {
+                            case "org.kohsuke.github.GHRelease":
+                                return iiRelease;
+                            default:
+                                log.error("basedon={}", ((GameVersion)row).getBasedOn());
+                                return null;
+                        }
                     }
+
+
                 case 1: // name
                     if (row instanceof GHRelease) {
                         return ((GHRelease)row).getName();
                     } else if (row instanceof GHWorkflowRun) {
                         GHWorkflowRun run = (GHWorkflowRun)row;
                         return run.getName()+" "+run.getHeadBranch()+" "+run.getRunNumber();
+                    } else if (row instanceof GameVersion) {
+                        return ((GameVersion)row).getName();
                     }
                 case 2: // date
                     try {
@@ -98,16 +110,22 @@ public class GameList extends javax.swing.JPanel {
                         } else if (row instanceof GHWorkflowRun) {
                             GHWorkflowRun run = (GHWorkflowRun)row;
                             return run.getUpdatedAt();
+                        } else if (row instanceof GameVersion) {
+                            return ((GameVersion)row).getPublishedAt();
                         }
                     } catch (IOException e) {
                         log.debug("could not get date", e);
                         return null;
                     }
-                case 3:
-                    if (Util.isInstalled(row)) {
-                        return null;
+                case 3: // status
+                    if (row instanceof GHObject) {
+                        if (Util.isInstalled((GHObject)row)) {
+                            return null;
+                        } else {
+                            return iiCloud;
+                        }
                     } else {
-                        return iiCloud;
+                        return null;
                     }
                 default:
                     return "n/a";
@@ -120,12 +138,12 @@ public class GameList extends javax.swing.JPanel {
             throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         }
 
-        public GHObject getRow(int row)  {
+        public Object getRow(int row)  {
             return data.get(row);
         }
     }
     
-    private GHObjectTableModel model;
+    private ObjectTableModel model;
     
     /**
      * Creates new form GameList
@@ -167,8 +185,8 @@ public class GameList extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    public void setData(List<GHObject> objects) {
-        model = new GHObjectTableModel(objects);
+    public void setData(List<Object> objects) {
+        model = new ObjectTableModel(objects);
         jTable1.setModel(model);
         
         for (int i=0;i<model.getRowCount();i++) {
@@ -179,7 +197,7 @@ public class GameList extends javax.swing.JPanel {
         }
     }
 
-    public GHObject getSelection() {
+    public Object getSelection() {
         int row = jTable1.getSelectedRow();
         if (row>=0) {
             return model.getRow(row);

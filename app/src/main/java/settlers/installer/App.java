@@ -12,7 +12,6 @@ import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -24,7 +23,6 @@ import javax.swing.JWindow;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.kohsuke.github.AbuseLimitHandler;
 import org.kohsuke.github.GHArtifact;
 import org.kohsuke.github.GHObject;
 import org.kohsuke.github.GHRateLimit;
@@ -377,14 +375,15 @@ public class App extends javax.swing.JFrame {
                 int x = 0;
                 try {
 
-//                    List<GameVersion> installedReleases = Util.getInstalledGames();
-//                    if (installedReleases != null && !installedReleases.isEmpty()) {
-//                        Util.runGame(installedReleases.get(0));
-//                    }
-                    
-                    GHObject game = gameList.getSelection();
-                    if (!Util.isInstalled(game)) {
-                        Util.installGame(game);
+                    Object game = gameList.getSelection();
+                    if (game instanceof GHObject) {
+                        if (!Util.isInstalled((GHObject)game)) {
+                            if (github.getRateLimit().getRemaining()>1) {
+                            Util.installGame((GHObject)game);
+                            } else {
+                                throw new Exception("Cannot install. GitHub Rate limit exceeded");
+                            }
+                        }
                     }
 
                     if (configuration.isSupportBugReporting()) {
@@ -392,8 +391,13 @@ public class App extends javax.swing.JFrame {
                         showBugButton();
                     }
                     setVisible(false);
-                    
-                    Util.runGame(game);
+
+                    log.info("running {}", game);
+                    if (game instanceof GameVersion) {
+                        Util.runGame((GameVersion)game);
+                    } else if (game instanceof GHObject) {
+                        Util.runGame((GHObject)game);
+                    }
                     
                 } catch(Exception e) {
                     log.error("could not run game", e);
@@ -495,11 +499,10 @@ public class App extends javax.swing.JFrame {
         }
     }
     
-    private void buildLocalList(List<GHObject> availableGames) {
+    private void buildLocalList(List<Object> availableGames) {
         log.debug("we are desperate. Show installed games...");
         for (GameVersion gv: Util.getInstalledGames()) {
-            GHRelease ghr = new GHRelease();
-            availableGames.add(ghr);
+            availableGames.add(gv);
         }
     }
     
@@ -511,14 +514,14 @@ public class App extends javax.swing.JFrame {
     private GameState haveGameFiles() {
         log.debug("haveGameFiles()");
         
-        List<GHObject> availableGames = null;
+        List<Object> availableGames = new ArrayList<>();
         if (github != null) {
             log.debug("github anonymous: {}", github.isAnonymous());
             log.debug("github offline:   {}", github.isOffline());
 
             GHRepository repository = null;
             try {
-                availableGames = Util.getAvailableGames(github, !configuration.isCheckArtifacts());
+                availableGames.addAll(Util.getAvailableGames(github, !configuration.isCheckArtifacts()));
             } catch (IOException e) {
                 log.error("Could not check online games", e);
             }
@@ -540,17 +543,22 @@ public class App extends javax.swing.JFrame {
                             return GameState.old;
                         }
 
-                        Date available = availableGames.get(0).getUpdatedAt();
-                        if (available == null) {
-                            available = availableGames.get(0).getCreatedAt();
-                        }
-                        if (installed.before(available)) {
-                            // update is available
-                            log.debug("Update is available");
-                            return GameState.old;
+                        Object first = availableGames.get(0);
+                        if (first instanceof GHObject) {
+                            Date available = ((GHObject)first).getUpdatedAt();
+                            if (available == null) {
+                                available = ((GHObject)first).getCreatedAt();
+                            }
+                            if (installed.before(available)) {
+                                // update is available
+                                log.debug("Update is available");
+                                return GameState.old;
+                            } else {
+                                // we already have the latest version
+                                log.debug("we already have the latest version");
+                                return GameState.latest;
+                            }
                         } else {
-                            // we already have the latest version
-                            log.debug("we already have the latest version");
                             return GameState.latest;
                         }
                     } catch (Exception e) {

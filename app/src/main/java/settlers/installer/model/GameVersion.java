@@ -2,16 +2,13 @@
  */
 package settlers.installer.model;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.Date;
-import org.kohsuke.github.GHObject;
 
 /**
  *
  * @author hiran
  */
-public class GameVersion /* extends GHObject */ {
+public class GameVersion {
     private String name;
     private Date publishedAt;
     private Date installedAt;

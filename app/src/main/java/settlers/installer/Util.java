@@ -71,6 +71,8 @@ public class Util {
     public static final String WORKFLOW_RUNS_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/actions/runs";
     public static final String GITHUB_REPO_NAME = "paulwedeck/settlers-remake";
     
+    private static final int GITHUB_MIN_LIMIT4BROWSING = 4;
+    
     /** 
      * Creates a Genson parser that treats timestamps as java.util.Date.
      *
@@ -367,9 +369,6 @@ public class Util {
     
     public static void installWorkflowRun(GHWorkflowRun run) throws IOException {
         log.debug("installWorkflowRun({})", run);
-        run.getRepository().readTar(is -> {
-            return null;
-        }, null);
         
         List<GHArtifact> artifacts = run.listArtifacts().toList();
         for (GHArtifact artifact: artifacts) {
@@ -852,22 +851,22 @@ public class Util {
             List<GHObject> result = new ArrayList<>();
             GHRepository repository = null;
             
-            if (github.getRateLimit().getRemaining()>2) {
+            if (github.getRateLimit().getRemaining()>GITHUB_MIN_LIMIT4BROWSING) {
                 repository = github.getRepository(GITHUB_REPO_NAME);
                 log.debug("Listing releases...");
                 result.addAll(repository.listReleases().toList());
                 log.debug("Found {} releases", result.size());
             }
 
-            if (!releasesOnly && github.getRateLimit().getRemaining()>1) {
+            if (!releasesOnly && github.getRateLimit().getRemaining()>GITHUB_MIN_LIMIT4BROWSING) {
                 //result.addAll(repository.listArtifacts().toList());
                 log.debug("Listing workflow runs...");
                 List<GHWorkflow> workflows = repository.listWorkflows().toList();
-                if (github.getRateLimit().getRemaining()>1) {
+                if (github.getRateLimit().getRemaining()>GITHUB_MIN_LIMIT4BROWSING) {
                     for (GHWorkflow workflow: workflows) {
-                        if (github.getRateLimit().getRemaining()>1) {
+                        if (github.getRateLimit().getRemaining()>GITHUB_MIN_LIMIT4BROWSING) {
                             for (GHWorkflowRun run: workflow.listRuns().toList()) {
-                                if (github.getRateLimit().getRemaining()>1) {
+                                if (github.getRateLimit().getRemaining()>GITHUB_MIN_LIMIT4BROWSING) {
                                     if (!run.listArtifacts().toList().isEmpty()) {
                                         result.add(run);
                                     }
