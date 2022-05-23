@@ -148,7 +148,7 @@ task jpackagePhase1(type: Exec, dependsOn: ['jpackagePrepare', 'filterResourcesC
              args 'build'
          }
     }
-    commandLine 'jpackage', '--type', 'app-image', '--dest', 'build/app-image', '-i', "build/jpackage_input/app-${version}/lib", '--main-jar', "app-${version}.jar", '--main-class', 'settlers.installer.App', '--name', "${APPNAME}", '--app-version', "${version}", '--description', 'Settlers 3 remake - see https://github.com/', '--vendor', "${VENDOR}", '--icon', 'build/resources/main/siedler3-helme-logo.png', '--resource-dir', 'build/resources/jpackage', '--jlink-options', '--strip-debug --no-man-pages --no-header-files'
+    commandLine 'jpackage', '--type', 'app-image', '--dest', 'build/app-image', '-i', "build/jpackage_input/app-${version}/lib", '--main-jar', "app-${version}.jar", '--main-class', 'settlers.installer.App', '--name', "${APPNAME}", '--app-version', "${version}", '--description', 'Settlers 3 remake - see https://github.com/', '--vendor', "${VENDOR}", '--icon', 'build/resources/main/images/siedler3-helme-logo.png', '--resource-dir', 'build/resources/jpackage', '--jlink-options', '--strip-debug --no-man-pages --no-header-files'
 
     doLast {
         assert file("build/app-image/${APPNAME}/lib/app/app-${version}.jar").exists()

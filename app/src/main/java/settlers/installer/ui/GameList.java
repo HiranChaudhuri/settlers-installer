@@ -196,6 +196,10 @@ public class GameList extends javax.swing.JPanel {
             }
         }
     }
+    
+    public List<Object> getData() {
+        return model.data;
+    }
 
     public Object getSelection() {
         int row = jTable1.getSelectedRow();

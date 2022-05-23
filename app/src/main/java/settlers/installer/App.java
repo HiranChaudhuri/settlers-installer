@@ -448,14 +448,17 @@ public class App extends javax.swing.JFrame {
         
         btPlay.setVisible(dataFiles);
         
-        // Desktop.getDesktop().browseFileDirectory(Util.getVarFolder());
-        // throws UnsupportedOperationException: The BROWSE_FILE_DIR action is not supported on the current platform!
-        
-//        try {
-//            Desktop.getDesktop().browse(Util.getVarFolder().toURI());
-//        } catch (Exception e) {
-//            log.error("Could not browse", e);
-//        }
+        if (gameList.getData().isEmpty()) {
+            try {
+                GHRateLimit.Record limit = github.getRateLimit().getCore();
+                String msg = String.format("We have no games to show, and the GitHub Rate Limit is %d/%d until %s", limit.getRemaining(), limit.getLimit(), limit.getResetDate());
+                log.debug(msg);
+                JOptionPane.showMessageDialog(this, msg);
+            } catch (Exception e) {
+                log.error("could not show github rate limit", e);
+                JOptionPane.showMessageDialog(this, "We have no games and cannot even tell the GitHug Rate Limit.");
+            }
+        }
     }
     
     public enum GameState {
