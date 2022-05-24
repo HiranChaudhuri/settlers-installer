@@ -902,6 +902,58 @@ public class Util {
         return result;
     }
     
+    private static Properties getUnixWindowProperties(String windowId) throws IOException {
+        Properties result = new Properties();
+        
+        String windowprops = execReadToString("xwininfo -id "+windowId);
+        log.trace("windowprops {}", windowprops);
+        StringTokenizer st = new StringTokenizer(windowprops, "\n");
+        while (st.hasMoreTokens()) {
+            String line = st.nextToken().trim();
+            String[] parts = line.split(":");
+            if (parts.length==2) {
+                String name = parts[0].trim();
+                String value = parts[1].trim();
+                result.setProperty(name, value);
+            }
+        }
+        
+        return result;
+    }
+    
+    public static Rectangle2D getCaptureSize() {
+        log.debug("getCaptureSize()");
+        try {
+            if (OsDetector.IS_UNIX) {
+                String windowlist = execReadToString("wmctrl -lx");
+                StringTokenizer st1 = new StringTokenizer(windowlist, "\n");
+                while (st1.hasMoreTokens()) {
+                    String window = st1.nextToken();
+                    if (window.contains("jsettlers-main-swing-SwingManagedJSettlers.jsettlers-main-swing-SwingManagedJSettlers")) {
+                        log.trace("window: {}", window);
+                        String window_id = window.contains(" ") ? window.split(" ")[0] : window;
+                        log.trace("window id: {}", window_id);
+                        Properties props = getUnixWindowProperties(window_id);
+                        log.debug("props {}", props);
+                        
+                        double x = Double.parseDouble(props.getProperty("Absolute upper-left X"));
+                        double y = Double.parseDouble(props.getProperty("Absolute upper-left Y"));
+                        double width = Double.parseDouble(props.getProperty("Width"));
+                        double height = Double.parseDouble(props.getProperty("Height"));
+                        Rectangle2D result = new Rectangle2D.Double(x, y, width, height);
+                        return result;
+                    }
+                }
+                return null;
+            } else {
+                throw new UnsupportedOperationException("not implemented");
+            }
+        } catch (Exception e) {
+            log.error("Could not find out capture size", e);
+            return getDesktopSize();
+        }
+    }
+    
     public static File getLatestLogDir() {
         log.debug("getLatestLogDir()");
         

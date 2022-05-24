@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JWindow;
@@ -339,7 +338,7 @@ public class App extends javax.swing.JFrame {
                     try {
                         File logdir = Util.getLatestLogDir();
                         Robot robot = new Robot();
-                        BufferedImage i = robot.createScreenCapture(Util.getDesktopSize().getBounds());
+                        BufferedImage i = robot.createScreenCapture(Util.getCaptureSize().getBounds());
                         BugReport br = new BugReport();
                         br.setImage(i);
                         br.setLogfile(new File(logdir, logdir.getName()+"_out.log").getAbsolutePath());
