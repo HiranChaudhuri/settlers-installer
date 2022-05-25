@@ -23,6 +23,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kohsuke.github.GHArtifact;
+import org.kohsuke.github.GHAuthorization;
+import org.kohsuke.github.GHFileNotFoundException;
+import org.kohsuke.github.GHGistBuilder;
+import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHIssueBuilder;
 import org.kohsuke.github.GHObject;
 import org.kohsuke.github.GHRateLimit;
 import org.kohsuke.github.GHRelease;
@@ -33,8 +38,10 @@ import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubAbuseLimitHandler;
 import org.kohsuke.github.GitHubBuilder;
 import org.kohsuke.github.GitHubRateLimitHandler;
+import org.kohsuke.github.HttpException;
 import org.kohsuke.github.PagedIterable;
 import org.kohsuke.github.PagedIterator;
+import org.kohsuke.github.RateLimitChecker;
 import org.kohsuke.github.connector.GitHubConnectorResponse;
 import settlers.installer.model.Configuration;
 import settlers.installer.model.GameVersion;
@@ -68,28 +75,36 @@ public class App extends javax.swing.JFrame {
         
         configuration = Configuration.load(Util.getConfigurationFile());
         try {
-            GitHubBuilder gb = new GitHubBuilder();
-            gb.withAbuseLimitHandler(new GitHubAbuseLimitHandler() {
+            GitHubBuilder githubBuilder = new GitHubBuilder();
+            githubBuilder.withAbuseLimitHandler(new GitHubAbuseLimitHandler() {
                 @Override
                 public void onError(GitHubConnectorResponse ghcr) throws IOException {
                     log.error("GitHubAbuseLimitHandler onError(...)");
-                    JOptionPane.showMessageDialog(App.this, "Abuse limit applies...");
+                    JOptionPane.showMessageDialog(null, "Abuse limit applies...");
                 }
             });
-            gb.withRateLimitHandler(new GitHubRateLimitHandler() {
+            githubBuilder.withRateLimitHandler(new GitHubRateLimitHandler() {
                 @Override
                 public void onError(GitHubConnectorResponse ghcr) throws IOException {
                     log.error("GitHubRateLimitHandler onError(...)");
-                    JOptionPane.showMessageDialog(App.this, "Rate limit applies...");
+                    JOptionPane.showMessageDialog(null, "Rate limit applies...");
                 }
+            });
+            githubBuilder.withRateLimitChecker(new RateLimitChecker() {
+                @Override
+                protected boolean checkRateLimit(GHRateLimit.Record rateLimitRecord, long count) throws InterruptedException {
+                    log.error("checkRateLimit({}, {})", rateLimitRecord, count);
+                    return false;
+                }                
             });
             if (configuration.getGithubUsername() != null) {
                 log.debug("GitHub with Authentication");
-                gb.withOAuthToken(configuration.getGithubToken(), configuration.getGithubUsername());
+                githubBuilder.withOAuthToken(configuration.getGithubToken(), configuration.getGithubUsername());
             } else {
                 log.debug("GitHub anonymously");
             }
-            github = new GitHubBuilder().build();
+            github = githubBuilder.build();
+            
             log.info("GitHub Credentials valid: {}", github.isCredentialValid());
             
             GHRateLimit ghrl = github.getRateLimit();
@@ -97,6 +112,17 @@ public class App extends javax.swing.JFrame {
             log.info("GitHub Rate Limit GraphQL:              {}", ghrl.getGraphQL());
             log.info("GitHub Rate Limit Integration Manifest: {}", ghrl.getIntegrationManifest());
             log.info("GitHub Rate Limit Search:               {}", ghrl.getSearch());
+            
+            log.debug("myself: {}", github.getMyself());
+//            List<GHAuthorization> auths = github.listMyAuthorizations().toList();
+//            for (GHAuthorization auth: auths) {
+//                log.debug("  {}", auth);
+//            }
+        } catch (HttpException e) {
+            log.debug("HttpExceptionException? {}", e.getResponseMessage(), e);
+            JOptionPane.showMessageDialog(null, "Problems with GitHub connection. Running with reduced functionality.");
+        } catch (GHFileNotFoundException e) {
+            log.debug("GHFileNotFound? {}", e.getResponseHeaderFields(), e);
         } catch (IOException e) {
             log.error("Could not initialize github client", e);
         }
@@ -345,14 +371,24 @@ public class App extends javax.swing.JFrame {
                         br.setReplayFile(new File(logdir, logdir.getName()+"_replay.log").getAbsolutePath());
                         if (JOptionPane.showOptionDialog(bugButton, br, "Report issue...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)==JOptionPane.OK_OPTION) {
                             log.info("Need to create issue...");
+//                              GHGistBuilder gb = github.createGist();
+//                              gb.
+                            //GHRepository repository = github.getRepository("HiranChaudhuri/settlers-installer");
+                            GHRepository repository = github.getRepository(Util.GITHUB_REPO_NAME);
+                            GHIssue issue = repository.createIssue(br.getTitle()).body(br.getDescription()).label("settlers-installer").create();
+                            JOptionPane.showMessageDialog(bugButton, "Created issue "+issue.getNumber());
 
 //                            //i.createGraphics();
 //                            // draw with graphics if needed
 //
 //                            ImageIO.write(i, "png", new File("/home/hiran/screenshot.png"));
                         }                        
+                    } catch (GHFileNotFoundException e) {
+                        log.error("Could not report issue {}", e.getResponseHeaderFields(), e);
+                        JOptionPane.showMessageDialog(bugButton, "Could not create issue.");
                     } catch (Exception e) {
-                        log.error("Could not create screenshot", e);
+                        log.error("Could not report issue", e);
+                        JOptionPane.showMessageDialog(bugButton, "Could not create issue.");
                     }
                 }
             });

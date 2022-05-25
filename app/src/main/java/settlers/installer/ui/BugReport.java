@@ -46,6 +46,22 @@ public class BugReport extends javax.swing.JPanel {
         txtReplay.setText(replayfilepath);
     }
 
+    public void setTitle(String title) {
+        txtTitle.setText(title);
+    }
+    
+    public String getTitle() {
+        return txtTitle.getText();
+    }
+    
+    public void setDescription(String description) {
+        txtDescription.setText(description);
+    }
+    
+    public String getDescription() {
+        return txtDescription.getText();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -57,12 +73,12 @@ public class BugReport extends javax.swing.JPanel {
 
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        txtDescription = new javax.swing.JTextArea();
         jCheckBox1 = new javax.swing.JCheckBox();
         jCheckBox2 = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtTitle = new javax.swing.JTextField();
         jCheckBox3 = new javax.swing.JCheckBox();
         lbImage = new javax.swing.JLabel();
         txtLogfile = new javax.swing.JTextField();
@@ -70,9 +86,9 @@ public class BugReport extends javax.swing.JPanel {
 
         jLabel2.setText("Description");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        txtDescription.setColumns(20);
+        txtDescription.setRows(5);
+        jScrollPane1.setViewportView(txtDescription);
 
         jCheckBox1.setText("Log File");
 
@@ -104,7 +120,7 @@ public class BugReport extends javax.swing.JPanel {
                         .addGap(40, 40, 40)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)
-                            .addComponent(jTextField1)))
+                            .addComponent(txtTitle)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addGap(24, 24, 24)
@@ -125,7 +141,7 @@ public class BugReport extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -158,10 +174,10 @@ public class BugReport extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel lbImage;
+    private javax.swing.JTextArea txtDescription;
     private javax.swing.JTextField txtLogfile;
     private javax.swing.JTextField txtReplay;
+    private javax.swing.JTextField txtTitle;
     // End of variables declaration//GEN-END:variables
 }
