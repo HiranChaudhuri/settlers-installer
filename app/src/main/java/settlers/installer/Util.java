@@ -520,6 +520,22 @@ public class Util {
         execJarFile(jarfile);
     }
 
+    public static void runTools(GHObject game) throws IOException, InterruptedException {
+        log.debug("runGame({})", game);
+        File target = new File(getGamesFolder(), String.valueOf(game.getId()));
+        File jarfile = new File(target, "JSettlers/JSettlersTools.jar");
+
+        execJarFile(jarfile);
+    }
+    
+    public static void runTools(GameVersion game) throws IOException, InterruptedException {
+        log.debug("runGame({})", game);
+        File target = new File(game.getInstallPath());
+        File jarfile = new File(target, "JSettlers/JSettlersTools.jar");
+        
+        execJarFile(jarfile);
+    }
+
     /**
      * Runs an executable jar in a separate JVM.
      * 
