@@ -406,8 +406,8 @@ public class App extends javax.swing.JFrame {
                             log.info("Need to create issue...");
 //                              GHGistBuilder gb = github.createGist();
 //                              gb.
-                            GHRepository repository = github.getRepository("HiranChaudhuri/settlers-installer");
-                            //GHRepository repository = github.getRepository(Util.GITHUB_REPO_NAME);
+                            //GHRepository repository = github.getRepository("HiranChaudhuri/settlers-installer");
+                            GHRepository repository = github.getRepository(Util.GITHUB_REPO_NAME);
 
                             StringBuilder issueBody = new StringBuilder(br.getDescription()).append("\n");
                             
