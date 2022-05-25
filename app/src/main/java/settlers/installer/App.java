@@ -142,8 +142,10 @@ public class App extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Problems with GitHub connection. Running with reduced functionality.");
         } catch (GHFileNotFoundException e) {
             log.debug("GHFileNotFound? {}", e.getResponseHeaderFields(), e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Could not initialize github client", e);
+            JOptionPane.showMessageDialog(null, "Serious error. Check logfiles.");
+            System.exit(1);
         }
         
         gameList = new GameList();
