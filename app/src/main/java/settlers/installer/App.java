@@ -128,8 +128,11 @@ public class App extends javax.swing.JFrame {
             log.info("GitHub Rate Limit GraphQL:              {}", ghrl.getGraphQL());
             log.info("GitHub Rate Limit Integration Manifest: {}", ghrl.getIntegrationManifest());
             log.info("GitHub Rate Limit Search:               {}", ghrl.getSearch());
-            
-            log.debug("myself: {}", github.getMyself());
+
+            if (!github.isAnonymous()) {
+                // this requires authenticated connections
+                log.debug("myself: {}", github.getMyself());
+            }
 //            List<GHAuthorization> auths = github.listMyAuthorizations().toList();
 //            for (GHAuthorization auth: auths) {
 //                log.debug("  {}", auth);
