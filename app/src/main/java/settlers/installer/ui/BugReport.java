@@ -62,6 +62,30 @@ public class BugReport extends javax.swing.JPanel {
         return txtDescription.getText();
     }
     
+    public void setAttachLogfile(boolean attachLogfile) {
+        cbLogfile.setSelected(attachLogfile);
+    }
+    
+    public boolean isAttachLogfile() {
+        return cbLogfile.isSelected();
+    }
+    
+    public void setAttachReplayfile(boolean attachReplayfile) {
+        cbReplayFile.setSelected(attachReplayfile);
+    }
+    
+    public boolean isAttachReplayfile() {
+        return cbReplayFile.isSelected();
+    }
+    
+    public void setAttachScreenshot(boolean attachScreenshot) {
+        cbScreenshot.setSelected(attachScreenshot);
+    }
+    
+    public boolean isAttachScreenshot() {
+        return cbScreenshot.isSelected();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -74,12 +98,12 @@ public class BugReport extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtDescription = new javax.swing.JTextArea();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jCheckBox2 = new javax.swing.JCheckBox();
+        cbLogfile = new javax.swing.JCheckBox();
+        cbReplayFile = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         txtTitle = new javax.swing.JTextField();
-        jCheckBox3 = new javax.swing.JCheckBox();
+        cbScreenshot = new javax.swing.JCheckBox();
         lbImage = new javax.swing.JLabel();
         txtLogfile = new javax.swing.JTextField();
         txtReplay = new javax.swing.JTextField();
@@ -90,15 +114,15 @@ public class BugReport extends javax.swing.JPanel {
         txtDescription.setRows(5);
         jScrollPane1.setViewportView(txtDescription);
 
-        jCheckBox1.setText("Log File");
+        cbLogfile.setText("Log File");
 
-        jCheckBox2.setText("Replay File");
+        cbReplayFile.setText("Replay File");
 
         jLabel3.setText("Attachements");
 
         jLabel4.setText("Issue Title");
 
-        jCheckBox3.setText("Screenshot");
+        cbScreenshot.setText("Screenshot");
 
         txtLogfile.setEditable(false);
         txtLogfile.setBorder(null);
@@ -125,9 +149,9 @@ public class BugReport extends javax.swing.JPanel {
                         .addComponent(jLabel3)
                         .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jCheckBox3)
-                            .addComponent(jCheckBox2)
-                            .addComponent(jCheckBox1))
+                            .addComponent(cbScreenshot)
+                            .addComponent(cbReplayFile)
+                            .addComponent(cbLogfile))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lbImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -150,16 +174,16 @@ public class BugReport extends javax.swing.JPanel {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBox1)
+                    .addComponent(cbLogfile)
                     .addComponent(jLabel3)
                     .addComponent(txtLogfile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBox2)
+                    .addComponent(cbReplayFile)
                     .addComponent(txtReplay, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jCheckBox3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cbScreenshot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(lbImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -167,9 +191,9 @@ public class BugReport extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JCheckBox jCheckBox3;
+    private javax.swing.JCheckBox cbLogfile;
+    private javax.swing.JCheckBox cbReplayFile;
+    private javax.swing.JCheckBox cbScreenshot;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
