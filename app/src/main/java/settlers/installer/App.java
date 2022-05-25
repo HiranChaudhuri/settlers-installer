@@ -2,6 +2,7 @@
  */
 package settlers.installer;
 
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Robot;
@@ -17,8 +18,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JWindow;
+import javax.swing.event.HyperlinkEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -376,7 +379,27 @@ public class App extends javax.swing.JFrame {
                             //GHRepository repository = github.getRepository("HiranChaudhuri/settlers-installer");
                             GHRepository repository = github.getRepository(Util.GITHUB_REPO_NAME);
                             GHIssue issue = repository.createIssue(br.getTitle()).body(br.getDescription()).label("settlers-installer").create();
-                            JOptionPane.showMessageDialog(bugButton, "Created issue "+issue.getNumber());
+                            
+                            StringBuilder sb = new StringBuilder("<html>Created <a href=\"")
+                                    .append(issue.getHtmlUrl()).append("\">issue ")
+                                    .append(issue.getNumber()).append("</a></html>");
+                            
+                            JEditorPane jep = new JEditorPane();
+                            jep.setContentType("text/html");
+                            jep.setText(sb.toString());
+                            jep.setEditable(false);
+                            jep.addHyperlinkListener(e -> {
+                                if (HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
+                                    try {
+                                        Desktop.getDesktop().browse(e.getURL().toURI());
+                                    } catch (Exception ex) {
+                                        log.error("Could not activate browser", ex);
+                                    }
+                                }
+                            });
+                            jep.setOpaque(false);
+                            
+                            JOptionPane.showMessageDialog(bugButton, jep);
 
 //                            //i.createGraphics();
 //                            // draw with graphics if needed
