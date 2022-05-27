@@ -69,6 +69,9 @@ public class Util {
     public static final String RELEASE_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/releases";
     public static final String WORKFLOW_RUNS_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/actions/runs";
     public static final String GITHUB_REPO_NAME = "paulwedeck/settlers-remake";
+    public static final String GITHUB_REPO_NAME_ISSUES = 
+            "paulwedeck/settlers-remake";
+            //"HiranChaudhuri/settlers-installer";
     
     private static final int GITHUB_MIN_LIMIT4BROWSING = 10;
     
@@ -945,7 +948,9 @@ public class Util {
                 StringTokenizer st1 = new StringTokenizer(windowlist, "\n");
                 while (st1.hasMoreTokens()) {
                     String window = st1.nextToken();
-                    if (window.contains("jsettlers-main-swing-SwingManagedJSettlers.jsettlers-main-swing-SwingManagedJSettlers")) {
+                    if (window.contains("jsettlers-main-swing-SwingManagedJSettlers.jsettlers-main-swing-SwingManagedJSettlers")
+                            || window.contains("jsettlers-ToolsMain.jsettlers-ToolsMain")
+                            ) {
                         log.trace("window: {}", window);
                         String window_id = window.contains(" ") ? window.split(" ")[0] : window;
                         log.trace("window id: {}", window_id);
@@ -959,8 +964,10 @@ public class Util {
                         Rectangle2D result = new Rectangle2D.Double(x, y, width, height);
                         return result;
                     }
+                    log.debug("not interested in {}", window);
                 }
-                return null;
+                // don't know which window to choose
+                return getDesktopSize();
             } else {
                 throw new UnsupportedOperationException("not implemented");
             }

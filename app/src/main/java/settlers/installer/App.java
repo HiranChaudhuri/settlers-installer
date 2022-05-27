@@ -25,12 +25,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JWindow;
 import javax.swing.event.HyperlinkEvent;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kohsuke.github.GHArtifact;
+import org.kohsuke.github.GHAuthorization;
 import org.kohsuke.github.GHBlob;
 import org.kohsuke.github.GHFileNotFoundException;
+import org.kohsuke.github.GHGist;
 import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHObject;
 import org.kohsuke.github.GHRateLimit;
 import org.kohsuke.github.GHRelease;
@@ -115,7 +119,8 @@ public class App extends javax.swing.JFrame {
             });
             if (configuration.getGithubUsername() != null) {
                 log.debug("GitHub with Authentication");
-                githubBuilder.withOAuthToken(configuration.getGithubToken(), configuration.getGithubUsername());
+                //githubBuilder.withOAuthToken(configuration.getGithubToken(), configuration.getGithubUsername());
+                githubBuilder.withPassword(configuration.getGithubUsername(), configuration.getGithubToken());
             } else {
                 log.debug("GitHub anonymously");
             }
@@ -131,7 +136,13 @@ public class App extends javax.swing.JFrame {
 
             if (!github.isAnonymous()) {
                 // this requires authenticated connections
-                log.debug("myself: {}", github.getMyself());
+                GHMyself myself = github.getMyself();
+                log.debug("myself: {}", myself);
+                List<GHAuthorization> auths = github.listMyAuthorizations().toList();
+                for (GHAuthorization auth: auths) {
+                    log.debug("  {}", auth);
+                }
+                
             }
 //            List<GHAuthorization> auths = github.listMyAuthorizations().toList();
 //            for (GHAuthorization auth: auths) {
@@ -400,19 +411,16 @@ public class App extends javax.swing.JFrame {
                         File logdir = Util.getLatestLogDir();
                         File logfile = new File(logdir, logdir.getName()+"_out.log");
                         File replayfile = new File(logdir, logdir.getName()+"_replay.log");
-                        
+
                         Robot robot = new Robot();
                         BufferedImage i = robot.createScreenCapture(Util.getCaptureSize().getBounds());
                         BugReport br = new BugReport();
                         br.setImage(i);
                         br.setLogfile(logfile.getAbsolutePath());
                         br.setReplayFile(replayfile.getAbsolutePath());
-                        if (JOptionPane.showOptionDialog(bugButton, br, "Report issue...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)==JOptionPane.OK_OPTION) {
+                        if (JOptionPane.showOptionDialog(bugButton, br, "Report issue to " + Util.GITHUB_REPO_NAME_ISSUES + "...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)==JOptionPane.OK_OPTION) {
                             log.info("Need to create issue...");
-//                              GHGistBuilder gb = github.createGist();
-//                              gb.
-                            //GHRepository repository = github.getRepository("HiranChaudhuri/settlers-installer");
-                            GHRepository repository = github.getRepository(Util.GITHUB_REPO_NAME);
+                            GHRepository repository = github.getRepository(Util.GITHUB_REPO_NAME_ISSUES);
 
                             StringBuilder issueBody = new StringBuilder(br.getDescription()).append("\n");
                             
@@ -422,17 +430,23 @@ public class App extends javax.swing.JFrame {
                                 ImageIO.write(i, "png", bos);
                                 GHBlob blob = repository.createBlob().binaryContent(bos.toByteArray()).create();
                                 issueBody.append("\n![Screenshot](").append(blob.getUrl()).append(")");
+
+                                GHGist gist = github.createGist()
+                                        .file("screenshot", IOUtils.toString(bos.toByteArray(), "UTF-8"))
+                                        .create();
+                                
+                                issueBody.append("\n![Screenshot](").append(gist.getUrl()).append(")");
                             }
-                            if (br.isAttachLogfile()) {
-                                log.debug("uploading logfile...");
-                                GHBlob blob = repository.createBlob().textContent(FileUtils.readFileToString(logfile, "UTF-8")).create();
-                                issueBody.append("\nLogfile at ").append(blob.getUrl());
-                            }
-                            if (br.isAttachReplayfile()) {
-                                log.debug("uploading replay file...");
-                                GHBlob blob = repository.createBlob().textContent(FileUtils.readFileToString(replayfile, "UTF-8")).create();
-                                issueBody.append("\nReplay File at ").append(blob.getUrl());
-                            }                            
+//                            if (br.isAttachLogfile()) {
+//                                log.debug("uploading logfile...");
+//                                GHBlob blob = repository.createBlob().textContent(FileUtils.readFileToString(logfile, "UTF-8")).create();
+//                                issueBody.append("\nLogfile at ").append(blob.getUrl());
+//                            }
+//                            if (br.isAttachReplayfile()) {
+//                                log.debug("uploading replay file...");
+//                                GHBlob blob = repository.createBlob().textContent(FileUtils.readFileToString(replayfile, "UTF-8")).create();
+//                                issueBody.append("\nReplay File at ").append(blob.getUrl());
+//                            }                            
                             
                             log.debug("Creating issue...");
                             GHIssue issue = repository.createIssue(br.getTitle()).body(issueBody.toString()).label("settlers-installer").create();
