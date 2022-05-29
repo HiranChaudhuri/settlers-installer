@@ -2,6 +2,9 @@
  */
 package settlers.installer;
 
+import cn.ucloud.ufile.UfileClient;
+import cn.ucloud.ufile.api.bucket.BucketType;
+import cn.ucloud.ufile.bean.BucketResponse;
 import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -424,18 +427,43 @@ public class App extends javax.swing.JFrame {
 
                             StringBuilder issueBody = new StringBuilder(br.getDescription()).append("\n");
                             
+                            // see important properties
+                            // https://docs.oracle.com/en/java/javase/17/docs/api/system-properties.html
+                            issueBody.append("\n```");
+                            issueBody.append("\nOS: ").append(System.getProperty("os.name")).append(" ").append(System.getProperty("os.version"));
+                            issueBody.append("\nJVM: ").append(System.getProperty("java.vm.name"))
+                                    .append(" ").append(System.getProperty("java.runtime.version"));
+                            {
+                                Object current = gameList.getSelection();
+                                if (current instanceof GHRelease) {
+                                    issueBody.append("\nSettlers Remake: Release ").append(((GHRelease)current).getName()).append("\n");
+                                } else if (current instanceof GHWorkflowRun) {
+                                    issueBody.append("\nSettlers Remake: Workflow Run ").append(((GHWorkflowRun)current).getRunNumber()).append("\n");
+                                } else if (current instanceof GameVersion) {
+                                    issueBody.append("\nSettlers Remake: ").append(((GameVersion)current).getBasedOn()).append("\n");
+                                }
+                            }
+                            issueBody.append("\n```");
+                            
                             if (br.isAttachScreenshot()) {
                                 log.debug("uploading screenshot...");
                                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                                 ImageIO.write(i, "png", bos);
-                                GHBlob blob = repository.createBlob().binaryContent(bos.toByteArray()).create();
-                                issueBody.append("\n![Screenshot](").append(blob.getUrl()).append(")");
 
-                                GHGist gist = github.createGist()
-                                        .file("screenshot", IOUtils.toString(bos.toByteArray(), "UTF-8"))
-                                        .create();
+//                                GHBlob blob = repository.createBlob().binaryContent(bos.toByteArray()).create();
+//                                issueBody.append("\n![Screenshot](").append(blob.getUrl()).append(")");
+//
+//                                GHGist gist = github.createGist()
+//                                        .file("screenshot", IOUtils.toString(bos.toByteArray(), "UTF-8"))
+//                                        .create();
                                 
-                                issueBody.append("\n![Screenshot](").append(gist.getUrl()).append(")");
+//                                BucketResponse bresp = UfileClient.bucket(null)
+//                                        .createBucket("jsettlers-screenshot", "EU", BucketType.PUBLIC)
+//                                        .execute();
+//                                
+//                                UfileClient.bucket(null).;
+                                
+//                                issueBody.append("\n![Screenshot](").append(gist.getUrl()).append(")");
                             }
 //                            if (br.isAttachLogfile()) {
 //                                log.debug("uploading logfile...");
