@@ -198,7 +198,11 @@ public class GameList extends javax.swing.JPanel {
     }
     
     public List<Object> getData() {
-        return model.data;
+        if (model != null) {
+            return model.data;
+        } else {
+            return null;
+        }
     }
 
     public Object getSelection() {

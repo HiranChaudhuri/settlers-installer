@@ -5,6 +5,7 @@ package settlers.installer;
 import cn.ucloud.ufile.UfileClient;
 import cn.ucloud.ufile.api.bucket.BucketType;
 import cn.ucloud.ufile.bean.BucketResponse;
+import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -24,8 +25,10 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JWindow;
+import javax.swing.ProgressMonitor;
 import javax.swing.event.HyperlinkEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -57,6 +60,8 @@ import settlers.installer.model.Configuration;
 import settlers.installer.model.GameVersion;
 import settlers.installer.ui.BugReport;
 import settlers.installer.ui.GameList;
+import settlers.installer.ui.LoadingIndicator;
+import settlers.installer.ui.LoadingIndicator2;
 
 /**
  *
@@ -664,26 +669,42 @@ public class App extends javax.swing.JFrame {
 
     private void checkFiles() {
         log.debug("checkFiles()");
-        haveGameFiles();
+
+//        LoadingIndicator li = new LoadingIndicator();
+//        li.setText("Scanning GitHub...");
+        LoadingIndicator2 li = new LoadingIndicator2();
+        setGlassPane(li);
+        li.setVisible(true);
         
-        boolean dataFiles = haveDataFiles();
-        lbResultData.setIcon(dataFiles? iiFound: iiMissing);
-        lbResultData.setVisible(dataFiles);
-        btInstallData.setVisible(!dataFiles);
-        
-        btPlay.setVisible(dataFiles);
-        
-        if (gameList.getData().isEmpty()) {
-            try {
-                GHRateLimit.Record limit = github.getRateLimit().getCore();
-                String msg = String.format("We have no games to show, and the GitHub Rate Limit is %d/%d until %s", limit.getRemaining(), limit.getLimit(), limit.getResetDate());
-                log.debug(msg);
-                JOptionPane.showMessageDialog(this, msg);
-            } catch (Exception e) {
-                log.error("could not show github rate limit", e);
-                JOptionPane.showMessageDialog(this, "We have no games and cannot even tell the GitHug Rate Limit.");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    haveGameFiles();
+
+                    boolean dataFiles = haveDataFiles();
+                    lbResultData.setIcon(dataFiles? iiFound: iiMissing);
+                    lbResultData.setVisible(dataFiles);
+                    btInstallData.setVisible(!dataFiles);
+
+                    btPlay.setVisible(dataFiles);
+
+                    if (gameList.getData().isEmpty()) {
+                        try {
+                            GHRateLimit.Record limit = github.getRateLimit().getCore();
+                            String msg = String.format("We have no games to show, and the GitHub Rate Limit is %d/%d until %s", limit.getRemaining(), limit.getLimit(), limit.getResetDate());
+                            log.debug(msg);
+                            JOptionPane.showMessageDialog(App.this, msg);
+                        } catch (Exception e) {
+                            log.error("could not show github rate limit", e);
+                            JOptionPane.showMessageDialog(App.this, "We have no games and cannot even tell the GitHug Rate Limit.");
+                        }
+                    }
+                } finally {
+                    App.this.getGlassPane().setVisible(false);
+                }
             }
-        }
+        }).start();
     }
     
     public enum GameState {
@@ -742,13 +763,11 @@ public class App extends javax.swing.JFrame {
     }
     
     /**
-     * Returns true if some game is installed that we can run.
-     * 
-     * @return true if a game is installed, false otherwise
+     * Checks the available games and updates the game list.
      */
-    private GameState haveGameFiles() {
+    private void haveGameFiles() {
         log.debug("haveGameFiles()");
-        
+
         List<Object> availableGames = new ArrayList<>();
         if (github != null) {
             log.debug("github anonymous: {}", github.isAnonymous());
@@ -766,7 +785,6 @@ public class App extends javax.swing.JFrame {
             if (availableGames.isEmpty()) {
                 buildLocalList(availableGames);
                 gameList.setData(availableGames);
-                return GameState.latest;
             } else {
 
                 if (installedGames != null && !installedGames.isEmpty()) {
@@ -775,7 +793,6 @@ public class App extends javax.swing.JFrame {
                     try {
                         Date installed = installedGames.get(0).getInstalledAt();
                         if (installed == null) {
-                            return GameState.old;
                         }
 
                         Object first = availableGames.get(0);
@@ -787,30 +804,24 @@ public class App extends javax.swing.JFrame {
                             if (installed.before(available)) {
                                 // update is available
                                 log.debug("Update is available");
-                                return GameState.old;
                             } else {
                                 // we already have the latest version
                                 log.debug("we already have the latest version");
-                                return GameState.latest;
                             }
                         } else {
-                            return GameState.latest;
                         }
                     } catch (Exception e) {
                         // could not figure out if update is available. Let's assume we have the latest
                         log.debug("We assume to have the latest version", e);
-                        return GameState.latest;
                     }
                 } else {
                     log.debug("No good version installed locally");
-                    return GameState.missing;
                 }
             }
         } else {
             availableGames = new ArrayList<>();
             buildLocalList(availableGames);
             gameList.setData(availableGames);
-            return GameState.latest;
         }
     }
 
