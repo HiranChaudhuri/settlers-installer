@@ -2,9 +2,6 @@
  */
 package settlers.installer;
 
-import cn.ucloud.ufile.UfileClient;
-import cn.ucloud.ufile.api.bucket.BucketType;
-import cn.ucloud.ufile.bean.BucketResponse;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.GridBagConstraints;
@@ -60,7 +57,6 @@ import settlers.installer.model.Configuration;
 import settlers.installer.model.GameVersion;
 import settlers.installer.ui.BugReport;
 import settlers.installer.ui.GameList;
-import settlers.installer.ui.LoadingIndicator;
 import settlers.installer.ui.LoadingIndicator2;
 
 /**
@@ -377,7 +373,7 @@ public class App extends javax.swing.JFrame {
                     try {
                         if (Util.isGameFolder(srcDir)) {
                             log.debug("Want to copy files...");
-                            FileUtils.copyDirectory(srcDir, Util.getDataFolder());
+                            Util.copyGameData(srcDir, Util.getDataFolder());
                             
                         } else if (Util.isInstallCD(srcDir)) {
                             log.debug("Want to install from CD");

@@ -35,6 +35,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.filechooser.FileSystemView;
 import net.sf.fikin.ant.EmbeddedAntProject;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.Project;
@@ -152,6 +153,12 @@ public class Util {
         return result;
     }
     
+    /**
+     * Returns the publishing date for some GHObject.
+     * 
+     * @param object the object in question
+     * @return the publishing data, or what comes near to it
+     */
     public static Date getDateFor(GHObject object) {
         Date result = null;
         if (object instanceof GHRelease) {
@@ -996,5 +1003,32 @@ public class Util {
         
         log.debug("latest log in {}", latest);
         return latest;
+    }
+    
+    private static boolean copyGameDataIfExists(File src, File dst, String subfolder) throws IOException {
+        File s2 = new File(src, subfolder);
+        File d2 = new File(dst, subfolder);
+        
+        if (s2.isDirectory()) {
+            FileUtils.copyDirectory(s2, d2);        
+        }
+        return d2.isDirectory();
+    }
+    
+    /**
+     * Copies only the required game data from an S3 folder.
+     * Required are GFX, MAP and SND files.
+     * 
+     * @param src The S3 folder
+     * @param dst The destination folder for copying to
+     * @throws IOException something went wrong
+     */
+    public static void copyGameData(File src, File dst) throws IOException {
+        copyGameDataIfExists(src, dst, "gfx");
+        copyGameDataIfExists(src, dst, "GFX");
+        copyGameDataIfExists(src, dst, "map");
+        copyGameDataIfExists(src, dst, "MAP");
+        copyGameDataIfExists(src, dst, "snd");
+        copyGameDataIfExists(src, dst, "SND");
     }
 }
