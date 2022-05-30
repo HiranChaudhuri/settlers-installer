@@ -13,8 +13,14 @@
         <move todir="${data}">
             <fileset dir="${data}/EXE"/>
         </move>
-        <move todir="${data}/MAP">
+        <move todir="${data}/MAP/MULTI">
             <fileset dir="${data}/MULTI"/>
+        </move>
+        <move todir="${data}/MAP/SINGLE">
+            <fileset dir="${data}/SINGLE"/>
+        </move>
+        <move todir="${data}/MAP/USER">
+            <fileset dir="${data}/USER"/>
         </move>
     </target>
 </project>
