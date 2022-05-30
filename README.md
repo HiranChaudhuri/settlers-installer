@@ -83,10 +83,13 @@ and simply choose one of them and click the Ok button to continue.
 Once you selected a game version and have the data files installed, a green
 'Play' button will show up. Hit that one and the game will start.
 
-## Customization
+## Toolbox
 
 In case you want to dig a bit into settlers-remake, use the toolbox that lets you
-choose which of the tools to run.
+choose which of the tools to run: 
+- DAT File Viewer
+- Movable Model Window
+- Building Creator
 
 ## Configuration
 
@@ -144,3 +147,5 @@ decisions check the logs. These are presented on STDOUT and in logfiles.
 Run the DAT File Viewer from the settlers-installer toolbox. From the menu,
 choose 'Export Images'/'from all files' to read images from Bluebytes data format.
 The game files shall get written to the folder $HOME/.jsettlers/managed/var/graphics.
+Since the export dialog already starts in your home directory, just specify
+`.jsettlers/managed/var/graphics` as the target directory.
