@@ -570,7 +570,7 @@ public class App extends javax.swing.JFrame {
                     
                 } catch(Exception e) {
                     log.error("could not run game", e);
-                    JOptionPane.showMessageDialog(App.this, "Something went wrong.");
+                    JOptionPane.showMessageDialog(App.this, "Something went wrong:\n"+e.getMessage());
                 } finally {
                     // hide bug button
                     if (bugButton != null) {
@@ -644,7 +644,7 @@ public class App extends javax.swing.JFrame {
                     
                 } catch(Exception e) {
                     log.error("could not run tools", e);
-                    JOptionPane.showMessageDialog(App.this, "Something went wrong.");
+                    JOptionPane.showMessageDialog(App.this, "Something went wrong:\n"+e.getMessage());
                 } finally {
                     // hide bug button
                     if (bugButton != null) {

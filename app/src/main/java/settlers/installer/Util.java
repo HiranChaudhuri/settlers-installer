@@ -519,7 +519,10 @@ public class Util {
         File target = new File(getGamesFolder(), String.valueOf(game.getId()));
         File jarfile = new File(target, "JSettlers/JSettlers.jar");
 
-        execJarFile(jarfile);
+        int rc = execJarFile(jarfile);
+        if (rc != 0) {
+            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
+        }
     }
     
     public static void runGame(GameVersion game) throws IOException, InterruptedException {
@@ -527,7 +530,10 @@ public class Util {
         File target = new File(game.getInstallPath());
         File jarfile = new File(target, "JSettlers/JSettlers.jar");
         
-        execJarFile(jarfile);
+        int rc = execJarFile(jarfile);
+        if (rc != 0) {
+            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
+        }
     }
 
     public static void runTools(GHObject game) throws IOException, InterruptedException {
@@ -535,7 +541,10 @@ public class Util {
         File target = new File(getGamesFolder(), String.valueOf(game.getId()));
         File jarfile = new File(target, "JSettlers/JSettlersTools.jar");
 
-        execJarFile(jarfile);
+        int rc = execJarFile(jarfile);
+        if (rc != 0) {
+            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
+        }
     }
     
     public static void runTools(GameVersion game) throws IOException, InterruptedException {
@@ -543,7 +552,10 @@ public class Util {
         File target = new File(game.getInstallPath());
         File jarfile = new File(target, "JSettlers/JSettlersTools.jar");
         
-        execJarFile(jarfile);
+        int rc = execJarFile(jarfile);
+        if (rc != 0) {
+            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
+        }
     }
 
     /**
