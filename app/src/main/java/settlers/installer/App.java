@@ -2,7 +2,6 @@
  */
 package settlers.installer;
 
-import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -22,20 +21,14 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JWindow;
-import javax.swing.ProgressMonitor;
 import javax.swing.event.HyperlinkEvent;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kohsuke.github.GHArtifact;
 import org.kohsuke.github.GHAuthorization;
-import org.kohsuke.github.GHBlob;
 import org.kohsuke.github.GHFileNotFoundException;
-import org.kohsuke.github.GHGist;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHObject;
@@ -78,7 +71,7 @@ public class App extends javax.swing.JFrame {
     // TODO: Play button should come like https://www.codejava.net/java-se/swing/how-to-create-drop-down-button-in-swing
     
     /**
-     * Creates new form App
+     * Creates new form App.
      */
     public App() {
         initComponents();

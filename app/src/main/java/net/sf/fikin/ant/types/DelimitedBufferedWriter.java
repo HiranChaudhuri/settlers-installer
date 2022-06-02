@@ -33,7 +33,7 @@ import java.io.Writer;
  */
 public class DelimitedBufferedWriter extends BufferedWriter {
 
-    /** newline replacement */
+    /** Newline replacement. */
     String delimiter;
     
     /**
@@ -62,9 +62,10 @@ public class DelimitedBufferedWriter extends BufferedWriter {
     }
 
     /**
-     * set the delimiter to use, can be null (resulting in default newLine()
-     * handling then)
-     * @param delimiter
+     * Set the delimiter to use, can be null.
+     * (resulting in default newLine() handling then)
+     * 
+     * @param delimiter the new delimiter
      */
     public void setDelimiter(String delimiter) {
         this.delimiter = delimiter;

@@ -28,17 +28,17 @@
         <attribute name="key-pass" />
         <attribute name="p12-alias" />
         <sequential>
-	        <openssl-pem-to-pkcs12
-	            openssl="@{openssl}"
-	            store-dir="@{store-dir}"
-	            store-pass="@{store-pass}"
-	            p12-file-pass="@{key-pass}"
-            	pem-private-key="@{key-name}-key.pem"
+            <openssl-pem-to-pkcs12
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                p12-file-pass="@{key-pass}"
+                pem-private-key="@{key-name}-key.pem"
                 pem-certificate-file="@{key-name}-crt.pem"
                 pem-certificate-chain-file="@{key-name}-crt-chain.pem"
-            	alias="@{p12-alias}"
-            	p12-file="@{key-name}.p12"
-	        />
+                alias="@{p12-alias}"
+                p12-file="@{key-name}.p12"
+                />
         </sequential>
     </macrodef>
 
@@ -51,13 +51,13 @@
         <attribute name="store-pass" />
         <attribute name="cert-name" />
         <sequential>
-	        <openssl-pem-to-der
-	            openssl="@{openssl}"
-	            store-dir="@{store-dir}"
-	            store-pass="@{store-pass}"
-	            pem-certificate-file="@{cert-name}-crt.pem"
-	            der-certificate-file="@{cert-name}.der"
-	        />
+            <openssl-pem-to-der
+                openssl="@{openssl}"
+                store-dir="@{store-dir}"
+                store-pass="@{store-pass}"
+                pem-certificate-file="@{cert-name}-crt.pem"
+                der-certificate-file="@{cert-name}.der"
+                />
         </sequential>
     </macrodef>
 
@@ -548,8 +548,8 @@ nsCertType                  = client,email,objsign
             </exec>
             <!-- create a pem file representing the chain of this cert (including) -->
             <concat destfile="@{store-dir}/@{out-certificate-chain-file}" >
-            	<filelist dir="@{store-dir}" files="@{parent-certificate-chain-file}" />
-            	<filelist dir="@{store-dir}" files="@{out-certificate-file}" />
+                <filelist dir="@{store-dir}" files="@{parent-certificate-chain-file}" />
+                <filelist dir="@{store-dir}" files="@{out-certificate-file}" />
             </concat>
         </sequential>
     </macrodef>

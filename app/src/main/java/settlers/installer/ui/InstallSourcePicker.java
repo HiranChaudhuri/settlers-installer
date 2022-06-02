@@ -16,16 +16,26 @@ public class InstallSourcePicker extends javax.swing.JPanel {
     private static final Logger log = LogManager.getLogger(InstallSourcePicker.class);
 
     /**
-     * Creates new form InstallSourcePicker
+     * Creates new form InstallSourcePicker.
      */
     public InstallSourcePicker() {
         initComponents();
     }
     
+    /**
+     * Sets the input field about the installation source. Use this to prepopulate
+     * a value for the user.
+     * 
+     * @param path the path to be set
+     */
     public void setPath(String path) {
         jTextField1.setText(path);
     }
     
+    /**
+     * Returns the user's input about the installation source.
+     * @return 
+     */
     public String getPath() {
         return jTextField1.getText();
     }

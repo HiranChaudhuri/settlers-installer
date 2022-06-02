@@ -19,6 +19,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
+ * Namespace class.
  * 
  * created on Jan 3, 2007
  * @author fiykov
@@ -27,10 +28,10 @@ import org.apache.tools.ant.Task;
  */
 public class Namespace extends IfUnless {
 
-    /** namespace uri */
+    /** Namespace uri. */
     String uri;
     
-    /** namespace prefix */
+    /** Namespace prefix. */
     String prefix;
 
     /*
@@ -38,7 +39,8 @@ public class Namespace extends IfUnless {
      */
     
     /**
-     * set the namespace uri
+     * Set the namespace uri.
+     * 
      * @param uri
      * @antTaskParamRequired true
      */
@@ -47,7 +49,7 @@ public class Namespace extends IfUnless {
     }
     
     /**
-     * get namespace uri
+     * Get namespace uri.
      * @return namespace uri
      */
     public String getUri() {
@@ -55,7 +57,8 @@ public class Namespace extends IfUnless {
     }
     
     /**
-     * set the namespace prefix
+     * Set the namespace prefix.
+     * 
      * @param prefix
      * @antTaskParamRequired true
      */
@@ -64,7 +67,8 @@ public class Namespace extends IfUnless {
     }
     
     /**
-     * get namespace prefix
+     * Get namespace prefix.
+     * 
      * @return namespace prefix
      */
     public String getPrefix() {
@@ -76,7 +80,7 @@ public class Namespace extends IfUnless {
      */
     
     /**
-     * check if uri and prefix has been set
+     * Check if uri and prefix has been set.
      */
     public void check(Task task) throws BuildException {
         if ( uri == null || uri.length()==0 )

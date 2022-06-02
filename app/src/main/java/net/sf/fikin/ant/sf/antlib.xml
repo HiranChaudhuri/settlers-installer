@@ -35,10 +35,10 @@
             <!-- delete the web dir first -->
             <sshexec host="shell.sourceforge.net" 
                 username="@{username}" password="@{password}"
-            	command="rm -rf /home/groups/@{projectPath}/htdocs/*"
-            	trust="true" verbose="true"
-	        />
-	        <!-- now copy the new content -->
+                command="rm -rf /home/groups/@{projectPath}/htdocs/*"
+                trust="true" verbose="true"
+                />
+            <!-- now copy the new content -->
             <scp todir="@{username}:@{password}@shell.sourceforge.net:/home/groups/@{projectPath}/htdocs" 
                 trust="true" verbose="true"
             >

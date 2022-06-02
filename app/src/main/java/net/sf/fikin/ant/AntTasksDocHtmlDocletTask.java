@@ -18,8 +18,8 @@ package net.sf.fikin.ant;
 import org.apache.tools.ant.BuildException;
 
 /**
- * <h4>Generate single-page HTML documentation file for all Ant Tasks found 
- * in the source</h4>
+ * Generate single-page HTML documentation file for all Ant Tasks found 
+ * in the source.
  * 
  * <p>Recognized classes/tasks must qialify the following criteria:
  * <ul>
@@ -74,8 +74,8 @@ public class AntTasksDocHtmlDocletTask extends VelocityDocletTask {
      */
     
     /**
-     * this is deprecated parameter, attemp to set it would result in build
-     * exception 
+     * This is deprecated parameter, attemp to set it would result in build
+     * exception.
      * @param templateName
      * @deprecated
      */
@@ -89,7 +89,7 @@ public class AntTasksDocHtmlDocletTask extends VelocityDocletTask {
      */
     
    /**
-     * set the template name
+     * Set the template name.
      */
     public void init() throws BuildException {
         super.init();
@@ -97,7 +97,7 @@ public class AntTasksDocHtmlDocletTask extends VelocityDocletTask {
     }
     
     /**
-     * get the template name
+     * Get the template name.
      * @return template name
      */
     protected String getTemplateName() {
@@ -105,7 +105,7 @@ public class AntTasksDocHtmlDocletTask extends VelocityDocletTask {
     }
     
     /**
-     * get the current's class package name
+     * Get the current's class package name.
      * @return current's class package name
      */
     protected String getPackageName() {

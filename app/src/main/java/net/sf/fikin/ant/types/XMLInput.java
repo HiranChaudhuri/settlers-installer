@@ -15,7 +15,6 @@
  */
 package net.sf.fikin.ant.types;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -28,7 +27,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * <p>Support retrieval of an input XML document as DOM tree
+ * Support retrieval of an input XML document as DOM tree.
  * 
  * <p>Provides with customization of the DOM facotry
  * 
@@ -39,7 +38,7 @@ import org.xml.sax.SAXException;
  */
 public class XMLInput extends Input {
 
-    /** indicate if XML factory is to be namespace aware, by default true */
+    /** Indicate if XML factory is to be namespace aware, by default true. */
     boolean namespaceAware = true;
     
     /*
@@ -47,7 +46,8 @@ public class XMLInput extends Input {
      */
     
     /**
-     * set if DOM factory to be namespace aware
+     * Set if DOM factory to be namespace aware.
+     * 
      * @param flg when true DOM facotry will be namespace aware, <p>by default true
      * @antTaskParamRequired false
      */
@@ -60,7 +60,8 @@ public class XMLInput extends Input {
      */
 
     /**
-     * get the input as a DOM tree
+     * Get the input as a DOM tree.
+     * 
      * @param task enclosing task
      * @return InputStream object for that input
      * @throws FileNotFoundException is not supposed to happen because file 
@@ -88,7 +89,8 @@ public class XMLInput extends Input {
     }
 
     /**
-     * obtain a reference to the DOM factory
+     * Obtain a reference to the DOM factory.
+     * 
      * @return DOM factory builder
      */
     protected DocumentBuilderFactory getFactory() {
@@ -96,7 +98,8 @@ public class XMLInput extends Input {
     }
     
     /**
-     * set internal properties of the DOM facotry before creating a builder
+     * Set internal properties of the DOM facotry before creating a builder.
+     * 
      * @param factory
      */
     protected void setFactorySettings(DocumentBuilderFactory factory) {

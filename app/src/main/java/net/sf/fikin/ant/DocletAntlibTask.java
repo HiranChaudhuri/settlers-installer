@@ -16,8 +16,8 @@
 package net.sf.fikin.ant;
 
 /**
- * <h4>Generate <code>antlib.xml</code> file for all Ant Tasks found 
- * in the source</h4>
+ * Generate <code>antlib.xml</code> file for all Ant Tasks found 
+ * in the source.
  * 
  * <p>Recognized classes/tasks must qialify the following criteria:
  * <ul>
@@ -29,6 +29,7 @@ package net.sf.fikin.ant;
  * <code>org.apache.tools.ant.Task</code></li>
  * 
  * <li>Having <code>@antTaskName</code> tag in their class comment, denoting the task name in Ant</li>
+ * </ul>
  * 
  * <p>Example:</p>
  * <code><pre>
@@ -57,7 +58,7 @@ package net.sf.fikin.ant;
 public class DocletAntlibTask extends AntTasksDocHtmlDocletTask {
 
     /**
-     * get the template name
+     * Get the template name.
      * @return template name
      */
     protected String getTemplateName() {

@@ -33,36 +33,86 @@ import java.io.Writer;
  */
 public class DelimitedPrintWriter extends PrintWriter {
 
+    /** 
+     * Creates a new DelimitedPrintWriter.
+     * 
+     * @param out the original writer
+     */
     public DelimitedPrintWriter(Writer out) {
         super(out);
     }
 
+    /**
+     * Creates a new DelimitedPrintWriter.
+     * 
+     * @param out the original writer
+     * @param autoFlush whether to autoflush
+     */
     public DelimitedPrintWriter(Writer out, boolean autoFlush) {
         super(out, autoFlush);
     }
 
+    /**
+     * Creates a new DelimitedPrintWriter.
+     * 
+     * @param out the original writer
+     */
     public DelimitedPrintWriter(OutputStream out) {
         super(out);
     }
 
+    /**
+     * Creates a new DelimitedPrintWriter.
+     * 
+     * @param out the original stream
+     * @param autoFlush whether to autoflush
+     */
     public DelimitedPrintWriter(OutputStream out, boolean autoFlush) {
         super( out, autoFlush );
     }
 
+    /**
+     * Creates a new DelimitedPrintWriter.
+     * 
+     * @param fileName the filename to write to
+     * @throws FileNotFoundException something went wrong
+     */
     public DelimitedPrintWriter(String fileName) throws FileNotFoundException {
         super( fileName );
     }
 
+    /**
+     * Creates a new DelimitedPrintWriter.
+     * 
+     * @param fileName the filename to write to
+     * @param csn
+     * @throws FileNotFoundException something went wrong
+     * @throws UnsupportedEncodingException something went wrong
+     */
     public DelimitedPrintWriter(String fileName, String csn)
     throws FileNotFoundException, UnsupportedEncodingException
     {
         super( fileName, csn );
     }
 
+    /**
+     * Creates a new DelimitedPrintWriter.
+     * 
+     * @param file the file to write to
+     * @throws FileNotFoundException something went wrong
+     */
     public DelimitedPrintWriter(File file) throws FileNotFoundException {
         super( file );
     }
 
+    /**
+     * Creates a new DelimitedPrintWriter.
+     * 
+     * @param file the file to write to
+     * @param csn
+     * @throws FileNotFoundException
+     * @throws UnsupportedEncodingException 
+     */
     public DelimitedPrintWriter(File file, String csn)
     throws FileNotFoundException, UnsupportedEncodingException
     {
@@ -70,8 +120,8 @@ public class DelimitedPrintWriter extends PrintWriter {
     }
     
     /**
-     * get assigned delimiter if assigned writer object if of instance 
-     * {@link DelimitedBufferedWriter}
+     * Get assigned delimiter if assigned writer object if of instance 
+     * {@link DelimitedBufferedWriter}.
      * 
      * @return {@link DelimitedBufferedWriter#getDelimiter()} or null if
      * assigned writer object is not of such class instance

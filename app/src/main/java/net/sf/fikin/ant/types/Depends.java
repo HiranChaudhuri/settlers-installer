@@ -35,7 +35,8 @@ public class Depends extends IfUnless {
     File file;
     
     /**
-     * set parameter's location
+     * Set parameter's location.
+     * 
      * @param file
      * @throws MalformedURLException
      * @antTaskParamRequired true
@@ -45,7 +46,8 @@ public class Depends extends IfUnless {
     }
     
     /**
-     * get the file set as location if nay
+     * Get the file set as location if nay.
+     * 
      * @return file if location is set, otherwise null
      */
     public File getLocation() {
@@ -53,7 +55,7 @@ public class Depends extends IfUnless {
     }
 
     /**
-     * test that name has been set
+     * Test that name has been set.
      */
     public void check(Task task) throws BuildException {
         if ( file==null )

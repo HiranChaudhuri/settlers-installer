@@ -21,7 +21,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * <p>Implement a genuine output type
+ * Implement a genuine output type.
  * 
  * <p>Support file or property an output
  * 
@@ -35,22 +35,25 @@ import org.apache.tools.ant.Task;
  */
 public class Output implements Type {
 
-    /** output as file */
+    /** Output as file. */
     File outFile;
     
-    /** output as property name */
+    /** Output as property name. */
     String outPropertyName;
     
     /** 
-     * records delimiter, 
-     * <p>by default:<ul><li>single space for property</li><li>new line for file</li></ul> 
+     * Records delimiter.
+     * <p>by default:
+     * <ul>
+     * <li>single space for property</li><li>new line for file</li>
+     * </ul>
      */
     String delimiter;
     
-    /** append to the output file or property, by default false */
+    /** Append to the output file or property, by default false. */
     boolean append = false;
     
-    /** trim the resulting value before setting it, by default false */
+    /** Trim the resulting value before setting it, by default false. */
     boolean trim = false;
     
     /*
@@ -58,7 +61,8 @@ public class Output implements Type {
      */
     
     /**
-     * set output file
+     * Set output file.
+     * 
      * @param in is output file
      * @antTaskParamRequired this or property must be given
      */
@@ -67,7 +71,8 @@ public class Output implements Type {
     }
     
     /**
-     * set output property name
+     * Set output property name.
+     * 
      * @param propertyName
      * @antTaskParamRequired this or file must be given
      */
@@ -76,7 +81,7 @@ public class Output implements Type {
     }
     
     /**
-     * set records delimiter
+     * Set records delimiter.
      * <p>typically tasks can use that string to separate lines of data instead
      * of new line
      * @param delimiter to use
@@ -88,7 +93,8 @@ public class Output implements Type {
     }
     
     /**
-     * append to the output file
+     * Append to the output file.
+     * 
      * @param flg append to the file or property value if true, 
      * <p>by default it is false
      * @antTaskParamRequired false
@@ -98,9 +104,10 @@ public class Output implements Type {
     }
     
     /**
-     * trim the resulting value before setting it to the property
+     * Trim the resulting value before setting it to the property.
      * <p>by default true
      * <p>has no meaning for file
+     * 
      * @param flg trim if set to true
      * @antTaskParamRequired false
      */
@@ -113,7 +120,7 @@ public class Output implements Type {
      */
     
     /**
-     * test that any of the members has been set
+     * Test that any of the members has been set.
      */
     public void check(Task task) throws BuildException {
         if ( outFile == null && 
@@ -127,7 +134,7 @@ public class Output implements Type {
     }
     
     /**
-     * get writer associated with this output tag
+     * Get writer associated with this output tag.
      * @param task is enclosing task
      * @return writer associated with this output tag
      */
@@ -146,7 +153,8 @@ public class Output implements Type {
     }
     
     /**
-     * get output stream associated with this output tag
+     * Get output stream associated with this output tag.
+     * 
      * @param task is enclosing task
      * @return output stream associated with this output tag
      */
@@ -172,7 +180,7 @@ public class Output implements Type {
     }
     
     /**
-     * get output writer
+     * Get output writer.
      * @param task
      * @return print writer
      */

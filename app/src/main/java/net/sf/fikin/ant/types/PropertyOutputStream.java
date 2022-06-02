@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.apache.tools.ant.Task;
 
 /**
- * Output stream writing in a Ant Project property
+ * Output stream writing in a Ant Project property.
  * 
  * <p>All write opearations are backed by a StringWriter
  * 
@@ -34,17 +34,18 @@ import org.apache.tools.ant.Task;
  */
 public class PropertyOutputStream extends ByteArrayOutputStream {
 
-    /** property name */
+    /** Property name. */
     String propertyName;
     
-    /** enclosing task */
+    /** Enclosing task. */
     Task task;
     
-    /** trim value before setting it */
+    /** Trim value before setting it. */
     boolean trim;
     
     /**
-     * Instantiate a new property writer with given data
+     * Instantiate a new property writer with given data.
+     * 
      * @param propertyName to store the value to, if exists it will overwrite it
      * @param task enclosing task
      * @param append it will add to the property value if set to true
@@ -65,7 +66,7 @@ public class PropertyOutputStream extends ByteArrayOutputStream {
         }
     }
     /**
-     * close the stream and populate property's value
+     * Close the stream and populate property's value.
      */
     public void close() throws IOException {
         super.close();
@@ -77,7 +78,8 @@ public class PropertyOutputStream extends ByteArrayOutputStream {
     }
     
     /**
-     * for convenience only method
+     * For convenience only method.
+     * 
      * @param str
      */
     public void write(String str) {

@@ -39,7 +39,8 @@ public class XsltParam extends Parameter {
     File file;
     
     /**
-     * parameter's expression
+     * Parameter's expression.
+     * 
      * @param value
      * @antTaskParamRequired this or "location" must be specified
      */
@@ -48,9 +49,10 @@ public class XsltParam extends Parameter {
     }
 
     /**
-     * set parameter's location
+     * Set parameter's location.
+     * 
      * @param file
-     * @throws MalformedURLException
+     * @throws MalformedURLException something went wrong
      * @antTaskParamRequired this or "expression" must be specified
      */
     public void setLocation(File file) throws MalformedURLException {
@@ -59,7 +61,8 @@ public class XsltParam extends Parameter {
     }
     
     /**
-     * get the file set as location if nay
+     * Get the file set as location if nay.
+     * 
      * @return file if location is set, otherwise null
      */
     public File getLocation() {
@@ -67,7 +70,7 @@ public class XsltParam extends Parameter {
     }
 
     /**
-     * test that expression or location has been set
+     * Test that expression or location has been set.
      */
     public void check(Task task) throws BuildException {
         if ( getValue()==null || getValue().length()==0 )

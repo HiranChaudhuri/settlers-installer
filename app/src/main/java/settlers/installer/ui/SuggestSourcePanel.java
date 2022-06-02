@@ -24,7 +24,7 @@ public class SuggestSourcePanel extends javax.swing.JPanel {
     private DefaultListModel<String> model;
 
     /**
-     * Creates new form SuggestSourcePanel
+     * Creates new form SuggestSourcePanel.
      */
     public SuggestSourcePanel() {
         initComponents();
@@ -107,6 +107,9 @@ public class SuggestSourcePanel extends javax.swing.JPanel {
         }
     }
     
+    /**
+     * Starts scanning the filesystem in the background.
+     */
     public void start() {
         cancelled = false;
         new Thread(new Runnable() {
@@ -141,10 +144,18 @@ public class SuggestSourcePanel extends javax.swing.JPanel {
         jProgressBar1.setVisible(true);
     }
     
+    /**
+     * Stops the background scanning.
+     */
     public void stop() {
         cancelled = true;
     }
     
+    /**
+     * Returns the user's selection.
+     * 
+     * @return the selected value or null if none is selected
+     */
     public String getSelectedPath() {
         return jList1.getSelectedValue();
     }

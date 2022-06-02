@@ -19,7 +19,7 @@ import org.apache.tools.ant.Task;
 
 /**
  * An Ant-type class providing with ability to  set
- * <code>if="property"</code> and/or <code>unless="property"</code>
+ * <code>if="property"</code> and/or <code>unless="property"</code>.
  * 
  * created on Dec 28, 2006
  * @author fiykov
@@ -28,9 +28,10 @@ import org.apache.tools.ant.Task;
  */
 public abstract class IfUnless implements Type {
 
-    /** if property-set name */
+    /** If property-set name. */
     private String ifProperty;
-    /** unless property-set name */
+    
+    /** Unless property-set name. */
     private String unlessProperty;
 
     /*

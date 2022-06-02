@@ -1,10 +1,7 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package settlers.installer.ui;
 
-import java.util.Properties;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import settlers.installer.model.Configuration;
@@ -18,7 +15,7 @@ public class ConfigurationPanel extends javax.swing.JPanel {
     private Configuration data;
 
     /**
-     * Creates new form PreferencesPanel
+     * Creates new form PreferencesPanel.
      */
     public ConfigurationPanel() {
         initComponents();
@@ -182,6 +179,11 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         }
     }
     
+    /**
+     * Populates the UI with the given configuration.
+     * 
+     * @param data the configuration
+     */
     public void setData(Configuration data) {
         this.data = data;
 
@@ -197,6 +199,11 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         checkGithubRequired();
     }
     
+    /**
+     * Returns the configuration set by the user.
+     * 
+     * @return the configuration
+     */
     public Configuration getData() {
         data.setCheckReleases(cbReleases.isSelected());
         data.setCheckPrereleases(cbPrereleases.isSelected());

@@ -77,7 +77,8 @@ public class Handler extends URLStreamHandler {
         */
 
     /**
-     * locate the resource in the context system resources
+     * Locate the resource in the context system resources.
+     * 
      * @return valid resource url
      * @throws InternalError if the resource is missing
      */

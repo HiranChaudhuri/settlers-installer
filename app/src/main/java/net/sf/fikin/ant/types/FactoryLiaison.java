@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import org.apache.tools.ant.BuildException;
 
 /**
- * <p>A generic type of JAXP type of factory
+ * A generic type of JAXP type of factory.
  * 
  * <p>Contains ability to instnatiate factory class explicitly
  * 
@@ -34,10 +34,10 @@ import org.apache.tools.ant.BuildException;
  */
 public abstract class FactoryLiaison {
 
-    /** factory information to be used */
+    /** Factory information to be used. */
     FactoryType factoryType;
     
-    /** factory to be used, internal member */
+    /** Factory to be used, internal member. */
     Object factory;
     
     /*
@@ -45,7 +45,8 @@ public abstract class FactoryLiaison {
      */
     
     /**
-     * assign factory type object used to identify the actual factory
+     * Assign factory type object used to identify the actual factory.
+     * 
      * @param factoryType
      */
     public void setFactoryType(FactoryType factoryType) {
@@ -57,7 +58,8 @@ public abstract class FactoryLiaison {
      */
 
     /**
-     * instantiate a new factory if needed
+     * instantiate a new factory if needed.
+     * 
      * @return factory to be used
      */
     public Object getFactory() {
@@ -74,16 +76,18 @@ public abstract class FactoryLiaison {
     }
 
     /**
-     * create new default factory instance
+     * Create new default factory instance.
+     * 
      * @return new default factory
      */
     protected abstract Object newFactory() throws BuildException;
 
     /**
-     * instantiate new factory from given classname
+     * Instantiate new factory from given classname.
      * <p>uses <code>Class.findClass()</code> and <code>Class.newInstance()</code>
      * to create it
      * <p>This presumes all factories are simply instantiated
+     * 
      * @param fqclassname
      * @return new factory
      * @throws BuildException
@@ -102,7 +106,8 @@ public abstract class FactoryLiaison {
     }
     
     /**
-     * set all attirbutes to the factory
+     * Set all attirbutes to the factory.
+     * 
      * @param factory
      * @param attrs
      */
@@ -114,7 +119,8 @@ public abstract class FactoryLiaison {
     }
     
     /**
-     * set a single attribute to the factory
+     * Set a single attribute to the factory.
+     * 
      * @param factory
      * @param param
      */

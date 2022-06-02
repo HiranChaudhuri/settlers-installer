@@ -51,12 +51,14 @@ import org.kohsuke.github.PagedIterator;
 import settlers.installer.model.GameVersion;
 
 /**
+ * Class with lots of utility functions that are taken out of App.
  * Windows:
  * <pre>
  * reg EXPORT "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\s3.exe" test.key
- * <pre>
+ * </pre>
  * Windows Registry Editor Version 5.00
  * 
+ * <pre>
  * [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\s3.exe]
  * "Path"="f:/Ubisoft/Ubisoft Game Launcher/games/thesettlers3\\"
  * "@"="f:/Ubisoft/Ubisoft Game Launcher/games/thesettlers3\\Siedler3R.exe"
@@ -376,6 +378,12 @@ public class Util {
         }
     }
     
+    /**
+     * Installs the game based on the given workflow run.
+     * 
+     * @param run the game version to install
+     * @throws IOException something went wrong
+     */
     public static void installWorkflowRun(GHWorkflowRun run) throws IOException {
         log.debug("installWorkflowRun({})", run);
         
@@ -487,22 +495,47 @@ public class Util {
         deleteDir(target);
     }
     
+    /**
+     * Returns the user's home folder.
+     * 
+     * @return the folder reference
+     */
     public static File getHomeFolder() {
         return new File(System.getProperty("user.home"));
     }
     
+    /**
+     * Returns the parent for all folders managed by settlers-installer.
+     * 
+     * @return the folder reference
+     */
     public static File getManagedJSettlersFolder() {
         return new File(getHomeFolder(), ".jsettlers/managed");
     }
     
+    /**
+     * Returns the folder for temporary files.
+     * 
+     * @return the folder reference
+     */
     public static File getManagedTempFolder() {
         return new File(getManagedJSettlersFolder(), "temp");
     }
-    
+
+    /**
+     * Returns the folder containing the Settlers data files.
+     * 
+     * @return the folder reference
+     */
     public static File getDataFolder() {
         return new File(getManagedJSettlersFolder(), "data");
     }
     
+    /**
+     * Returns the folder hosting the game installtions.
+     * 
+     * @return the folder reference
+     */
     public static File getGamesFolder() {
         return new File(getManagedJSettlersFolder(), "game");
     }
@@ -514,6 +547,13 @@ public class Util {
         return new File(getManagedJSettlersFolder(), "var");
     }
     
+    /**
+     * Run JSettlers from the given game.
+     * 
+     * @param game the game
+     * @throws IOException something went wrong
+     * @throws InterruptedException something went wrong
+     */
     public static void runGame(GHObject game) throws IOException, InterruptedException {
         log.debug("runGame({})", game);
         File target = new File(getGamesFolder(), String.valueOf(game.getId()));
@@ -525,6 +565,13 @@ public class Util {
         }
     }
     
+    /**
+     * Run JSettlers from the given game version.
+     * 
+     * @param game the game version
+     * @throws IOException something went wrong
+     * @throws InterruptedException something went wrong
+     */
     public static void runGame(GameVersion game) throws IOException, InterruptedException {
         log.debug("runGame({})", game);
         File target = new File(game.getInstallPath());
@@ -536,6 +583,13 @@ public class Util {
         }
     }
 
+    /**
+     * Run JSettler-Tools from the given game.
+     * 
+     * @param game the game
+     * @throws IOException something went wrong
+     * @throws InterruptedException something went wrong
+     */
     public static void runTools(GHObject game) throws IOException, InterruptedException {
         log.debug("runGame({})", game);
         File target = new File(getGamesFolder(), String.valueOf(game.getId()));
@@ -547,6 +601,13 @@ public class Util {
         }
     }
     
+    /**
+     * Run JSettler-Tools from the given game version.
+     * 
+     * @param game the game version
+     * @throws IOException something went wrong
+     * @throws InterruptedException something went wrong
+     */
     public static void runTools(GameVersion game) throws IOException, InterruptedException {
         log.debug("runGame({})", game);
         File target = new File(game.getInstallPath());
@@ -610,14 +671,33 @@ public class Util {
         return rc;
     }
     
+    /** Install goodies from goodies file.
+     * 
+     * @param goodiesFile the file to install
+     * @throws IOException something went wrong
+     */
     public static void addGoodiesToData(File goodiesFile) throws IOException {
         unzip(goodiesFile, getDataFolder());
     }
     
+    /**
+     * Install the Settlers data form a demo file.
+     * 
+     * @param demoFile the file to install from
+     * @throws IOException something went wrong
+     */
     public static void addDemoToData(File demoFile) throws IOException {
         unzipSelfExtractingZip(demoFile, getDataFolder());
     }
     
+    /**
+     * Runs the given ant file with the given properties.
+     * 
+     * @param buildFile the ant file
+     * @param props the properties
+     * @throws MalformedURLException something went wrong
+     * @throws IOException somwthing went wrong
+     */
     public static void runAnt(File buildFile, Properties props) throws MalformedURLException, IOException {
 
         URL url = Util.class.getClassLoader().getResource( "S3_Installer.xml" );
@@ -691,6 +771,11 @@ public class Util {
         return result;
     }
     
+    /**
+     * Returns the settlers-installer's configuration file.
+     * 
+     * @return the file
+     */
     public static File getConfigurationFile() {
         return new File(Util.getManagedJSettlersFolder(), ".settler-installer.properties");
     }
@@ -789,7 +874,13 @@ public class Util {
         
         return requiredFiles.isEmpty();
     }
-    
+
+    /**
+     * Installs Settlers data files from the CD in the given mount point.
+     * 
+     * @param cdrom the mount point
+     * @throws IOException something went wrong
+     */
     public static void installFromCD(File cdrom) throws IOException {
         Properties props = new Properties();
         props.put("cdrom", cdrom.getAbsolutePath());
@@ -797,6 +888,11 @@ public class Util {
         runAnt(new File("src/main/resources/S3_Installer.xml"), props);
     }
     
+    /**
+     * Dumps the properties to the logfile.
+     * 
+     * @param props the proerties to dump
+     */
     public static void dumpProperties(Properties props) {
         logEnv.debug("Properties:");
         TreeSet<Object> keys = new TreeSet<>(props.keySet());
@@ -879,6 +975,14 @@ public class Util {
     private static Instant availableGamesCacheExpiry;
     private static Duration availableGamesCacheTTL = Duration.ofMinutes(60);
     
+    /**
+     * Returns the list of games available on Github.
+     * 
+     * @param github the githup api client
+     * @param releasesOnly true if the scan should just contain releases
+     * @return the list of available games on GitHub
+     * @throws IOException something went wrong
+     */
     public static List<GHObject> getAvailableGames(GitHub github, boolean releasesOnly) throws IOException {
         log.debug("getAvailableGames({}, {})", github, releasesOnly);
         
@@ -921,13 +1025,20 @@ public class Util {
         return availableGamesCache;
     }
     
+    /**
+     * Checks if the specified Github Object resembling a game is installed locally.
+     * 
+     * @param object the game
+     * @return true if it is installed, false otherwise
+     */
     public static boolean isInstalled(GHObject object) {
         File target = new File(Util.getGamesFolder(), String.valueOf(object.getId()));
         return target.isDirectory();
     }
     
     /**
-     * inspired by https://stackoverflow.com/questions/1936547/java-fullscreen-over-multiple-monitors
+     * Returns the size of the desktop (not just one screen).
+     * Inspired by https://stackoverflow.com/questions/1936547/java-fullscreen-over-multiple-monitors
      */
     public static Rectangle2D getDesktopSize() {
         Rectangle2D result = new Rectangle2D.Double();
@@ -959,6 +1070,13 @@ public class Util {
         return result;
     }
     
+    /**
+     * Returns the recommended screenshot capture region.
+     * This function tries to identify the JSettlers window. If it fails, the whole
+     * desktop will be returned.
+     * 
+     * @return the screen capture size
+     */
     public static Rectangle2D getCaptureSize() {
         log.debug("getCaptureSize()");
         try {
@@ -995,7 +1113,14 @@ public class Util {
             return getDesktopSize();
         }
     }
-    
+
+    /**
+     * Returns the directory hosting log and replay for the latest game run.
+     * For every game JSettlers creates a new directory containing logfile and 
+     * replayfile.
+     * 
+     * @return the file
+     */
     public static File getLatestLogDir() {
         log.debug("getLatestLogDir()");
         

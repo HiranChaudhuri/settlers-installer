@@ -146,7 +146,7 @@ public class GameList extends javax.swing.JPanel {
     private ObjectTableModel model;
     
     /**
-     * Creates new form GameList
+     * Creates new form GameList.
      */
     public GameList() {
         initComponents();
@@ -185,6 +185,11 @@ public class GameList extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Sets the list of all games.
+     * 
+     * @param objects The list of all games
+     */
     public void setData(List<Object> objects) {
         model = new ObjectTableModel(objects);
         jTable1.setModel(model);
@@ -197,6 +202,11 @@ public class GameList extends javax.swing.JPanel {
         }
     }
     
+    /**
+     * Returns the list of all known games.
+     * 
+     * @return the list of all known games, or null if not set
+     */
     public List<Object> getData() {
         if (model != null) {
             return model.data;
@@ -205,6 +215,11 @@ public class GameList extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Returns the selected game.
+     * 
+     * @return the selected game or null if none is selected.
+     */
     public Object getSelection() {
         int row = jTable1.getSelectedRow();
         if (row>=0) {

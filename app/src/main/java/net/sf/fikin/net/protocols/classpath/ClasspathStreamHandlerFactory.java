@@ -19,7 +19,7 @@ import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 
 /**
- * Classloader protocol handler factory
+ * Classloader protocol handler factory.
  * 
  * created on Oct 9, 2006
  * @author fiykov
@@ -28,23 +28,28 @@ import java.net.URLStreamHandlerFactory;
  */
 public class ClasspathStreamHandlerFactory implements URLStreamHandlerFactory {
 
-    /** protocol name */
+    /** Protocol name. */
     public static final String PROTOCOL = "classpath";
     
     /** 
-     * primary classloader to use to load the resources
+     * Primary classloader to use to load the resources.
      * <p>by default it is null</p>
      * 
-     * <p>by default order of classloaders used by {@link Handler} is:</p><ul>
+     * <p>by default order of classloaders used by {@link Handler} is:</p>
+     * <ul>
      * <li>this given (if) classloader</li>
      * <li><code>Handler</code>'s own classloader</li>
      * <li>Thread's Context classloader</li>
      * <li>System classloader</li>
+     * </ul>
      */
     public static ClassLoader primaryClassLoader = null;
     
     /**
-     * create a "classpath" Handler if given protocol is "classpath"
+     * Create a "classpath" Handler if given protocol is "classpath".
+     * 
+     * @param protocol
+     * @return the urlstreamhandler
      */
     public URLStreamHandler createURLStreamHandler(String protocol) {
         if ( PROTOCOL.equals( protocol ) )

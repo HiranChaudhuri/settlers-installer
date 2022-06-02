@@ -3,3 +3,4 @@ plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.13.6' // this is for version counting
     id "dev.anies.gradle.template" version "0.0.2"
 }
+

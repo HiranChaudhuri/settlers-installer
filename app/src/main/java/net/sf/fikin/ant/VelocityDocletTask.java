@@ -20,8 +20,8 @@ import java.io.File;
 import org.apache.tools.ant.BuildException;
 
 /**
- * <h4>Dedicated Ant task for executing a Velocity Template via 
- * {@link net.sf.fikin.doclets.VelocityDoclet} <code>doclet</code></h4>
+ * Dedicated Ant task for executing a Velocity Template via 
+ * {@link net.sf.fikin.doclets.VelocityDoclet} <code>doclet</code>.
  * 
  * <p>Example: Execute a template against some java sources</p>
  * <code><pre>
@@ -52,10 +52,10 @@ import org.apache.tools.ant.BuildException;
  */
 public class VelocityDocletTask extends DocletTask {
 
-    /** template name */
+    /** Template name. */
     String templateName;
     
-    /** output file */
+    /** Output file. */
     File outFile;
     
     /*
@@ -73,7 +73,8 @@ public class VelocityDocletTask extends DocletTask {
     }
     
     /**
-     * set template name, it resolves either to a file or a classloader resource
+     * Set template name, it resolves either to a file or a classloader resource.
+     * 
      * @param templateName
      * @antTaskParamRequired true
      */
@@ -83,7 +84,8 @@ public class VelocityDocletTask extends DocletTask {
     }
 
     /**
-     * set output file to be generated
+     * Set output file to be generated.
+     * 
      * @param outFile
      * @antTaskParamRequired true
      */
@@ -93,7 +95,8 @@ public class VelocityDocletTask extends DocletTask {
     }
 
     /**
-     * if true indicate that a velocity.log is to be generated
+     * If true indicate that a velocity.log is to be generated.
+     * 
      * @param flg
      * @antTaskParamRequired false
      */
@@ -107,7 +110,7 @@ public class VelocityDocletTask extends DocletTask {
      */
     
     /**
-     * check parameters
+     * Check parameters.
      */
     protected void check() throws BuildException {
     
@@ -118,7 +121,7 @@ public class VelocityDocletTask extends DocletTask {
     }
     
     /**
-     * set the doclet class name
+     * Set the doclet class name.
      */
     public void init() throws BuildException {
         super.init();

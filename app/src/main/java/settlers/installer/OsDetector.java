@@ -16,7 +16,7 @@ public class OsDetector {
     public static final boolean IS_SOLARIS = (OS.indexOf("sunos") >= 0);
 
     /**
-     * 'Test' method
+     * Mathod to test the OsDetector.
      * 
      * @param args 
      */

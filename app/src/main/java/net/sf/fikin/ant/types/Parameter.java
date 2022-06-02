@@ -20,7 +20,7 @@ import org.apache.tools.ant.BuildException;
 
 /**
  * An extended version of Ant's Parameter type with ability to set 
- * <code>if="property"</code> and <code>unless="property"</code>
+ * <code>if="property"</code> and <code>unless="property"</code>.
  * 
  * created on Dec 28, 2006
  * @author fiykov
@@ -34,7 +34,8 @@ public class Parameter extends IfUnless {
     protected String value = null;
 
     /**
-     * name of the parameter
+     * Name of the parameter.
+     * 
      * @param name of the parameter
      * @antTaskParamRequired true
      */
@@ -43,7 +44,8 @@ public class Parameter extends IfUnless {
     }
 
     /**
-     * type of the parameter
+     * Type of the parameter.
+     * 
      * @param type of the parameter
      * @antTaskParamRequired false
      */
@@ -52,7 +54,8 @@ public class Parameter extends IfUnless {
     }
 
     /**
-     * value of the parameter
+     * Value of the parameter.
+     * 
      * @param value of the parameter
      * @antTaskParamRequired false
      */
@@ -61,7 +64,8 @@ public class Parameter extends IfUnless {
     }
 
     /**
-     * get the name
+     * Get the name.
+     * 
      * @return name of the parameter
      */
     public final String getName() {
@@ -69,7 +73,8 @@ public class Parameter extends IfUnless {
     }
 
     /**
-     * type of the parameter
+     * Type of the parameter.
+     * 
      * @return type of the parameter
      */
     public final String getType() {
@@ -77,7 +82,8 @@ public class Parameter extends IfUnless {
     }
 
     /**
-     * value of the parameter
+     * Value of the parameter.
+     * 
      * @return value of the parameter
      */
     public final String getValue() {
@@ -85,7 +91,7 @@ public class Parameter extends IfUnless {
     }
 
     /**
-     * test that name has been set
+     * Test that name has been set.
      */
     public void check(Task task) throws BuildException {
         if ( name==null || name.length()==0 )

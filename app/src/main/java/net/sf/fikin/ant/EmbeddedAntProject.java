@@ -67,37 +67,37 @@ import org.apache.tools.ant.input.*;
  */
 public class EmbeddedAntProject extends Project {
 
-    /** original std err */
+    /** Original std err. */
     PrintStream stdErr;
-    /** original stdout */
+    /** Original stdout. */
     PrintStream stdOut;
-    /** original stdin */
+    /** Original stdin. */
     InputStream stdIn;
 
-    /** build file content, its name might be temporary */
+    /** Build file content, its name might be temporary. */
     File buildFile;
     
-    /** build file name */
+    /** Build file name. */
     String buildFileName;
     
-    /** base dir of the build file */
+    /** Base dir of the build file. */
     File baseDir;
     
-    /** build logger, by default redirects to std streams */
+    /** Build logger, by default redirects to std streams. */
     BuildLogger logger;
     
-    /** logging level, by default MSG_INFO */
+    /** Logging level, by default MSG_INFO. */
     int loggingLevel = Project.MSG_INFO;
 
     /**
-     * no one is allowed to instantiate Ant project
-     * without build file
+     * No one is allowed to instantiate Ant project
+     * without build file.
      */
     private EmbeddedAntProject() {
     }
     
     /**
-     * Instantiate a new Ant project with given build file
+     * Instantiate a new Ant project with given build file.
      * 
      * @param buildFile
      */
@@ -112,7 +112,7 @@ public class EmbeddedAntProject extends Project {
     }
     
     /**
-     * Instantiate a new Ant project with given file name and content
+     * Instantiate a new Ant project with given file name and content.
      * 
      * @param baseDir
      * @param buildFileName
@@ -170,7 +170,7 @@ public class EmbeddedAntProject extends Project {
     }
 
     /**
-     * copy the stream to a temp file
+     * copy the stream to a temp file.
      * 
      * this is a hack until more time avail for a diff solution
      * 
@@ -198,7 +198,8 @@ public class EmbeddedAntProject extends Project {
     }
 
     /**
-     * set logging level for the default logger
+     * Set logging level for the default logger.
+     * 
      * @param level as defined by Project.MSG_? constants
      */
     public void setMessageLevel(int level) {
@@ -208,7 +209,8 @@ public class EmbeddedAntProject extends Project {
     }
     
     /**
-     * execute given target
+     * Execute given target.
+     * 
      * @throws FileNotFoundException
      */
     public void executeTarget(String target) throws BuildException  
@@ -217,9 +219,7 @@ public class EmbeddedAntProject extends Project {
     }
 
     /**
-     * new method
-     * 
-     * execute given target with supplied properties
+     * Execute given target with supplied properties.
      * 
      * @throws FileNotFoundException
      */
@@ -266,7 +266,7 @@ public class EmbeddedAntProject extends Project {
 
     
     /**
-     * this is a print stream but non-closing
+     * This is a print stream but non-closing.
      * 
      * handy when playing with tasks which happen to close stdout.
      * very funny fellas.
@@ -276,12 +276,29 @@ public class EmbeddedAntProject extends Project {
      */
     public class NonClosingPS extends PrintStream {
         PrintStream out;
+        
+        /**
+         * Create a new NonClosing print stream.
+         * 
+         * @param out the original printstream.
+         */
         public NonClosingPS(PrintStream out) {
             super(out, false);
             this.out = out;
         }
+        
+        /**
+         * Closed this print stream. It does not forward the close message to the
+         * original print stream.
+         */
         public void close() {
         }
+        
+        /**
+         * Returns the original print stream.
+         * 
+         * @return the print stream
+         */
         public PrintStream getBase() {
             return out;
         }

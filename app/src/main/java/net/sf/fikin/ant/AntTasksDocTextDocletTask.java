@@ -30,7 +30,7 @@ package net.sf.fikin.ant;
  * 
  * <li>Having <code>@antTaskName</code> tag in their class comment, denoting the task name in Ant</li>
  * 
- * <li>Each mandatory setter method must have <code>@antTaskParamRequired<code> tag
+ * <li>Each mandatory setter method must have <code>@antTaskParamRequired</code> tag
  * in the method's comment</li>
  * 
  * <li>The setter method must not be deprecatated</li>
@@ -70,7 +70,7 @@ package net.sf.fikin.ant;
 public class AntTasksDocTextDocletTask extends AntTasksDocHtmlDocletTask {
 
     /**
-     * get the template name
+     * Get the template name.
      * @return template name
      */
     protected String getTemplateName() {

@@ -19,7 +19,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * <p>Base for all types
+ * Base for all types.
  * 
  * <p>Defined a method for consistency checking
  * 
@@ -31,8 +31,8 @@ import org.apache.tools.ant.Task;
 public interface Type {
 
     /**
-     * test if this class members are in a consistent state
-     * for use in task execution
+     * Test if this class members are in a consistent state
+     * for use in task execution.
      *  
      * @param task is enclosing ant task
      * @throws BuildException

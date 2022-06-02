@@ -4,16 +4,20 @@ package settlers.installer.ui;
 
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JComponent;
 
 /**
- *
+ * This loadingincator can be used as a glasspane to tell the user something
+ * is going on.
+ * 
  * @author hiran
  */
 public class LoadingIndicator2 extends JComponent {
 
+    /**
+     * Creates a new LoadingIndicator2.
+     */
     public LoadingIndicator2() {
         setForeground(java.awt.Color.orange);
     }

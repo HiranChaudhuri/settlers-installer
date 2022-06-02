@@ -21,7 +21,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * <p>Implement a genuin input type
+ * Implement a genuin input type.
  * 
  * <p>Support file, property or nested text as an input
  * 
@@ -34,13 +34,13 @@ import org.apache.tools.ant.Task;
  */
 public class Input implements Type {
 
-    /** input as file */
+    /** Input as file. */
     File inFile;
     
-    /** input as tag's text */
+    /** Input as tag's text. */
     String inText;
     
-    /** input as value of a property */
+    /** Input as value of a property. */
     String inPropertyName;
     
     /*
@@ -48,7 +48,8 @@ public class Input implements Type {
      */
     
     /**
-     * set input file
+     * Set input file.
+     * 
      * @param in is input file
      * @antTaskParamRequired this or property or inner text must be given
      */
@@ -57,7 +58,8 @@ public class Input implements Type {
     }
     
     /**
-     * set input property name
+     * Set input property name.
+     * 
      * @param propertyName
      * @antTaskParamRequired this or file or inner text must be given
      */
@@ -66,7 +68,8 @@ public class Input implements Type {
     }
     
     /**
-     * set nested tag's text
+     * Set nested tag's text.
+     * 
      * @param text
      * @antTaskParamRequired this or property or file must be given
      */
@@ -79,7 +82,8 @@ public class Input implements Type {
      */
     
     /**
-     * test that any of the members has been set
+     * Ensure the correct parameters are set.
+     * Test that any of the members has been set
      * test if too many members have been set
      * test if file is existing
      */
@@ -107,7 +111,8 @@ public class Input implements Type {
     }
 
     /**
-     * get a reader object for the input
+     * Get a reader object for the input.
+     * 
      * @param task enclosing task
      * @return Reader object for that input
      * @throws BuildException in case some internal error occured
@@ -126,7 +131,8 @@ public class Input implements Type {
     }
     
     /**
-     * get a input stream object for the input
+     * Get a input stream object for the input.
+     * 
      * @param task enclosing task
      * @return InputStream object for that input
      * @throws BuildException in case some internal error occured

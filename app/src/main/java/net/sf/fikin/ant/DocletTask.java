@@ -27,7 +27,7 @@ import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 
 /**
- * <h4>Ant task tailored at running JavaDoc Doclets</h4>
+ * Ant task tailored at running JavaDoc Doclets.
  * 
  * <p>Example: Execute <code>MyDoclet</code> against some java sources</p>
  * <code><pre>
@@ -58,14 +58,14 @@ import org.apache.tools.ant.types.Reference;
  */
 public class DocletTask extends Task {
 
-    /** internally instantiated doclet object */
+    /** Internally instantiated doclet object. */
     DocletInfo doclet;
     
-    /** internally instantiated javadoc object */
+    /** Internally instantiated javadoc object. */
     Javadoc javadoc;
     
     /**
-     * instantiate a javadoc and embedded doclet objects
+     * Instantiate a javadoc and embedded doclet objects.
      */
     public DocletTask() {
         javadoc = new Javadoc();
@@ -78,7 +78,8 @@ public class DocletTask extends Task {
      */
     
     /**
-     * set doclet's fully-qualified class name
+     * Set doclet's fully-qualified class name.
+     * 
      * @param fqClassName doclet's class name 
      * @antTaskParamRequired true
      */
@@ -105,7 +106,7 @@ public class DocletTask extends Task {
     }
 
     /**
-     * Create a Path to be configured with the classpath to use
+     * Create a Path to be configured with the classpath to use.
      *
      * @return a new Path instance to be configured with the classpath.
      * @antTaskParamRequired false
@@ -127,7 +128,7 @@ public class DocletTask extends Task {
     }
 
     /**
-     * Create a Path to be configured with the boot classpath
+     * Create a Path to be configured with the boot classpath.
      *
      * @return a new Path instance to be configured with the boot classpath.
      * @antTaskParamRequired false
@@ -147,7 +148,7 @@ public class DocletTask extends Task {
     }
 
     /**
-     * Specify where to find source file
+     * Specify where to find source file.
      *
      * @param src a Path instance containing the various source directories.
      * @antTaskParamRequired  At least one of the three or nested 
@@ -211,7 +212,7 @@ public class DocletTask extends Task {
     }
     
     /**
-     * Run javadoc in verbose mode
+     * Run javadoc in verbose mode.
      *
      * @param b true if operation is to be verbose.
      * @antTaskParamRequired false
@@ -314,7 +315,7 @@ public class DocletTask extends Task {
      */
 
     /**
-     * validate already set properties before continuing with javadoc generation
+     * validate already set properties before continuing with javadoc generation.
      */
     public void execute() throws BuildException {
         
@@ -326,7 +327,7 @@ public class DocletTask extends Task {
     }
 
     /**
-     * init javadoc object prior to execution
+     * Init javadoc object prior to execution.
      */
     protected void init_javadoc() throws BuildException {
         // set default classpath if not explicitely given
@@ -342,7 +343,7 @@ public class DocletTask extends Task {
     }
 
     /**
-     * consistency check on params
+     * Consistency check on params.
      */
     protected void check() throws BuildException {
         
@@ -354,7 +355,8 @@ public class DocletTask extends Task {
     }
 
     /**
-     * an easy way to add a new Doclet parameter
+     * An easy way to add a new Doclet parameter.
+     * 
      * @param name parmaeter's name
      * @param value parameter's value
      */

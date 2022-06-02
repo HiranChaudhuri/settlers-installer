@@ -48,46 +48,101 @@ public class Configuration {
     private Configuration() {
     }
 
+    /**
+     * Returns the release checking flag.
+     * 
+     * @return the flag
+     */
     public boolean isCheckReleases() {
         return checkReleases;
     }
 
+    /**
+     * Sets the release checking flag.
+     * 
+     * @param checkReleases the flag
+     */
     public void setCheckReleases(boolean checkReleases) {
         this.checkReleases = checkReleases;
     }
 
+    /**
+     * Returns the prerelease checking flag.
+     * 
+     * @return the flag
+     */
     public boolean isCheckPrereleases() {
         return checkPrereleases;
     }
 
+    /**
+     * Sets the prelease checking flag.
+     * 
+     * @param checkPrereleases the flag
+     */
     public void setCheckPrereleases(boolean checkPrereleases) {
         this.checkPrereleases = checkPrereleases;
     }
 
+    /**
+     * Returns the artifact checking flag.
+     * 
+     * @return the flag
+     */
     public boolean isCheckArtifacts() {
         return checkArtifacts;
     }
 
+    /**
+     * Sets the artifact checking flag.
+     * 
+     * @param checkArtifacts the flag
+     */
     public void setCheckArtifacts(boolean checkArtifacts) {
         this.checkArtifacts = checkArtifacts;
     }
 
+    /**
+     * Returns the bug reporting support flag.
+     * 
+     * @return the flag
+     */
     public boolean isSupportBugReporting() {
         return supportBugReporting;
     }
 
+    /**
+     * Sets the bug reporting support flag.
+     * 
+     * @param supportBugReporting the flag
+     */
     public void setSupportBugReporting(boolean supportBugReporting) {
         this.supportBugReporting = supportBugReporting;
     }
 
+    /**
+     * Returns the github username.
+     * 
+     * @return the username
+     */
     public String getGithubUsername() {
         return githubUsername;
     }
 
+    /**
+     * Sets the github username.
+     * 
+     * @param githubUsername the username
+     */
     public void setGithubUsername(String githubUsername) {
         this.githubUsername = githubUsername;
     }
 
+    /**
+     * Returns the github token. It will be decrypted automatically.
+     * 
+     * @return the token
+     */
     public String getGithubToken() {
         try {
             return decrypt(githubToken);
@@ -97,6 +152,11 @@ public class Configuration {
         }
     }
 
+    /**
+     * Sets the github token. It will be encrypted immediately.
+     * 
+     * @param githubToken the token
+     */
     public void setGithubToken(String githubToken) {
         try {
             this.githubToken = encrypt(githubToken);
@@ -104,7 +164,12 @@ public class Configuration {
             log.warn("Could not encrypt Github token", e);
         }
     }
-    
+
+    /**
+     * Stores the configuration to the given file.
+     * 
+     * @param target the file to write
+     */
     public void save(File target) {
         Properties props = new Properties();
         props.put("check.releases", String.valueOf(checkReleases));
@@ -123,6 +188,12 @@ public class Configuration {
         }
     }
     
+    /**
+     * Loads the configuration from the given file.
+     * 
+     * @param source the file to read
+     * @return the parsed configuration
+     */
     public static Configuration load(File source) {
         Configuration c = new Configuration();
 

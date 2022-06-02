@@ -21,7 +21,7 @@ import javax.xml.xpath.XPathFactoryConfigurationException;
 import org.apache.tools.ant.BuildException;
 
 /**
- * XPathFactory implementation for the FactoryLiaison interface
+ * XPathFactory implementation for the FactoryLiaison interface.
  * 
  * <p>Supports only boolean (true/false) attribute values
  * 

@@ -15,12 +15,17 @@ public class BugReport extends javax.swing.JPanel {
     private Image image;
 
     /**
-     * Creates new form BugReport
+     * Creates new form BugReport.
      */
     public BugReport() {
         initComponents();
     }
 
+    /**
+     * Returns the screenshot image.
+     * 
+     * @return the image
+     */
     public Image getImage() {
         return image;
     }
@@ -32,56 +37,121 @@ public class BugReport extends javax.swing.JPanel {
         return result;
     }
 
+    /**
+     * Sets the screenshot image.
+     * 
+     * @param image the image
+     */
     public void setImage(Image image) {
         this.image = image;
         Dimension newSize = scaledSize(new Dimension(image.getWidth(null), image.getHeight(null)), new Dimension(600, 400));
         lbImage.setIcon(new ImageIcon(image.getScaledInstance((int)newSize.getWidth(), (int)newSize.getHeight(), Image.SCALE_AREA_AVERAGING)));
     }
     
+    /**
+     * Sets the log file path.
+     * 
+     * @param logfilepath 
+     */
     public void setLogfile(String logfilepath) {
         txtLogfile.setText(logfilepath);
     }
     
+    /**
+     * Sets the replay file path.
+     * 
+     * @param replayfilepath the path to the file
+     */
     public void setReplayFile(String replayfilepath) {
         txtReplay.setText(replayfilepath);
     }
 
+    /**
+     * Sets the title text.
+     * 
+     * @param title the text
+     */
     public void setTitle(String title) {
         txtTitle.setText(title);
     }
-    
+
+    /**
+     * Return the title text.
+     * 
+     * @return the text
+     */
     public String getTitle() {
         return txtTitle.getText();
     }
     
+    /**
+     * Sets the description text.
+     * 
+     * @param description the text
+     */
     public void setDescription(String description) {
         txtDescription.setText(description);
     }
     
+    /**
+     * Return the description text.
+     * 
+     * @return the text
+     */
     public String getDescription() {
         return txtDescription.getText();
     }
-    
+
+    /**
+     * Setter to indicate a log file can be attached.
+     * 
+     * @param attachLogfile 
+     */
     public void setAttachLogfile(boolean attachLogfile) {
         cbLogfile.setSelected(attachLogfile);
     }
     
+    /**
+     * Returns whether the user wants to attach the log file.
+     * 
+     * @return 
+     */
     public boolean isAttachLogfile() {
         return cbLogfile.isSelected();
     }
     
+    /**
+     * Setter to indicate a replay file can be attached.
+     * 
+     * @param attachReplayfile 
+     */
     public void setAttachReplayfile(boolean attachReplayfile) {
         cbReplayFile.setSelected(attachReplayfile);
     }
-    
+
+    /**
+     * Returns whether the user wants to attach the replay file.
+     * 
+     * @return 
+     */
     public boolean isAttachReplayfile() {
         return cbReplayFile.isSelected();
     }
     
+    /**
+     * Setter to indicate a screenshot can be attached.
+     * 
+     * @param attachScreenshot whether the screenshot shall be attached
+     */
     public void setAttachScreenshot(boolean attachScreenshot) {
         cbScreenshot.setSelected(attachScreenshot);
     }
     
+    /**
+     * Returns whether the user wants to attach the screenshot.
+     * 
+     * @return true if the screenshot may be attached
+     */
     public boolean isAttachScreenshot() {
         return cbScreenshot.isSelected();
     }

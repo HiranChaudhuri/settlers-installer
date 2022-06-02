@@ -21,7 +21,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * <p>A generic type of JAXP type of factory
+ * A generic type of JAXP type of factory.
  * 
  * <p>Contains ability to specify factory class explicitly
  * 
@@ -34,10 +34,10 @@ import org.apache.tools.ant.Task;
  */
 public class FactoryType extends IfUnless {
 
-    /** custom defined factory class */
+    /** Custom defined factory class. */
     String fqclassname;
     
-    /** factory features/attributes */
+    /** Factory features/attributes. */
     Vector attributes = new Vector();
     
     /*
@@ -45,7 +45,8 @@ public class FactoryType extends IfUnless {
      */
     
     /**
-     * set the facotry class name
+     * Set the factory class name.
+     * 
      * @param fqclassname factory class name
      * @antTaskParamRequired false
      */
@@ -61,7 +62,8 @@ public class FactoryType extends IfUnless {
     }
     
     /**
-     * add factory attribute
+     * Add factory attribute.
+     * 
      * @param attribute to set to the factory
      * @antTaskParamRequired false
      */
@@ -81,8 +83,7 @@ public class FactoryType extends IfUnless {
      */
 
     /**
-     * test for defined factory name (if defined)
-     * test for defined attrbutes/features (if any)
+     * Test for defined factory name and defined attrbutes/features (if any).
      */
     public void check(Task task) throws BuildException {
         if ( fqclassname != null && fqclassname.length()==0 )
