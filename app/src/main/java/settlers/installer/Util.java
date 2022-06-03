@@ -1127,6 +1127,7 @@ public class Util {
                     String window = st1.nextToken();
                     if (window.contains("jsettlers-main-swing-SwingManagedJSettlers.jsettlers-main-swing-SwingManagedJSettlers")
                             || window.contains("jsettlers-ToolsMain.jsettlers-ToolsMain")
+                            || window.contains("jsettlers-mapcreator-main-MapCreatorApp")
                             ) {
                         log.trace("window: {}", window);
                         String window_id = window.contains(" ") ? window.split(" ")[0] : window;
