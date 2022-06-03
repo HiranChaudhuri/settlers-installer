@@ -569,9 +569,10 @@ public class App extends javax.swing.JFrame {
 
                     log.info("running {}", game);
                     if (game instanceof GameVersion) {
-                        Util.runGame((GameVersion)game);
+                        //Util.runGame((GameVersion)game);
+                        Util.execGameJar((GameVersion)game, "JSettlers/JSettlers.jar");
                     } else if (game instanceof GHObject) {
-                        Util.runGame((GHObject)game);
+                        Util.execGameJar((GHObject)game, "JSettlers/JSettlers.jar");
                     }
                     
                 } catch(Exception e) {
@@ -643,9 +644,9 @@ public class App extends javax.swing.JFrame {
 
                     log.info("running {}", game);
                     if (game instanceof GameVersion) {
-                        Util.runTools((GameVersion)game);
+                        Util.execGameJar((GameVersion)game, "JSettlers/JSettlersTools.jar");
                     } else if (game instanceof GHObject) {
-                        Util.runTools((GHObject)game);
+                        Util.execGameJar((GHObject)game, "JSettlers/JSettlersTools.jar");
                     }
                     
                 } catch(Exception e) {
@@ -707,9 +708,9 @@ public class App extends javax.swing.JFrame {
 
                     log.info("running {}", game);
                     if (game instanceof GameVersion) {
-                        Util.runMapCreator((GameVersion)game);
+                        Util.execGameJar((GameVersion)game, "JSettlers/MapCreator.jar");
                     } else if (game instanceof GHObject) {
-                        Util.runMapCreator((GHObject)game);
+                        Util.execGameJar((GHObject)game, "JSettlers/MapCreator.jar");
                     }
                     
                 } catch(Exception e) {

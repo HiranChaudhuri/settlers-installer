@@ -552,106 +552,36 @@ public class Util {
     }
     
     /**
-     * Run JSettlers from the given game.
+     * Run given jar file from the given game.
      * 
      * @param game the game
+     * @param jarname the jar filename, relative from the game's installation directory
      * @throws IOException something went wrong
      * @throws InterruptedException something went wrong
      */
-    public static void runGame(GHObject game) throws IOException, InterruptedException {
+    public static void execGameJar(GHObject game, String jarname) throws IOException, InterruptedException {
         log.debug("runGame({})", game);
         File target = new File(getGamesFolder(), String.valueOf(game.getId()));
-        File jarfile = new File(target, "JSettlers/JSettlers.jar");
-
-        int rc = execJarFile(jarfile);
-        if (rc != 0) {
-            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
-        }
-    }
-    
-    /**
-     * Run JSettlers from the given game version.
-     * 
-     * @param game the game version
-     * @throws IOException something went wrong
-     * @throws InterruptedException something went wrong
-     */
-    public static void runGame(GameVersion game) throws IOException, InterruptedException {
-        log.debug("runGame({})", game);
-        File target = new File(game.getInstallPath());
-        File jarfile = new File(target, "JSettlers/JSettlers.jar");
+        File jarfile = new File(target, jarname);
         
         int rc = execJarFile(jarfile);
         if (rc != 0) {
             throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
         }
     }
-
-    /**
-     * Run JSettler-Tools from the given game.
-     * 
-     * @param game the game
-     * @throws IOException something went wrong
-     * @throws InterruptedException something went wrong
-     */
-    public static void runTools(GHObject game) throws IOException, InterruptedException {
-        log.debug("runGame({})", game);
-        File target = new File(getGamesFolder(), String.valueOf(game.getId()));
-        File jarfile = new File(target, "JSettlers/JSettlersTools.jar");
-
-        int rc = execJarFile(jarfile);
-        if (rc != 0) {
-            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
-        }
-    }
     
     /**
-     * Run JSettler-Tools from the given game version.
+     * Run given jar file from the given game.
      * 
      * @param game the game version
+     * @param jarname the jar filename, relative from the game's installation directory
      * @throws IOException something went wrong
      * @throws InterruptedException something went wrong
      */
-    public static void runTools(GameVersion game) throws IOException, InterruptedException {
+    public static void execGameJar(GameVersion game, String jarname) throws IOException, InterruptedException {
         log.debug("runGame({})", game);
         File target = new File(game.getInstallPath());
-        File jarfile = new File(target, "JSettlers/JSettlersTools.jar");
-        
-        int rc = execJarFile(jarfile);
-        if (rc != 0) {
-            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
-        }
-    }
-
-    /**
-     * Run MapCreator from the given game.
-     * 
-     * @param game the game
-     * @throws IOException something went wrong
-     * @throws InterruptedException something went wrong
-     */
-    public static void runMapCreator(GHObject game) throws IOException, InterruptedException {
-        log.debug("runGame({})", game);
-        File target = new File(getGamesFolder(), String.valueOf(game.getId()));
-        File jarfile = new File(target, "JSettlers/MapCreator.jar");
-
-        int rc = execJarFile(jarfile);
-        if (rc != 0) {
-            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
-        }
-    }
-    
-    /**
-     * Run MapCreator from the given game version.
-     * 
-     * @param game the game version
-     * @throws IOException something went wrong
-     * @throws InterruptedException something went wrong
-     */
-    public static void runMapCreator(GameVersion game) throws IOException, InterruptedException {
-        log.debug("runGame({})", game);
-        File target = new File(game.getInstallPath());
-        File jarfile = new File(target, "JSettlers/MapCreator.jar");
+        File jarfile = new File(target, jarname);
         
         int rc = execJarFile(jarfile);
         if (rc != 0) {
@@ -667,6 +597,13 @@ public class Util {
      * @throws InterruptedException something went wrong
      */
     public static int execJarFile(File jarfile) throws IOException, InterruptedException {
+        if (jarfile == null) {
+            throw new IllegalArgumentException("Cannot execute null jar");
+        }
+        if (!jarfile.exists()) {
+            throw new IOException("Could not find jar: " + jarfile.getAbsolutePath());
+        }
+        
         File javaHome = new File(System.getProperty("java.home"));
         File java = new File(javaHome, "bin/java"); // may need a tweak on Windows
         if (OsDetector.IS_WINDOWS) {
