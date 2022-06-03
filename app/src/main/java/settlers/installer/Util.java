@@ -620,6 +620,42 @@ public class Util {
     }
 
     /**
+     * Run MapCreator from the given game.
+     * 
+     * @param game the game
+     * @throws IOException something went wrong
+     * @throws InterruptedException something went wrong
+     */
+    public static void runMapCreator(GHObject game) throws IOException, InterruptedException {
+        log.debug("runGame({})", game);
+        File target = new File(getGamesFolder(), String.valueOf(game.getId()));
+        File jarfile = new File(target, "JSettlers/MapCreator.jar");
+
+        int rc = execJarFile(jarfile);
+        if (rc != 0) {
+            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
+        }
+    }
+    
+    /**
+     * Run MapCreator from the given game version.
+     * 
+     * @param game the game version
+     * @throws IOException something went wrong
+     * @throws InterruptedException something went wrong
+     */
+    public static void runMapCreator(GameVersion game) throws IOException, InterruptedException {
+        log.debug("runGame({})", game);
+        File target = new File(game.getInstallPath());
+        File jarfile = new File(target, "JSettlers/MapCreator.jar");
+        
+        int rc = execJarFile(jarfile);
+        if (rc != 0) {
+            throw new IOException("Nonzero exit code " + rc + " after running "+jarfile.getAbsolutePath());
+        }
+    }
+
+    /**
      * Runs an executable jar in a separate JVM.
      * 
      * @param jarfile the jar file to run

@@ -184,6 +184,7 @@ public class App extends javax.swing.JFrame {
         btPlay = new javax.swing.JButton();
         btTools = new javax.swing.JButton();
         btOptions = new javax.swing.JButton();
+        btMapCreator = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Settlers-Installer");
@@ -288,7 +289,7 @@ public class App extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         buttonBar.add(btTools, gridBagConstraints);
 
@@ -300,9 +301,21 @@ public class App extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
         buttonBar.add(btOptions, gridBagConstraints);
+
+        btMapCreator.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/public_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        btMapCreator.setToolTipText("Map Creator");
+        btMapCreator.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btMapCreatorActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        buttonBar.add(btMapCreator, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -615,7 +628,7 @@ public class App extends javax.swing.JFrame {
                     if (game instanceof GHObject) {
                         if (!Util.isInstalled((GHObject)game)) {
                             if (github.getRateLimit().getRemaining()>1) {
-                            Util.installGame((GHObject)game);
+                                Util.installGame((GHObject)game);
                             } else {
                                 throw new Exception("Cannot install. GitHub Rate limit exceeded");
                             }
@@ -655,6 +668,71 @@ public class App extends javax.swing.JFrame {
             }
         }).start();
     }//GEN-LAST:event_btToolsActionPerformed
+
+    private void btMapCreatorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btMapCreatorActionPerformed
+        log.debug("btMapCreatorActionPerformed(...)");
+        if (gameList.getSelection()==null) {
+            JOptionPane.showMessageDialog(this, "Please select a game version first.");
+            return;
+        }
+        
+        btInstallData.setEnabled(false);
+        btPlay.setEnabled(false);
+        btOptions.setEnabled(false);
+        jProgressBar.setVisible(true);
+        // setVisible(false); let's stay visible until an eventually needed installation is done
+        
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int x = 0;
+                try {
+
+                    Object game = gameList.getSelection();
+                    if (game instanceof GHObject) {
+                        if (!Util.isInstalled((GHObject)game)) {
+                            if (github.getRateLimit().getRemaining()>1) {
+                                Util.installGame((GHObject)game);
+                            } else {
+                                throw new Exception("Cannot install. GitHub Rate limit exceeded");
+                            }
+                        }
+                    }
+
+                    if (configuration.isSupportBugReporting()) {
+                        // show but button
+                        showBugButton();
+                    }
+                    setVisible(false);
+
+                    log.info("running {}", game);
+                    if (game instanceof GameVersion) {
+                        Util.runMapCreator((GameVersion)game);
+                    } else if (game instanceof GHObject) {
+                        Util.runMapCreator((GHObject)game);
+                    }
+                    
+                } catch(Exception e) {
+                    log.error("could not run tools", e);
+                    JOptionPane.showMessageDialog(App.this, "Something went wrong:\n"+e.getMessage());
+                } finally {
+                    // hide bug button
+                    if (bugButton != null) {
+                        bugButton.setVisible(false);
+                    }
+                    
+                    btInstallData.setEnabled(true);
+                    btPlay.setEnabled(true);
+                    btOptions.setEnabled(true);
+                    jProgressBar.setVisible(false);
+                    setVisible(true);
+
+                    checkFiles();
+                }
+            }
+        }).start();
+
+    }//GEN-LAST:event_btMapCreatorActionPerformed
 
     private void checkFiles() {
         log.debug("checkFiles()");
@@ -879,6 +957,7 @@ public class App extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btInstallData;
+    private javax.swing.JButton btMapCreator;
     private javax.swing.JButton btOptions;
     private javax.swing.JButton btPlay;
     private javax.swing.JButton btTools;
