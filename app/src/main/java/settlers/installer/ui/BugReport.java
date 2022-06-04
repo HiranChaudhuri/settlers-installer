@@ -187,12 +187,14 @@ public class BugReport extends javax.swing.JPanel {
         cbLogfile.setText("Log File");
 
         cbReplayFile.setText("Replay File");
+        cbReplayFile.setEnabled(false);
 
         jLabel3.setText("Attachements");
 
         jLabel4.setText("Issue Title");
 
         cbScreenshot.setText("Screenshot");
+        cbScreenshot.setEnabled(false);
 
         txtLogfile.setEditable(false);
         txtLogfile.setBorder(null);

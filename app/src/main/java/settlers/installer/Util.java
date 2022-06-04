@@ -73,8 +73,8 @@ public class Util {
     public static final String WORKFLOW_RUNS_URL = "https://api.github.com/repos/paulwedeck/settlers-remake/actions/runs";
     public static final String GITHUB_REPO_NAME = "paulwedeck/settlers-remake";
     public static final String GITHUB_REPO_NAME_ISSUES = 
-            "paulwedeck/settlers-remake";
-            //"HiranChaudhuri/settlers-installer";
+            //"paulwedeck/settlers-remake";
+            "HiranChaudhuri/settlers-installer";
     
     private static final int GITHUB_MIN_LIMIT4BROWSING = 10;
     

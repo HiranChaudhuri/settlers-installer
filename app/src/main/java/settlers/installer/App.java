@@ -24,6 +24,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JWindow;
 import javax.swing.event.HyperlinkEvent;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kohsuke.github.GHArtifact;
@@ -472,11 +473,20 @@ public class App extends javax.swing.JFrame {
                                 
 //                                issueBody.append("\n![Screenshot](").append(gist.getUrl()).append(")");
                             }
-//                            if (br.isAttachLogfile()) {
-//                                log.debug("uploading logfile...");
-//                                GHBlob blob = repository.createBlob().textContent(FileUtils.readFileToString(logfile, "UTF-8")).create();
+                            if (br.isAttachLogfile()) {
+                                log.debug("uploading logfile...");
+                                String logdata = FileUtils.readFileToString(logfile, "UTF-8");
+                                if (logdata.length()>65000) {
+                                    logdata = logdata.substring(logdata.length()-65000);
+                                }
+                                
+// we cannot create an external resource, therefore we will add the data into the issue directly
+//                                GHBlob blob = repository.createBlob().textContent(logdata).create();
 //                                issueBody.append("\nLogfile at ").append(blob.getUrl());
-//                            }
+
+                                issueBody.append("Here is the last 65k of my latest logfile:");
+                                issueBody.append("\n```\n").append(logdata).append("\n```\n");
+                            }
 //                            if (br.isAttachReplayfile()) {
 //                                log.debug("uploading replay file...");
 //                                GHBlob blob = repository.createBlob().textContent(FileUtils.readFileToString(replayfile, "UTF-8")).create();

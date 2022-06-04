@@ -116,6 +116,7 @@
     <Component class="javax.swing.JCheckBox" name="cbReplayFile">
       <Properties>
         <Property name="text" type="java.lang.String" value="Replay File"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
@@ -133,6 +134,7 @@
     <Component class="javax.swing.JCheckBox" name="cbScreenshot">
       <Properties>
         <Property name="text" type="java.lang.String" value="Screenshot"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lbImage">
