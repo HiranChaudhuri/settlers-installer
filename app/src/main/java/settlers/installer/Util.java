@@ -22,6 +22,7 @@ import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -791,16 +792,6 @@ public class Util {
 
             installRelease(latest);
         }
-
-        throw new UnsupportedOperationException("not yet implemented");
-        
-//
-//        // remove if we have more than five
-//        while (installedReleases.size()>5) {
-//            Release r = installedReleases.get(installedReleases.size()-1);
-//            Util.removeRelease(r);
-//            installedReleases = Util.getInstalledReleases();
-//        }
     }
     
     /** Return true if the folder is a Settlers install CD.
@@ -1156,5 +1147,30 @@ public class Util {
         copyGameDataIfExists(src, dst, "MAP");
         copyGameDataIfExists(src, dst, "snd");
         copyGameDataIfExists(src, dst, "SND");
+    }
+    
+    public static void removeAllButFive() {
+        throw new UnsupportedOperationException("not yet implemented");
+//        // remove if we have more than five
+//        while (installedReleases.size()>5) {
+//            Release r = installedReleases.get(installedReleases.size()-1);
+//            Util.removeRelease(r);
+//            installedReleases = Util.getInstalledReleases();
+//        }
+    }
+    
+    public static void cleanTemp() {
+        File temp = getManagedTempFolder();
+        Date threshold = Date.from(Instant.now().minus(7, ChronoUnit.DAYS));
+        for (File f: temp.listFiles()) {
+            if (new Date(f.lastModified()).before(threshold)) {
+                log.info("deleting old temp file {}", f);
+                if (f.isDirectory()) {
+                    deleteDir(f);
+                } else {
+                    f.delete();
+                }
+            }
+        }
     }
 }
