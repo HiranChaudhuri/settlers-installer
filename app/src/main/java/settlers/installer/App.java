@@ -437,6 +437,7 @@ public class App extends javax.swing.JFrame {
                             
                             // see important properties
                             // https://docs.oracle.com/en/java/javase/17/docs/api/system-properties.html
+                            issueBody.append("\nHere is some data about my system:");
                             issueBody.append("\n```");
                             issueBody.append("\nOS: ").append(System.getProperty("os.name")).append(" ").append(System.getProperty("os.version"));
                             issueBody.append("\nJVM: ").append(System.getProperty("java.vm.name"))
@@ -484,7 +485,7 @@ public class App extends javax.swing.JFrame {
 //                                GHBlob blob = repository.createBlob().textContent(logdata).create();
 //                                issueBody.append("\nLogfile at ").append(blob.getUrl());
 
-                                issueBody.append("Here is the last 65k of my latest logfile:");
+                                issueBody.append("Here is the last 65k of my latest logfile (").append(logfile.getName()).append("):");
                                 issueBody.append("\n```\n").append(logdata).append("\n```\n");
                             }
 //                            if (br.isAttachReplayfile()) {

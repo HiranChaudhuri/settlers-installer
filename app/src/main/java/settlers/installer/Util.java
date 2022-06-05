@@ -977,6 +977,8 @@ public class Util {
             }
 
             if (!releasesOnly && github.getRateLimit().getRemaining()>GITHUB_MIN_LIMIT4BROWSING) {
+                int limit = 30; // do not fetch more than this much runs
+                
                 //result.addAll(repository.listArtifacts().toList());
                 log.debug("Listing workflow runs...");
                 List<GHWorkflow> workflows = repository.listWorkflows().toList();
@@ -987,9 +989,18 @@ public class Util {
                                 if (github.getRateLimit().getRemaining()>GITHUB_MIN_LIMIT4BROWSING) {
                                     if (!run.listArtifacts().toList().isEmpty()) {
                                         result.add(run);
+                                        limit--;
                                     }
                                 }
+                                
+                                if (limit <= 0) {
+                                    break;
+                                }
                             }
+                        }
+
+                        if (limit <= 0) {
+                            break;
                         }
                     }
                 }
