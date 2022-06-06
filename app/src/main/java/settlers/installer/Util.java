@@ -1149,16 +1149,19 @@ public class Util {
         copyGameDataIfExists(src, dst, "SND");
     }
     
-    public static void removeAllButFive() {
-        throw new UnsupportedOperationException("not yet implemented");
-//        // remove if we have more than five
-//        while (installedReleases.size()>5) {
-//            Release r = installedReleases.get(installedReleases.size()-1);
-//            Util.removeRelease(r);
-//            installedReleases = Util.getInstalledReleases();
-//        }
-    }
-    
+//    public static void removeAllButFive() {
+//        throw new UnsupportedOperationException("not yet implemented");
+////        // remove if we have more than five
+////        while (installedReleases.size()>5) {
+////            Release r = installedReleases.get(installedReleases.size()-1);
+////            Util.removeRelease(r);
+////            installedReleases = Util.getInstalledReleases();
+////        }
+//    }
+
+    /**
+     * Removes temporary files older than 7 days.
+     */
     public static void cleanTemp() {
         File temp = getManagedTempFolder();
         Date threshold = Date.from(Instant.now().minus(7, ChronoUnit.DAYS));
