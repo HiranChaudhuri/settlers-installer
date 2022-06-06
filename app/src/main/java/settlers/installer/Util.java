@@ -301,6 +301,10 @@ public class Util {
 
             while((entry = zis.getNextEntry()) != null){
                 File destFile = new File(target, entry.getName());
+                if (!destFile.toPath().normalize().startsWith(target.toPath())) {
+                    log.warn("While unzipping we found {} would expand outside {}", destFile, target);
+                    throw new IOException("Bad ZIP entry "+entry.getName());
+                }
                 if(entry.isDirectory()){
                     destFile.mkdirs();
                     Files.setLastModifiedTime(destFile.toPath(), entry.getLastModifiedTime());
