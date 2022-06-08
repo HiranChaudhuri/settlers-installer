@@ -83,7 +83,7 @@ jobs:
     - name: Install Snapcraft
       run: |
         #!/bin/bash -x
-        snap install snapcraft --classig
+        snap install snapcraft --classic
         hash -r
 
     - name: Build snap
