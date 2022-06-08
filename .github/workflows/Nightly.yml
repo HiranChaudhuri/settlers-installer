@@ -83,7 +83,7 @@ jobs:
     - name: Install Snapcraft
       run: |
         #!/bin/bash -x
-        snap install snapcraft --classic
+        sudo snap install snapcraft --classic
         hash -r
 
     - name: Build snap
@@ -252,6 +252,7 @@ jobs:
     needs:
       - build-Windows
       - build-Debian
+      - build-snap
       #- build-Arch      need to rethink
       - build-MacOS
     runs-on: ubuntu-latest
