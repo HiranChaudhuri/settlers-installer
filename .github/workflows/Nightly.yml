@@ -84,6 +84,7 @@ jobs:
       run: |
         #!/bin/bash -x
         sudo snap install snapcraft --classic
+        sudo snap install multipass
         hash -r
 
     - name: Build snap
