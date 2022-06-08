@@ -14,6 +14,7 @@ import settlers.installer.ui.ConfigurationPanel;
 import settlers.installer.ui.InstallSourcePicker;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -186,6 +187,7 @@ public class App extends javax.swing.JFrame {
         btTools = new javax.swing.JButton();
         btOptions = new javax.swing.JButton();
         btMapCreator = new javax.swing.JButton();
+        btForum = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Settlers-Installer");
@@ -302,7 +304,7 @@ public class App extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 1;
         buttonBar.add(btOptions, gridBagConstraints);
 
@@ -317,6 +319,18 @@ public class App extends javax.swing.JFrame {
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         buttonBar.add(btMapCreator, gridBagConstraints);
+
+        btForum.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/forum_FILL0_wght400_GRAD0_opsz48.png"))); // NOI18N
+        btForum.setToolTipText("Forum");
+        btForum.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btForumActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 1;
+        buttonBar.add(btForum, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -746,6 +760,19 @@ public class App extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btMapCreatorActionPerformed
 
+    private void btForumActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btForumActionPerformed
+        URI uri = null;
+        try {
+            uri = new URI("https://discord.gg/2hVV4u6");
+            Desktop desktop = Desktop.getDesktop();
+            desktop.browse(uri);
+        } catch (Exception e) {
+            log.error("Could not open forum", e);
+            JOptionPane.showMessageDialog(this, "Error. Please go to "+uri+" manually.");
+        }
+        
+    }//GEN-LAST:event_btForumActionPerformed
+
     private void checkFiles() {
         log.debug("checkFiles()");
 
@@ -969,6 +996,7 @@ public class App extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btForum;
     private javax.swing.JButton btInstallData;
     private javax.swing.JButton btMapCreator;
     private javax.swing.JButton btOptions;
