@@ -86,10 +86,13 @@ jobs:
         sudo snap install snapcraft --classic
         sudo snap install multipass
         hash -r
+        ls -la /var/snap/multipass/common/
 
     - name: Build snap
       run: |
         #!/bin/bash -x
+        multipass version
+        multipass launch
         ls -la
         cd app/src/snap/settlers-remake-alpha
         snapcraft
