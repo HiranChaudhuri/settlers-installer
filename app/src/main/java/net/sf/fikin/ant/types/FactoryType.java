@@ -38,7 +38,7 @@ public class FactoryType extends IfUnless {
     String fqclassname;
     
     /** Factory features/attributes. */
-    Vector attributes = new Vector();
+    Vector<Parameter> attributes = new Vector<>();
     
     /*
      *      Bean methods

@@ -208,6 +208,11 @@ task jpackage(description: "Build native installation package", dependsOn: ['jpa
      }
 }
 
+gradle.taskGraph.whenReady { taskGraph ->
+    compileJava.options.compilerArgs << "-Xlint:unchecked"
+    compileJava.options.compilerArgs << "-Xlint:deprecation"
+}
+
 checkstyle {
     configFile = rootProject.file('config/checkstyle/checkstyle.xml')
 }

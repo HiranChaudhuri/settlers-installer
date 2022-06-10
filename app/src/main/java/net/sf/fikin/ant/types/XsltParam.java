@@ -57,7 +57,7 @@ public class XsltParam extends Parameter {
      */
     public void setLocation(File file) throws MalformedURLException {
         this.file = file;
-        setValue( file.toURL().toExternalForm() );
+        setValue( file.toURI().toURL().toExternalForm() );
     }
     
     /**

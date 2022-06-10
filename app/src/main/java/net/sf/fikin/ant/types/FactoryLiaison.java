@@ -94,14 +94,16 @@ public abstract class FactoryLiaison {
      */
     protected Object newFactory(String fqclassname) throws BuildException {
         try {
-            Class cls = Class.forName( fqclassname );
-            return cls.newInstance();
+            Class<?> cls = Class.forName( fqclassname );
+            return cls.getDeclaredConstructor().newInstance();
         } catch(ClassNotFoundException e) {
             throw new BuildException( e );
         } catch(InstantiationException e) {
             throw new BuildException( e );
         } catch(IllegalAccessException e) {
             throw new BuildException( e );
+        } catch (ReflectiveOperationException ex) {
+            throw new BuildException( ex );
         }
     }
     
