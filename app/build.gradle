@@ -214,7 +214,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 }
 
 checkstyle {
-    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+    toolVersion = "8.30"
 }
 
 project.extensions.findByName('checkstyle').sourceSets.each { SourceSet s ->
