@@ -57,7 +57,7 @@ jobs:
         jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage
         echo "-- Checking output directory"
         find app/build/distributions
-        
+
     - uses: actions/upload-artifact@v2
       with:
         name: SettlersRemake-Debian
@@ -256,8 +256,7 @@ jobs:
     needs:
       - build-Windows
       - build-Debian
-      - build-snap
-      #- build-Arch      need to rethink
+      # - build-snap
       - build-MacOS
     runs-on: ubuntu-latest
     steps:
@@ -266,6 +265,11 @@ jobs:
 
       - name: check environment after download
         run: find .
+
+      - name: Tar appdir
+        run: |
+          #!/bin/bash -x
+          tar cvzf app/build/distributions/SettlersRemake.tar.gz app/build/app-image
 
       - name: Publish Release
         id: publish_release
@@ -277,5 +281,6 @@ jobs:
           title: "Settlers-Installer Nightly"
           files: |
             SettlersRemake-Debian/distributions/*.deb
+            SettlersRemake-Debian/distributions/*.gz
             SettlersRemake-Windows/*
             SettlersRemake-MacOS/*.dmg
