@@ -269,7 +269,7 @@ jobs:
       - name: Tar appdir
         run: |
           #!/bin/bash -x
-          tar cvzf app/build/distributions/SettlersRemake.tar.gz app/build/app-image
+          tar cvzf SettlersRemake-Debian/distributions/SettlersRemake-withJava.tar.gz SettlersRemake-Debian/app-image/SettlersRemake
 
       - name: Publish Release
         id: publish_release
