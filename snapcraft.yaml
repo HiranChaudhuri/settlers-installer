@@ -5,8 +5,7 @@ version: 0.0.1
 architectures:
   - build-on: amd64
 
-summary: |
-  Settlers III clone for Linux, Mac and Windows
+summary: Settlers III clone for Linux, Mac and Windows
 
 description: |
   Play the classic Settlers III game on modern computers.
