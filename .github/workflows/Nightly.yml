@@ -234,11 +234,6 @@ jobs:
       - name: check environment after download
         run: find .
 
-      - name: Tar appdir
-        run: |
-          #!/bin/bash -x
-          tar cvzf SettlersRemake-Debian/distributions/SettlersRemake-withJava.tar.gz --directory SettlersRemake-Debian/app-image SettlersRemake
-
       - name: Publish Release
         id: publish_release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -249,6 +244,5 @@ jobs:
           title: "Settlers-Installer Nightly"
           files: |
             SettlersRemake-Debian/distributions/*.deb
-            SettlersRemake-Debian/distributions/*.gz
             SettlersRemake-Windows/*
             SettlersRemake-MacOS/*.dmg
