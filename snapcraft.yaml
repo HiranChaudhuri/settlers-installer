@@ -1,6 +1,9 @@
-name: settlers-remake-alpha
+name: settlers-remake
 title: setters-remake
 version: 0.0.1
+
+architectures:
+  - build-on: arm64
 
 summary: |
   Settlers III clone for Linux, Mac and Windows

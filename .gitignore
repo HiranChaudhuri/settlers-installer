@@ -6,4 +6,4 @@
 testbench/.vagrant
 testbench/S3
 *.deb
-
+*.snap
