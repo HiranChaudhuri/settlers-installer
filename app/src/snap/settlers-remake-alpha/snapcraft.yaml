@@ -1,40 +1,36 @@
 name: settlers-remake-alpha
-
-version: 1.8.1
+title: setters-remake
+version: 0.0.1
 
 summary: |
   Settlers III clone for Linux, Mac and Windows
 
 description: |
-  Play the classig Settlers III game on modern computers.
+  Play the classic Settlers III game on modern computers.
   Original game files required for graphics and sound.
+  
+  This is an installer that easily lets you setup the real game
+  and allows switching game releases. Especially useful since
+  settlers-remake is still alpha and changes often.
+  
+  Read more at https://github.com/HiranChaudhuri/settlers-installer/blob/main/README.md
 
-confinement: devmode
-
-base: core18
-
-parts:
-  settlers-installer:
-    plugin: gradle
-    source: https://github.com/HiranChaudhuri/settlers-installer.git
-    source-tag: release-$SNAPCRAFT_PROJECT_VERSION
-    gradle-version: 5.1.1
-    gradle-output-dir: BIN
-    gradle-options: [binZip, -xtest, -xcreateGitTag]
-    override-build: |
-      snapcraftctl build
-      unzip -o DIST/settlers-remake_bin-*.zip -d $SNAPCRAFT_PART_INSTALL/
-    build-packages:
-    - unzip
+base: core20
+confinement: strict
 
 apps:
   settlers-remake-alpha:
     extensions:
-    - gnome-3-28
-    command: settlers-remake-$SNAPCRAFT_PROJECT_VERSION/settlers-installer
-    environment:
-      JAVA_HOME: $SNAP/usr/lib/jvm/java-11-openjdk-amd64
-      PATH: $JAVA_HOME/jre/bin:$PATH
+      - gnome-3-38
+    command: opt/settlersremake/bin/SettlersRemake
     plugs:
-    - home
-    - network
+      - home
+      - network
+      - cups-control
+
+parts:
+  settlers-installer:
+    plugin: dump
+    source: https://github.com/HiranChaudhuri/settlers-installer/releases/download/nightly/settlersremake_1.0-1_amd64.deb
+    source-type: deb
+
