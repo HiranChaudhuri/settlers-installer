@@ -66,37 +66,6 @@ jobs:
           app/build/distributions/*
           app/build/resources
 
-  build-snap:
-    runs-on: ubuntu-latest
-    needs:
-      - build-Debian
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Download Debian results
-      uses: actions/download-artifact@v2
-      with:
-        name: SettlersRemake-Debian
-        path: app/build
-
-    - name: Install Snapcraft
-      run: |
-        #!/bin/bash -x
-        sudo snap install snapcraft --classic
-        sudo snap install multipass
-        hash -r
-        ls -la /var/snap/multipass/common/
-
-    - name: Build snap
-      run: |
-        #!/bin/bash -x
-        multipass version
-        multipass launch
-        ls -la
-        cd app/src/snap/settlers-remake-alpha
-        snapcraft
-
 #  build-Arch:
 #    runs-on: ubuntu-latest
 #    container:
@@ -256,7 +225,6 @@ jobs:
     needs:
       - build-Windows
       - build-Debian
-      # - build-snap
       - build-MacOS
     runs-on: ubuntu-latest
     steps:

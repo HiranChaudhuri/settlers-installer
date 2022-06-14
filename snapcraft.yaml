@@ -20,6 +20,10 @@ description: |
 
 icon: app/src/main/resources/images/siedler3-helme-logo-120.png
 
+contact: https://discord.gg/2hVV4u6
+issues: https://github.com/HiranChaudhuri/settlers-installer/issues
+source-code: https://github.com/HiranChaudhuri/settlers-installer.git
+
 base: core20
 confinement: strict
 
