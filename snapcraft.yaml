@@ -18,6 +18,8 @@ description: |
   
   Read more at https://github.com/HiranChaudhuri/settlers-installer/blob/main/README.md
 
+icon: app/src/main/resources/images/siedler3-helme-logo-120.png
+
 base: core20
 confinement: strict
 
