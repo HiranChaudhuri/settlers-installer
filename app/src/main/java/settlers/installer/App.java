@@ -452,7 +452,7 @@ public class App extends javax.swing.JFrame {
                             // see important properties
                             // https://docs.oracle.com/en/java/javase/17/docs/api/system-properties.html
                             issueBody.append("\nHere is some data about my system:");
-                            issueBody.append("\n```");
+                            issueBody.append("\n");
                             issueBody.append("\nOS: ").append(System.getProperty("os.name")).append(" ").append(System.getProperty("os.version"));
                             issueBody.append("\nJVM: ").append(System.getProperty("java.vm.name"))
                                     .append(" ").append(System.getProperty("java.runtime.version"));
@@ -461,12 +461,20 @@ public class App extends javax.swing.JFrame {
                                 if (current instanceof GHRelease) {
                                     issueBody.append("\nSettlers Remake: Release ").append(((GHRelease)current).getName()).append("\n");
                                 } else if (current instanceof GHWorkflowRun) {
-                                    issueBody.append("\nSettlers Remake: Workflow Run ").append(((GHWorkflowRun)current).getRunNumber()).append("\n");
+                                    GHWorkflowRun run = (GHWorkflowRun)current;
+                                    issueBody
+                                            .append("\nSettlers Remake: [Workflow Run ")
+                                            .append(run.getHeadBranch())
+                                            .append(" ")
+                                            .append(String.valueOf(run.getRunNumber()))
+                                            .append("](")
+                                            .append(run.getHtmlUrl())
+                                            .append(")\n");
                                 } else if (current instanceof GameVersion) {
                                     issueBody.append("\nSettlers Remake: ").append(((GameVersion)current).getBasedOn()).append("\n");
                                 }
                             }
-                            issueBody.append("\n```");
+                            issueBody.append("\n");
                             
                             if (br.isAttachScreenshot()) {
                                 log.debug("uploading screenshot...");
