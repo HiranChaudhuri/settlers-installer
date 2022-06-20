@@ -27,18 +27,18 @@ base: core20
 confinement: strict
 
 apps:
-  settlers-remake-alpha:
+  settlers-remake:
     extensions:
       - gnome-3-38
     command: opt/settlersremake/bin/SettlersRemake
     plugs:
       - home
       - network
-      - cups-control
+      - opengl
+      - optical-drive
 
 parts:
   settlers-installer:
     plugin: dump
     source: https://github.com/HiranChaudhuri/settlers-installer/releases/download/nightly/settlersremake_1.0-1_amd64.deb
     source-type: deb
-
