@@ -425,6 +425,15 @@ public class App extends javax.swing.JFrame {
 
     private void showBugButton() {
         log.debug("showBugButton()");
+        
+        // check if we are logged in
+        try {
+            github.getRateLimit().getRemaining();
+        } catch (Exception e) {
+            log.warn("seems we are not logged in. Do not show the bug button as we cannot raise issues anyway.", e);
+            return;
+        }
+        
         if (bugButton == null) {
             bugButton = new JWindow();
             javax.swing.ImageIcon iiBRR = new javax.swing.ImageIcon(getClass().getResource("/images/bug_report_RED.png"));            
