@@ -632,6 +632,7 @@ public class Util {
         command.add("-jar");
         command.add(jarfile.getAbsolutePath());
         command.add("--settlers-folder="+getDataFolder().getAbsolutePath());
+        // command.add("--music-playall=true");
 
         log.info("executing {}", command);
         ProcessBuilder pb = new ProcessBuilder(command);
