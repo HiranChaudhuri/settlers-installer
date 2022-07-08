@@ -1171,14 +1171,16 @@ public class Util {
      */
     public static void cleanTemp() {
         File temp = getManagedTempFolder();
-        Date threshold = Date.from(Instant.now().minus(7, ChronoUnit.DAYS));
-        for (File f: temp.listFiles()) {
-            if (new Date(f.lastModified()).before(threshold)) {
-                log.info("deleting old temp file {}", f);
-                if (f.isDirectory()) {
-                    deleteDir(f);
-                } else {
-                    f.delete();
+        if (temp.isDirectory()) {
+            Date threshold = Date.from(Instant.now().minus(7, ChronoUnit.DAYS));
+            for (File f: temp.listFiles()) {
+                if (new Date(f.lastModified()).before(threshold)) {
+                    log.info("deleting old temp file {}", f);
+                    if (f.isDirectory()) {
+                        deleteDir(f);
+                    } else {
+                        f.delete();
+                    }
                 }
             }
         }
