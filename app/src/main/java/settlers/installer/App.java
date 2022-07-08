@@ -419,7 +419,6 @@ public class App extends javax.swing.JFrame {
             jProgressBar.setVisible(false);
             checkFiles();
         }
-        
 
     }//GEN-LAST:event_btInstallDataActionPerformed
 
@@ -591,7 +590,13 @@ public class App extends javax.swing.JFrame {
             public void run() {
                 int x = 0;
                 try {
+                    try {
+                        Util.downloadMusic();
+                    } catch (Exception e) {
+                        log.warn("Problem downloading music", e);
+                    }
 
+                    
                     Object game = gameList.getSelection();
                     if (game instanceof GHObject) {
                         if (!Util.isInstalled((GHObject)game)) {

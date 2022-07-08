@@ -34,6 +34,8 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
 import javax.swing.filechooser.FileSystemView;
 import net.sf.fikin.ant.EmbeddedAntProject;
 import org.apache.commons.io.FileUtils;
@@ -1178,6 +1180,95 @@ public class Util {
                 } else {
                     f.delete();
                 }
+            }
+        }
+    }
+    
+    /**
+     * Returns the folder containing the Settlers music files.
+     * 
+     * @return the folder reference
+     */
+    public static File getMusicFolder() {
+        //return new File(getDataFolder(), "MUSIC");
+        return new File(getDataFolder(), "THEME");
+    }
+
+    /**
+     * Downloads a file - unless the target exists already.
+     * 
+     * @param url the url to downlad from
+     * @param target the file to save it to
+     */
+    private static void downloadIfNotExists(URL url, File target) {
+        log.info("downloadIfNotExists({}, {})", url, target);
+        try {
+            if (!target.exists()) {
+                target.getParentFile().mkdirs();
+                download(url, new File(target.getParentFile(), new File(url.getFile()).getName()));
+            } else {
+                log.info("skipped");
+            }
+        } catch (IOException e) {
+            log.warn("Could not download {}", url, e);
+        }
+    }
+    
+    /**
+     * Downloads music soundtrack from internet.
+     * 
+     * @throws MalformedURLException 
+     */
+    public static void downloadMusic() throws MalformedURLException, IOException, InterruptedException {
+        log.warn("downloadMusic()");
+        
+        log.info("Supported audio formats:");
+        for (AudioFileFormat.Type type: AudioSystem.getAudioFileTypes()) {
+            log.info("    {}", type);
+        }
+        
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/cjllbhbk/Track02.mp3"), 
+                new File(getMusicFolder(), "Track02.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/yqtjxvfd/Track03.mp3"), 
+                new File(getMusicFolder(), "Track03.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/guohbfll/Track04.mp3"), 
+                new File(getMusicFolder(), "Track04.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/qshzkbmf/Track05.mp3"), 
+                new File(getMusicFolder(), "Track05.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/ditkixfr/Track06.mp3"), 
+                new File(getMusicFolder(), "Track06.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/xncrscbv/Track07.mp3"), 
+                new File(getMusicFolder(), "Track07.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/xbicjisa/Track08.mp3"), 
+                new File(getMusicFolder(), "Track08.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/qiapnlgt/Track09.mp3"), 
+                new File(getMusicFolder(), "Track09.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/sxensioh/Track10.mp3"), 
+                new File(getMusicFolder(), "Track10.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/oiclfhiy/Track11.mp3"), 
+                new File(getMusicFolder(), "Track11.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/mjaqypyv/Track12.mp3"), 
+                new File(getMusicFolder(), "Track12.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/xcuqzsvg/Track13.mp3"), 
+                new File(getMusicFolder(), "Track13.ogg"));
+        downloadIfNotExists(new URL("https://vgmsite.com/soundtracks/settlers-iii-ultimate-collection-music/yypsitan/Track14.mp3"), 
+                new File(getMusicFolder(), "Track14.ogg"));
+        
+        // convert mp3 to ogg
+        ProcessBuilder pb = new ProcessBuilder("dir2ogg", "--directory", getMusicFolder().getAbsolutePath());
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
+        Process p = pb.start();
+        p.waitFor();
+        int rc = p.exitValue();
+        log.info("returned with {}", rc);
+        
+        // remove mp3
+        File[] tracks = getMusicFolder().listFiles();
+        for (File track: tracks) {
+            if (track.getName().endsWith(".mp3")) {
+                track.delete();
             }
         }
     }
