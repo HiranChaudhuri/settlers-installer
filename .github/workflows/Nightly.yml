@@ -50,8 +50,44 @@ jobs:
         fi
         echo "DEBIAN_PKGVERSION=${GITVERSION_MAJOR}.${GITVERSION_MINOR}-${GITVERSION_PATCH}" >> "$GITHUB_OUTPUT"
 
-  build-Debian:
+  build:
     needs: semver
+    runs-on: ubuntu-latest
+    env:
+      GITVERSION_SEMVER: ${{ needs.semver.outputs.GITVERSION_SEMVER }}
+      DEBIAN_PKGVERSION: ${{ needs.semver.outputs.DEBIAN_PKGVERSION }}
+
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with gradle
+      run: |
+        set -x
+        printenv | sort
+        ./gradlew -Pversion=${GITVERSION_SEMVER} --info build
+    
+    - name: Check after gradle build
+      run: |
+        find .
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: settlers-installer-generic
+        path: |
+          build/distributions/settlers-installer-*.tar
+          build/distributions/settlers-installer-*.zip
+      
+  build-Debian:
+    needs: build
     runs-on: ubuntu-latest
     env:
       GITVERSION_SEMVER: ${{ needs.semver.outputs.GITVERSION_SEMVER }}
@@ -85,7 +121,7 @@ jobs:
         echo --Preparing directories
         mkdir -p app/build/jpackage_input || exit 1
         mkdir -p app/build/resources/jpackage || exit 1
-        cp app/src/jpackage/resources/* app/build/resources/jpackage
+        cp app/src/jpackage/resources/* app/build/resources/jpackage || exit 1
         pushd .; cd app/build/jpackage_input; unzip ../distributions/*.zip; popd
         echo --Checking input directories...
         find app/build/jpackage_input
