@@ -94,7 +94,21 @@ jobs:
         find app/build/distributions
         find app/build/resources
         echo --Running jpackage...
-        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' --vendor Hiran, --icon "app/build/resources/main/images/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files" --version ${ DEBIAN_PKGVERSION }
+        jpackage \
+          --verbose \
+          --type app-image \
+          --dest app/build/app-image \
+          -i "app/build/jpackage_input/app-${VERSION}/lib" \
+          --main-jar "app-${VERSION}.jar" \
+          --main-class settlers.installer.App \
+          --name SettlersRemake \
+          --app-version "${VERSION}" \
+          --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' \
+          --vendor Hiran \
+          --icon "app/build/resources/main/images/siedler3-helme-logo.png" \
+          --resource-dir "app/build/resources/jpackage" \
+          --jlink-options "--strip-debug --no-man-pages --no-header-files" \
+          --version ${ DEBIAN_PKGVERSION }
         echo --Checking output directory
         find app/build
         
