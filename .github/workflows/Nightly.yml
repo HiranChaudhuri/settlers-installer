@@ -120,11 +120,17 @@ jobs:
 
     - name: Build Debian package
       run: |
-        #!/bin/bash -x
+        set -x
         echo "-- Checking input directory"
         find app/build/app-image
         echo "-- Run jpackage phase 2"
-        jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage --version ${{ DEBIAN_PKGVERSION }}
+        jpackage \
+          --verbose \
+          --app-image app/build/app-image/SettlersRemake \
+          --name SettlersRemake \
+          --dest app/build/distributions \
+          --resource-dir app/build/resources/jpackage \
+          --version "${DEBIAN_PKGVERSION}"
         echo "-- Checking output directory"
         find app/build/distributions
 
