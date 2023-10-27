@@ -82,9 +82,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: settlers-installer-generic
-        path: |
-          build/distributions/settlers-installer-*.tar
-          build/distributions/settlers-installer-*.zip
+        path: ./build/distributions/*
       
   build-Debian:
     needs: build
