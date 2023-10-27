@@ -17,7 +17,8 @@ jobs:
       MACOS_MAJORMINORPATCH: ${{ steps.output1.outputs.MACOS_MAJORMINORPATCH }}
       DEBIAN_PKGVERSION: ${{ steps.output1.outputs.DEBIAN_PKGVERSION }}
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout project
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -54,12 +55,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout project
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
     - name: Setup JDK 17
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -68,7 +70,7 @@ jobs:
       run: |
         #!/bin/bash -x
         printenv | sort
-        ./gradlew "-Pversion=${{ needs.semver.gitversion.GITVERSION_SEMVER }}" --info build
+        ./gradlew "-Pversion=${{ needs.semver.output1.GITVERSION_SEMVER }}" --info build
         
     - name: Prepare app-image using JPackage
       run: |
@@ -114,46 +116,8 @@ jobs:
           app/build/distributions/*
           app/build/resources
 
-#    runs-on: ubuntu-latest
-#  build-Arch:
-#    runs-on: ubuntu-latest
-#    container:
-#      image: archlinux
-#      options: --privileged
-#      volumes:
-#        - /sys/fs/cgroup:/sys/fs/cgroup
-#    needs:
-#      - build-Debian
-#    
-#    steps:
-#    - uses: actions/checkout@v2
-#
-#    - name: Download Debian results
-#      uses: actions/download-artifact@v2
-#      with:
-#        name: SettlersRemake-Debian
-#        path: app/build
-#
-#    - name: Check environment
-#      run: |
-#        #!/bin/bash -x
-#        printenv | sort
-#        echo PWD=
-#        pwd
-#        echo find...
-#        find .
-#        ls -l ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
-#        echo PKGINFO content:
-#        cat ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
-#
-#    # https://github.com/marketplace/actions/build-arch-package
-#    - name: Build Arch Linux package
-#      uses: FFY00/build-arch-package@v1
-#      with:
-#        PKGBUILD: ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
-#        OUTDIR: app/build/distributions
-
   build-Windows:
+    needs: semver
     runs-on: windows-latest
     
     steps:
@@ -171,7 +135,7 @@ jobs:
       uses: gittools/actions/gitversion/execute@v0
 
     - name: Setup JDK 17
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -226,6 +190,7 @@ jobs:
         path: app/build/distributions/*
 
   build-MacOS:
+    needs: semver
     runs-on: macos-latest
 
     steps:
@@ -243,7 +208,7 @@ jobs:
       uses: gittools/actions/gitversion/execute@v0
 
     - name: Setup JDK 17
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -306,16 +271,19 @@ jobs:
         uses: actions/download-artifact@v2
 
       - name: check environment after download
-        run: find .
+        run: |
+          printenv | sort
+          echo "version=v${{ needs.semver.output1.GITVERSION_SEMVER }}"
+          find .
 
       - name: Publish Release
         id: publish_release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ needs.semver.gitversion.GITVERSION_SEMVER }}"
+          automatic_release_tag: "v${{ needs.semver.output1.GITVERSION_SEMVER }}"
           prerelease: false
-          title: "Settlers-Installer ${{ needs.semver.gitversion.GITVERSION_SEMVER }}"
+          title: "Settlers-Installer ${{ needs.semver.output1.GITVERSION_SEMVER }}"
           files: |
             SettlersRemake-Debian/distributions/*.deb
             SettlersRemake-Windows/*
