@@ -1,6 +1,5 @@
 plugins {
     id 'application'                                     // this builds the application
-    id 'pl.allegro.tech.build.axion-release'             // this is for version counting
     id 'checkstyle'
 }
 
@@ -31,7 +30,6 @@ dependencies {
     implementation 'org.kohsuke:github-api:1.307'
 }
 
-version = scmVersion.version
 def inputDir = layout.buildDirectory.dir("jpackage_input")
 def VENDOR = "Hiran"
 def APPNAME = System.getProperty('APPNAME', 'SettlersRemake')
