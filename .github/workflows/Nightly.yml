@@ -5,9 +5,131 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-Debian:
+  semver:
     runs-on: ubuntu-latest
+    outputs:
+      GITVERSION_SEMVER: ${{ steps.output1.outputs.GITVERSION_SEMVER }}
+      GITVERSION_ASSEMBLYSEMVER: ${{ steps.output1.outputs.GITVERSION_ASSEMBLYSEMVER }}
+      GITVERSION_MAJORMINORPATCH: ${{ steps.output1.outputs.GITVERSION_MAJORMINORPATCH }}
+      GITVERSION_MAJOR: ${{ steps.output1.outputs.GITVERSION_MAJOR }}
+      GITVERSION_MINOR: ${{ steps.output1.outputs.GITVERSION_MINOR }}
+      GITVERSION_PATCH: ${{ steps.output1.outputs.GITVERSION_PATCH }}
+      MACOS_MAJORMINORPATCH: ${{ steps.output1.outputs.MACOS_MAJORMINORPATCH }}
+      DEBIAN_PKGVERSION: ${{ steps.output1.outputs.DEBIAN_PKGVERSION }}
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: '5.x'
+      
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0
+
+    - id: output1
+      run: |
+        set -x
+        set | grep GITVERSION | sort
+        echo "GITVERSION_SEMVER=${GITVERSION_SEMVER}" >> "$GITHUB_OUTPUT"
+        echo "GITVERSION_ASSEMBLYSEMVER=${GITVERSION_ASSEMBLYSEMVER}" >> "$GITHUB_OUTPUT"
+        echo "GITVERSION_MAJORMINORPATCH=${GITVERSION_MAJORMINORPATCH}" >> "$GITHUB_OUTPUT"
+        echo "GITVERSION_MAJOR=${GITVERSION_MAJOR}" >> "$GITHUB_OUTPUT"
+        echo "GITVERSION_MINOR=${GITVERSION_MINOR}" >> "$GITHUB_OUTPUT"
+        echo "GITVERSION_PATCH=${GITVERSION_PATCH}" >> "$GITHUB_OUTPUT"
+        echo "DEBIAN_PKGVERSION=${GITVERSION_MAJOR}.${GITVERSION_MINOR}-${GITVERSION_PATCH}" >> "$GITHUB_OUTPUT"
+        if [ "${GITVERSION_MAJOR}" == "0" ]
+        then
+          echo "MACOS_MAJORMINORPATCH=1.${GITVERSION_MINOR}.${GITVERSION_PATCH}" >> "$GITHUB_OUTPUT"
+        else
+          echo "MACOS_MAJORMINORPATCH=${GITVERSION_MAJORMINORPATCH}" >> "$GITHUB_OUTPUT"
+        fi
+        echo "DEBIAN_PKGVERSION=${GITVERSION_MAJOR}.${GITVERSION_MINOR}-${GITVERSION_PATCH}" >> "$GITHUB_OUTPUT"
+
+  build-Debian:
+    needs: semver
+    runs-on: ubuntu-latest
+    env:
+      GITVERSION_SEMVER: ${{ needs.semver.outputs.GITVERSION_SEMVER }}
+      DEBIAN_PKGVERSION: ${{ needs.semver.outputs.DEBIAN_PKGVERSION }}
+
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with gradle
+      run: |
+        set -x
+        printenv | sort
+        ./gradlew -Pversion=${GITVERSION_SEMVER} --info build
+    
+    - name: Check after gradle build
+      run: |
+        find .
+
+    - name: Prepare app-image using JPackage
+      run: |
+        set -x
+        echo --Preparing directories
+        mkdir -p app/build/jpackage_input || exit 1
+        mkdir -p app/build/resources/jpackage || exit 1
+        cp app/src/jpackage/resources/* app/build/resources/jpackage
+        APPVERSION=`basename app/build/distributions/*.zip .zip`
+        VERSION=`echo $APPVERSION | cut -d- -f2-`
+        pushd .; cd app/build/jpackage_input; unzip ../distributions/*.zip; popd
+        echo --Checking input directories...
+        find app/build/jpackage_input
+        find app/build/distributions
+        find app/build/resources
+        echo --Running jpackage...
+        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' --vendor Hiran, --icon "app/build/resources/main/images/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files" --version ${ DEBIAN_PKGVERSION }
+        echo --Checking output directory
+        find app/build
+        
+    - name: Modify app-image
+      run: |
+        #!/bin/bash -x
+        ./gradlew --info filterResourcesCopy1 filterResourcesCopy2 jpackageInterfere
+        find app/build/resources
+
+    - name: Build Debian package
+      run: |
+        #!/bin/bash -x
+        echo "-- Checking input directory"
+        find app/build/app-image
+        echo "-- Run jpackage phase 2"
+        jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage --version ${{ DEBIAN_PKGVERSION }}
+        echo "-- Checking output directory"
+        find app/build/distributions
+
+    - name: Check after Debian package
+      run: |
+        find .
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: SettlersRemake-Debian
+        path: |
+          app/build/app-image
+          app/build/distributions/*
+          app/build/resources
+
+  build-Windows:
+    needs: semver
+    runs-on: windows-latest
+    
     steps:
     - uses: actions/checkout@v3
       with:
@@ -23,106 +145,7 @@ jobs:
       uses: gittools/actions/gitversion/execute@v0
 
     - name: Setup JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Build with gradle
-      run: |
-        #!/bin/bash -x
-        printenv | sort
-        ./gradlew "-Pversion=${GITVERSION_MAJORMINORPATCH}" --info build
-        
-    - name: Create app-image using JPackage
-      run: |
-        #!/bin/bash -x
-        set -x
-        echo --Preparing directories
-        mkdir -p app/build/jpackage_input || exit 1
-        mkdir -p app/build/resources/jpackage || exit 1
-        cp app/src/jpackage/resources/* app/build/resources/jpackage
-        APPVERSION=`basename app/build/distributions/*.zip .zip`
-        VERSION=`echo $APPVERSION | cut -d- -f2-`
-        pushd .; cd app/build/jpackage_input; unzip ../distributions/*.zip; popd
-        echo --Checking input directories...
-        find app/build/jpackage_input
-        find app/build/distributions
-        find app/build/resources
-        echo --Running jpackage...
-        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${VERSION}/lib" --main-jar "app-${VERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${VERSION}" --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' --vendor Hiran, --icon "app/build/resources/main/images/siedler3-helme-logo.png" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
-        echo --Checking output directory
-        find app/build/app-image
-        
-    - name: Modify app-image
-      run: |
-        #!/bin/bash -x
-        ./gradlew --info filterResourcesCopy1 filterResourcesCopy2 jpackageInterfere
-        find app/build/resources
-
-    - name: Build Debian package
-      run: |
-        #!/bin/bash -x
-        echo "-- Checking input directory"
-        find app/build/app-image
-        echo "-- Run jpackage phase 2"
-        jpackage --verbose --app-image app/build/app-image/SettlersRemake --name SettlersRemake --dest app/build/distributions --resource-dir app/build/resources/jpackage
-        echo "-- Checking output directory"
-        find app/build/distributions
-
-    - uses: actions/upload-artifact@v2
-      with:
-        name: SettlersRemake-Debian
-        path: |
-          app/build/app-image
-          app/build/distributions/*
-          app/build/resources
-
-#  build-Arch:
-#    runs-on: ubuntu-latest
-#    container:
-#      image: archlinux
-#      options: --privileged
-#      volumes:
-#        - /sys/fs/cgroup:/sys/fs/cgroup
-#    needs:
-#      - build-Debian
-#    
-#    steps:
-#    - uses: actions/checkout@v2
-#
-#    - name: Download Debian results
-#      uses: actions/download-artifact@v2
-#      with:
-#        name: SettlersRemake-Debian
-#        path: app/build
-#
-#    - name: Check environment
-#      run: |
-#        #!/bin/bash -x
-#        printenv | sort
-#        echo PWD=
-#        pwd
-#        echo find...
-#        find .
-#        ls -l ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
-#        echo PKGINFO content:
-#        cat ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
-#
-#    # https://github.com/marketplace/actions/build-arch-package
-#    - name: Build Arch Linux package
-#      uses: FFY00/build-arch-package@v1
-#      with:
-#        PKGBUILD: ${GITHUB_WORKSPACE}/app/build/resources/arch/PKGINFO
-#        OUTDIR: app/build/distributions
-
-  build-Windows:
-    runs-on: windows-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup JDK 17
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -130,6 +153,7 @@ jobs:
     - name: Build with gradle
       run: |
         # PowerShell
+        #./gradlew "-Pversion=${GITVERSION_SEMVER}" --info build
         ./gradlew --info build
 
     - name: Create app-image using JPackage
@@ -177,12 +201,25 @@ jobs:
         path: app/build/distributions/*
 
   build-MacOS:
+    needs: semver
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: '5.x'
+      
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0
+
     - name: Setup JDK 17
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -191,6 +228,7 @@ jobs:
       run: |
         #!/bin/bash -x
         printenv | sort
+        #./gradlew "-Pversion=${GITVERSION_SEMVER}" --info build
         ./gradlew --info build
         
     - name: Create app-image using JPackage
@@ -235,6 +273,7 @@ jobs:
   release:
     if: ${{ always() }}
     needs:
+      - semver
       - build-Windows
       - build-Debian
       - build-MacOS
@@ -244,16 +283,19 @@ jobs:
         uses: actions/download-artifact@v2
 
       - name: check environment after download
-        run: find .
+        run: |
+          printenv | sort
+          echo "version=v${{ needs.semver.outputs.GITVERSION_SEMVER }}"
+          find .
 
       - name: Publish Release
         id: publish_release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "nightly"
+          automatic_release_tag: "v${{ needs.semver.outputs.GITVERSION_SEMVER }}"
           prerelease: false
-          title: "Settlers-Installer Nightly"
+          title: "Settlers-Installer ${{ needs.semver.outputs.GITVERSION_SEMVER }}"
           files: |
             SettlersRemake-Debian/distributions/*.deb
             SettlersRemake-Windows/*
