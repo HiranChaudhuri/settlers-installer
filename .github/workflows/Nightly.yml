@@ -79,7 +79,7 @@ jobs:
       run: |
         find .
 
-    - name: Prepare app-image using JPackage
+    - name: Prepare app-image for JPackage
       run: |
         set -x
         echo --Preparing directories
@@ -93,7 +93,10 @@ jobs:
         find app/build/jpackage_input
         find app/build/distributions
         find app/build/resources
-        echo --Running jpackage...
+
+    - name: Prepare app-image using JPackage
+      run: |
+        set -x
         jpackage \
           --verbose \
           --type app-image \
@@ -108,8 +111,11 @@ jobs:
           --icon "app/build/resources/main/images/siedler3-helme-logo.png" \
           --resource-dir "app/build/resources/jpackage" \
           --jlink-options "--strip-debug --no-man-pages --no-header-files" \
-          --version ${ DEBIAN_PKGVERSION }
-        echo --Checking output directory
+          --version ${DEBIAN_PKGVERSION}
+
+    - name: Check after prepare app-image
+      run: |
+        set -x
         find app/build
         
     - name: Modify app-image
