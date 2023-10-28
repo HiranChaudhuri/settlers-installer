@@ -230,7 +230,7 @@ jobs:
       run: |
         # PowerShell
         Set-PSDebug -Trace 1
-        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${GITVERSION_SEMVER}/lib" --main-jar "${APPVERSION}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${DEBIAN_PKGVERSION}" --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' --vendor Hiran, --icon "app/build/resources/main/images/siedler3-helme-logo.ico" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
+        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${{ needs.semver.outputs.GITVERSION_SEMVER }}/lib" --main-jar "%APPVERSION%.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${DEBIAN_PKGVERSION}" --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' --vendor Hiran, --icon "app/build/resources/main/images/siedler3-helme-logo.ico" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
 #        echo "--Checking output directory"
 #        Get-ChildItem -Recurse app/build/app-image
 
