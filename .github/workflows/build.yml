@@ -178,7 +178,7 @@ jobs:
         path: |
           app/build/distributions/settlersremake_*.deb        
 
-  build-Windows:
+  package-Windows:
     needs: 
       - semver
       - build
@@ -204,7 +204,7 @@ jobs:
         name: settlers-installer-generic
         path: app/build/distributions
     
-    - name: Create app-image for JPackage
+    - name: Prepare app-image for JPackage
       run: |
         # PowerShell
         Set-PSDebug -Trace 1
@@ -224,23 +224,35 @@ jobs:
         Get-ChildItem -Recurse app/build/jpackage_input
         Get-ChildItem -Recurse app/build/distributions
         Get-ChildItem -Recurse app/build/resources
-        echo "--Running jpackage..."
 
     - name: Create app-image using JPackage
       run: |
         # PowerShell
         Set-PSDebug -Trace 1
-        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${{ needs.semver.outputs.GITVERSION_SEMVER }}/lib" --main-jar "app-${{ needs.semver.outputs.GITVERSION_SEMVER }}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${{ needs.semver.outputs.GITVERSION_MAJORMINORPATCH }}" --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' --vendor Hiran, --icon "app/build/resources/main/images/siedler3-helme-logo.ico" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
-#        echo "--Checking output directory"
-#        Get-ChildItem -Recurse app/build/app-image
+        jpackage --verbose --type app-image --dest app/build/app-image -i "app/build/jpackage_input/app-${{ needs.semver.outputs.GITVERSION_SEMVER }}/lib" --main-jar "app-${{ needs.semver.outputs.GITVERSION_SEMVER }}.jar" --main-class settlers.installer.App --name SettlersRemake --app-version "${{ needs.semver.outputs.GITVERSION_MAJORMINORPATCH }}" --description 'Settlers 3 remake - see https://github.com/HiranChaudhuri/settlers-installer' --vendor Hiran, --icon "app/src/main/resources/images/siedler3-helme-logo.ico" --resource-dir "app/build/resources/jpackage" --jlink-options "--strip-debug --no-man-pages --no-header-files"
 
-#    - name: Modify app-image
-#      run: |
-#        # PowerShell
-#        ./gradlew --info filterResourcesCopy1 filterResourcesCopy2 jpackageInterfere
-#        echo "--Checking output directory"
-#        Get-ChildItem -Recurse app/build/resources
-#        Get-ChildItem -Recurse app/build/app-image
+    - name: Check after app-image creation
+      run: |
+        # PowerShell
+        Set-PSDebug -Trace 1
+        echo --Checking directories...
+        Get-ChildItem -Recurse app/build/jpackage_input
+        Get-ChildItem -Recurse app/build/distributions
+        Get-ChildItem -Recurse app/build/resources
+
+    - name: Modify app-image
+      run: |
+        # PowerShell
+        ./gradlew "-Pversion=${{ needs.semver.outputs.GITVERSION_SEMVER }}" --info filterResourcesCopy1 filterResourcesCopy2 jpackageInterfere
+
+    - name: Check after app-image modification
+      run: |
+        # PowerShell
+        Set-PSDebug -Trace 1
+        echo --Checking directories...
+        Get-ChildItem -Recurse app/build/jpackage_input
+        Get-ChildItem -Recurse app/build/distributions
+        Get-ChildItem -Recurse app/build/resources
 
 #    - name: Build package
 #      run: |
