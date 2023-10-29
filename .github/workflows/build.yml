@@ -390,7 +390,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "v${{ needs.semver.outputs.GITVERSION_SEMVER }}"
-          prerelease: ${{github.ref != 'refs/heads/master'}}
+          prerelease: ${{github.ref != 'refs/heads/main'}}
           title: "Settlers-Installer ${{ needs.semver.outputs.GITVERSION_SEMVER }}"
           files: |
             SettlersRemake-Windows/*.exe
